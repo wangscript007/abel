@@ -22,7 +22,7 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/recipes)
 include(carbin_print)
 
 # TODO modyify this for "-std=c++[x]"
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
 set(PROJECT_DESCRIPTION "carbin c++ lib")
 set(PROJECT_VERSION_MAJOR 1)

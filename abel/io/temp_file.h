@@ -7,11 +7,11 @@
 namespace abel {
 
     // Create a temporary file in current directory, which will be deleted when
-    // corresponding TempFile object destructs, typically for unit testing.
+    // corresponding temp_file object destructs, typically for unit testing.
     //
     // Usage:
     //   {
-    //      TempFile tmpfile;           // A temporay file shall be created
+    //      temp_file tmpfile;           // A temporay file shall be created
     //      tmpfile.save("some text");  // Write into the temporary file
     //   }
     //   // The temporary file shall be removed due to destruction of tmpfile
@@ -45,7 +45,7 @@ namespace abel {
         const char *fname() const { return _fname; }
 
     private:
-        // TempFile is associated with file, copying makes no sense.
+        // temp_file is associated with file, copying makes no sense.
         ABEL_NON_COPYABLE(temp_file);
 
         int _reopen_if_necessary();

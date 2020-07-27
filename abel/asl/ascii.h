@@ -72,7 +72,7 @@ namespace abel {
          * @param ch the input char
          * @return properties
          */
-        static character_properties properties(unsigned char ch) noexcept;
+        static ABEL_CONSTEXPR_FUNCTION character_properties properties(unsigned char ch) noexcept;
 
         /**
          * @brief has_properties
@@ -80,7 +80,7 @@ namespace abel {
          * @param properties properties
          * @return true or false
          */
-        static bool has_properties(unsigned char ch, character_properties properties) noexcept;
+        static ABEL_CONSTEXPR_FUNCTION bool has_properties(unsigned char ch, character_properties properties) noexcept;
 
         /**
          * @brief has_some_properties
@@ -88,114 +88,114 @@ namespace abel {
          * @param properties  properties
          * @return true or false
          */
-        static bool has_some_properties(unsigned char ch, character_properties properties) noexcept;
+        static ABEL_CONSTEXPR_FUNCTION bool has_some_properties(unsigned char ch, character_properties properties) noexcept;
 
         /**
          * @brief is_graph
          * @param ch the input char
          * @return true or false
          */
-        static bool is_graph(unsigned char ch) noexcept;
+        static ABEL_CONSTEXPR_FUNCTION bool is_graph(unsigned char ch) noexcept;
 
         /**
          * @brief check if the given character is digit
          * @param ch the input char the character
          * @return true if the given character is digit
          */
-        static bool is_digit(unsigned char ch) noexcept;
+        static ABEL_CONSTEXPR_FUNCTION bool is_digit(unsigned char ch) noexcept;
 
         /**
          * @brief is_white
          * @param ch the input char
          * @return true or false
          */
-        static bool is_white(unsigned char ch) noexcept;
+        static ABEL_CONSTEXPR_FUNCTION bool is_white(unsigned char ch) noexcept;
 
-        static bool is_blank(unsigned char ch) noexcept;
+        static ABEL_CONSTEXPR_FUNCTION bool is_blank(unsigned char ch) noexcept;
 
         /**
          * @brief is_ascii
          * @param ch the input char
          * @return true or false
          */
-        static bool is_ascii(unsigned char ch) noexcept;
+        static ABEL_CONSTEXPR_FUNCTION bool is_ascii(unsigned char ch) noexcept;
 
         /**
          * @brief is_space
          * @param ch the input char
          * @return true or false
          */
-        static bool is_space(unsigned char ch) noexcept;
+        static ABEL_CONSTEXPR_FUNCTION bool is_space(unsigned char ch) noexcept;
 
         /**
          * @brief is_hex_digit
          * @param ch the input char
          * @return true or false
          */
-        static bool is_hex_digit(unsigned char ch) noexcept;
+        static ABEL_CONSTEXPR_FUNCTION bool is_hex_digit(unsigned char ch) noexcept;
 
         /**
          * @brief is_punct
          * @param ch the input char
          * @return true or false
          */
-        static bool is_punct(unsigned char ch) noexcept;
+        static ABEL_CONSTEXPR_FUNCTION bool is_punct(unsigned char ch) noexcept;
 
         /**
          * @brief is_print
          * @param ch the input char
          * @return true or false
          */
-        static bool is_print(unsigned char ch) noexcept;
+        static ABEL_CONSTEXPR_FUNCTION bool is_print(unsigned char ch) noexcept;
 
         /**
          * @brief is_alpha
          * @param ch the input char the input char
          * @return true or false
          */
-        static bool is_alpha(unsigned char ch) noexcept;
+        static ABEL_CONSTEXPR_FUNCTION bool is_alpha(unsigned char ch) noexcept;
 
         /**
          * @brief is_control
          * @param ch the input char
          * @return true or false
          */
-        static bool is_control(unsigned char ch) noexcept;
+        static ABEL_CONSTEXPR_FUNCTION bool is_control(unsigned char ch) noexcept;
 
         /**
          * @brief is_alpha_numeric
          * @param ch the input char
          * @return true or false
          */
-        static bool is_alpha_numeric(unsigned char ch) noexcept;
+        static ABEL_CONSTEXPR_FUNCTION bool is_alpha_numeric(unsigned char ch) noexcept;
 
         /**
          * @brief is_lower
          * @param ch the input char
          * @return true or false
          */
-        static bool is_lower(unsigned char ch) noexcept;
+        static ABEL_CONSTEXPR_FUNCTION bool is_lower(unsigned char ch) noexcept;
 
         /**
          * @brief is_upper
          * @param ch the input char
          * @return true or false
          */
-        static bool is_upper(unsigned char ch) noexcept;
+        static ABEL_CONSTEXPR_FUNCTION bool is_upper(unsigned char ch) noexcept;
 
         /**
          * @brief to_upper
          * @param ch the input char
          * @return true or false
          */
-        static char to_upper(unsigned char ch) noexcept;
+        static ABEL_CONSTEXPR_FUNCTION char to_upper(unsigned char ch) noexcept;
 
         /**
          * @brief to_lower
          * @param ch the input char
          * @return true or false
          */
-        static char to_lower(unsigned char ch) noexcept;
+        static ABEL_CONSTEXPR_FUNCTION char to_lower(unsigned char ch) noexcept;
 
     private:
         static const character_properties kCharacterProperties[128];
