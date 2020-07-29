@@ -6,7 +6,7 @@
 #include <gtest/gtest.h>
 #include <abel/chrono/clock.h>
 #include <abel/memory/tls_slab.h>
-#include <abel/stats/random/random.h>
+#include <abel/random/random.h>
 #include <abel/chrono/stop_watcher.h>
 
 namespace {

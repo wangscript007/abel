@@ -5,7 +5,7 @@
 #ifndef ABEL_HARDWARE_CPU_INFO_H_
 #define ABEL_HARDWARE_CPU_INFO_H_
 
-#include <abel/asl/string_view.h>
+#include <abel/strings/string_view.h>
 #include <abel/base/profile.h>
 
 namespace abel {

@@ -1,13 +1,14 @@
 
-FILE(GLOB ASL_SRC "asl/*.cc")
-FILE(GLOB ASL_CONTAINER_SRC "asl/container/*.cc")
-FILE(GLOB ASL_NUMERIC_SRC "asl/numeric/*.cc")
-FILE(GLOB ASL_FORMAT_SRC "asl/format/*.cc")
-FILE(GLOB ASL_HASH_SRC "asl/hash/*.cc")
+FILE(GLOB CONTAINER_INTERNAL_SRC "container/internal/*.cc")
+FILE(GLOB CONTAINER_SRC "container/*.cc")
+
+FILE(GLOB HASH_SRC "hash/internal/*.cc")
+FILE(GLOB UTILITY_SRC "utility/*.cc")
 FILE(GLOB BASE_SRC "base/*.cc")
 FILE(GLOB LOG_SRC "log/*.cc")
 FILE(GLOB IO_SRC "io/*.cc")
 
+FILE(GLOB NUMERIC_SRC "numeric/*.cc")
 FILE(GLOB MEM_SRC "memory/*.cc")
 
 
@@ -23,13 +24,14 @@ FILE(GLOB HARDWARE_SRC "hardware/*.cc")
 FILE(GLOB MEMORY_INTERNAL_SRC "memory/internal/*.cc")
 
 
-FILE(GLOB STATS_RND_SRC "stats/random/*.cc")
-FILE(GLOB STATS_RND_ENGINE_SRC "stats/random/engine/*.cc")
-FILE(GLOB STATS_RND_INTERNAL_SRC "stats/random/internal/*.cc")
-FILE(GLOB STATS_RND_SEED_SRC "stats/random/seed/*.cc")
+FILE(GLOB RND_SRC "random/*.cc")
+FILE(GLOB RND_ENGINE_SRC "random/engine/*.cc")
+FILE(GLOB RND_INTERNAL_SRC "random/internal/*.cc")
+FILE(GLOB RND_SEED_SRC "random/seed/*.cc")
 
 FILE(GLOB STRINGS_SRC "strings/*.cc")
 FILE(GLOB STRINGS_INTERNAL_SRC "strings/internal/*.cc")
+FILE(GLOB STRINGS_FMT_SRC "strings/fmt/*.cc")
 
 
 FILE(GLOB THREAD_INTERNAL_SRC "thread/internal/*.cc")
@@ -46,14 +48,14 @@ FILE(GLOB CHRONO_SRC "chrono/*.cc")
 FILE(GLOB CHRONO_INTERNAL_SRC "chrono/internal/*.cc")
 
 SET(ABEL_SRC
-        ${ASL_SRC}
-        ${ASL_CONTAINER_SRC}
-        ${ASL_NUMERIC_SRC}
-        ${ASL_FORMAT_SRC}
-        ${ASL_HASH_SRC}
+        ${CONTAINER_SRC}
+        ${CONTAINER_INTERNAL_SRC}
+        ${NUMERIC_SRC}
+        ${HASH_SRC}
         ${BASE_SRC}
         ${LOG_SRC}
         ${IO_SRC}
+        ${UTILITY_SRC}
         ${MEM_SRC}
         ${CHRONO_SRC}
         ${CHRONO_INTERNAL_SRC}
@@ -63,12 +65,13 @@ SET(ABEL_SRC
         ${CONFIG_FLAGS_SRC}
         ${HARDWARE_SRC}
         ${METRICS_SRC}
-        ${STATS_RND_ENGINE_SRC}
-        ${STATS_RND_SEED_SRC}
-        ${STATS_RND_INTERNAL_SRC}
-        ${STATS_RND_SRC}
+        ${RND_ENGINE_SRC}
+        ${RND_SEED_SRC}
+        ${RND_INTERNAL_SRC}
+        ${RND_SRC}
         ${STRINGS_SRC}
         ${STRINGS_INTERNAL_SRC}
+        ${STRINGS_FMT_SRC}
         ${TYPES_SRC}
         ${DIGEST_SRC}
         ${SYSTEM_SRC}

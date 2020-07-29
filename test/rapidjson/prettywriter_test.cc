@@ -17,7 +17,7 @@
 #include <abel/rapidjson/prettywriter.h>
 #include <abel/rapidjson/stringbuffer.h>
 #include <abel/rapidjson/filewritestream.h>
-#include <abel/asl/string_view.h>
+#include <abel/strings/string_view.h>
 
 using namespace rapidjson;
 

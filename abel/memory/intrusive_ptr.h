@@ -5,8 +5,8 @@
 #ifndef ABEL_ASL_INTRUSIVE_PTR_H_
 #define ABEL_ASL_INTRUSIVE_PTR_H_
 
-#include <abel/asl/internal/config.h>
-#include <abel/asl/hash.h>
+#include <abel/meta/internal/config.h>
+#include <abel/hash/hash.h>
 #include <cstddef>
 
 namespace abel {

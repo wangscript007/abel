@@ -3,7 +3,7 @@
 #ifndef ABEL_CONFIG_INTERNAL_PATH_UTIL_H_
 #define ABEL_CONFIG_INTERNAL_PATH_UTIL_H_
 
-#include <abel/asl/string_view.h>
+#include <abel/strings/string_view.h>
 
 namespace abel {
 

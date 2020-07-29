@@ -1,14 +1,14 @@
 //
-#include <abel/stats/random/engine/randen.h>
+#include <abel/random/engine/randen.h>
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
 #include <abel/base/profile.h>
 #include <abel/log/abel_logging.h>
 #include <testing/nanobenchmark.h>
-#include <abel/stats/random/engine/randen_engine.h>
-#include <abel/stats/random/engine/randen_hwaes.h>
-#include <abel/stats/random/engine/randen_slow.h>
+#include <abel/random/engine/randen_engine.h>
+#include <abel/random/engine/randen_hwaes.h>
+#include <abel/random/engine/randen_slow.h>
 #include <abel/strings/numbers.h>
 
 namespace {

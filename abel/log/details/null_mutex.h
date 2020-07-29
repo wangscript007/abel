@@ -1,44 +1,49 @@
-//
-// Copyright(c) 2015 Gabi Melman.
+// Copyright(c) 2015-present, Gabi Melman & spdlog contributors.
 // Distributed under the MIT License (http://opensource.org/licenses/MIT)
-//
 
 #pragma once
 
 #include <atomic>
+#include <utility>
 // null, no cost dummy "mutex" and dummy "atomic" int
 
 namespace abel {
-    namespace log {
-        namespace details {
-            struct null_mutex {
-                void lock() {}
+namespace details {
+struct null_mutex
+{
+    void lock() const {}
+    void unlock() const {}
+    bool try_lock() const
+    {
+        return true;
+    }
+};
 
-                void unlock() {}
+struct null_atomic_int
+{
+    int value;
+    null_atomic_int() = default;
 
-                bool try_lock() {
-                    return true;
-                }
-            };
+    explicit null_atomic_int(int new_value)
+        : value(new_value)
+    {}
 
-            struct null_atomic_int {
-                int value;
+    int load(std::memory_order = std::memory_order_relaxed) const
+    {
+        return value;
+    }
 
-                null_atomic_int() = default;
+    void store(int new_value, std::memory_order = std::memory_order_relaxed)
+    {
+        value = new_value;
+    }
 
-                explicit null_atomic_int(int val)
-                        : value(val) {
-                }
+    int exchange(int new_value, std::memory_order = std::memory_order_relaxed)
+    {
+        std::swap(new_value, value);
+        return new_value; // return value before the call
+    }
+};
 
-                int load(std::memory_order) const {
-                    return value;
-                }
-
-                void store(int val) {
-                    value = val;
-                }
-            };
-
-        } // namespace details
-    } //namespace log
+} // namespace details
 } // namespace abel

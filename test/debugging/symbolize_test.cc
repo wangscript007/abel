@@ -85,7 +85,7 @@ int /*ABEL_ATTRIBUTE_SECTION_VARIABLE(.text)*/ regular_func() {
 
 // Thread-local data may confuse the symbolizer, ensure that it does not.
 // Variable sizes and order are important.
-#if ABEL_PER_THREAD_TLS
+#ifdef ABEL_PER_THREAD_TLS
 static ABEL_PER_THREAD_TLS_KEYWORD char symbolize_test_thread_small[1];
 static ABEL_PER_THREAD_TLS_KEYWORD char
     symbolize_test_thread_big[2 * 1024 * 1024];
@@ -518,7 +518,7 @@ int main(int argc, char **argv) {
     }
 #endif  // !defined(__EMSCRIPTEN__)
 
-#if ABEL_PER_THREAD_TLS
+#ifdef ABEL_PER_THREAD_TLS
     // Touch the per-thread variables.
     symbolize_test_thread_small[0] = 0;
     symbolize_test_thread_big[0] = 0;

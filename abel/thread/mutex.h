@@ -48,7 +48,7 @@
 #include <cstdint>
 #include <string>
 #include <abel/base/const_init.h>
-#include <abel/asl/type_traits.h>
+#include <abel/meta/type_traits.h>
 #include <abel/memory/internal/low_level_alloc.h>
 #include <abel/thread/internal/thread_identity.h>
 #include <abel/thread/internal/tsan_mutex_interface.h>

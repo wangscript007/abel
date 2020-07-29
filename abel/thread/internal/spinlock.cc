@@ -11,7 +11,7 @@
 #include <abel/chrono/internal/cycle_clock.h>
 #include <abel/thread/internal/spinlock_wait.h>
 #include <abel/system/sysinfo.h> /* For num_cpus() */
-#include <abel/asl/functional/call_once.h>
+#include <abel/functional/call_once.h>
 
 // Description of lock-word:
 //  31..00: [............................3][2][1][0]
@@ -91,7 +91,7 @@ namespace abel {
             // adaptive_spin_count here.
             ABEL_CONST_INIT static abel::once_flag init_adaptive_spin_count;
             ABEL_CONST_INIT static int adaptive_spin_count = 0;
-            base_internal::LowLevelCallOnce(&init_adaptive_spin_count, []() {
+            base_internal::low_level_call_once(&init_adaptive_spin_count, []() {
                 adaptive_spin_count = num_cpus() > 1 ? 1000 : 1;
             });
 

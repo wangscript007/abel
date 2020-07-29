@@ -1,7 +1,7 @@
 #include <testing/log_includes.h>
 
 void prepare_logdir() {
-    abel::log::drop_all();
+    abel::drop_all();
 #ifdef _WIN32
     system("if not exist logs mkdir logs");
     system("del /F /Q logs\\*");

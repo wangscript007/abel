@@ -10,10 +10,10 @@
 #include <abel/config/internal/path_util.h>
 #include <abel/config/internal/program_name.h>
 #include <abel/config/usage_config.h>
-#include <abel/asl/ascii.h>
+#include <abel/strings/ascii.h>
 #include <abel/strings/str_cat.h>
 #include <abel/strings/str_split.h>
-#include <abel/asl/string_view.h>
+#include <abel/strings/string_view.h>
 #include <abel/thread/mutex.h>
 
 

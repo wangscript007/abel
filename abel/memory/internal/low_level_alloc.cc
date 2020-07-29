@@ -7,7 +7,7 @@
 
 #include <abel/memory/internal/low_level_alloc.h>
 #include <type_traits>
-#include <abel/asl/functional/call_once.h>
+#include <abel/functional/call_once.h>
 #include <abel/base/profile.h>
 #include <abel/memory/internal/direct_mmap.h>
 #include <abel/thread/internal/scheduling_mode.h>
@@ -221,7 +221,7 @@ namespace abel {
             arena_storage unhooked_async_sig_safe_arena_storage;
 #endif
 
-// We must use LowLevelCallOnce here to construct the global arenas, rather than
+// We must use low_level_call_once here to construct the global arenas, rather than
 // using function-level statics, to avoid recursively invoking the scheduler.
             abel::once_flag create_globals_once;
 
@@ -238,7 +238,7 @@ namespace abel {
             // Returns a global arena that does not call into hooks.  Used by new_arena()
             // when kCallMallocHook is not set.
             low_level_alloc::arena *UnhookedArena() {
-                base_internal::LowLevelCallOnce(&create_globals_once, create_global_arenas);
+                base_internal::low_level_call_once(&create_globals_once, create_global_arenas);
                 return reinterpret_cast<low_level_alloc::arena *>(&unhooked_arena_storage);
             }
 
@@ -247,7 +247,7 @@ namespace abel {
             // Returns a global arena that is async-signal safe.  Used by new_arena() when
             // kAsyncSignalSafe is set.
             low_level_alloc::arena *unhooked_async_sig_safe_arena() {
-                base_internal::LowLevelCallOnce(&create_globals_once, create_global_arenas);
+                base_internal::low_level_call_once(&create_globals_once, create_global_arenas);
                 return reinterpret_cast<low_level_alloc::arena *>(
                         &unhooked_async_sig_safe_arena_storage);
             }
@@ -258,7 +258,7 @@ namespace abel {
 
 // Returns the default arena, as used by low_level_alloc::Alloc() and friends.
         low_level_alloc::arena *low_level_alloc::default_arena() {
-            base_internal::LowLevelCallOnce(&create_globals_once, create_global_arenas);
+            base_internal::low_level_call_once(&create_globals_once, create_global_arenas);
             return reinterpret_cast<low_level_alloc::arena *>(&default_arena_storage);
         }
 

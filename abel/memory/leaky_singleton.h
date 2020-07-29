@@ -8,7 +8,7 @@
 
 #include <pthread.h>
 #include <atomic>
-#include <abel/asl/functional.h>
+#include <abel/functional/functional.h>
 
 namespace abel {
 

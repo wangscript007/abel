@@ -3,7 +3,7 @@
 //
 
 #include <abel/strings/compare.h>
-#include <abel/asl/ascii.h>
+#include <abel/strings/ascii.h>
 
 namespace abel {
 

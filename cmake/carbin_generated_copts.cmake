@@ -74,6 +74,7 @@ list(APPEND CARBIN_CLANG_CL_TEST_FLAGS
     "-Wno-used-but-marked-unused"
     "-Wno-zero-as-null-pointer-constant"
     "-Wno-gnu-zero-variadic-macro-arguments"
+    "-Wno-undef"
 )
 
 list(APPEND CARBIN_GCC_FLAGS
@@ -153,6 +154,7 @@ list(APPEND CARBIN_LLVM_FLAGS
     "-Wno-unused-template"
     "-Wno-unused-member-function"
     "-Wstring-conversion"
+
 )
 
 list(APPEND CARBIN_LLVM_TEST_FLAGS
@@ -173,6 +175,7 @@ list(APPEND CARBIN_LLVM_TEST_FLAGS
     "-Wno-used-but-marked-unused"
     "-Wno-zero-as-null-pointer-constant"
     "-Wno-gnu-zero-variadic-macro-arguments"
+    "-Wno-undef"
 )
 
 list(APPEND CARBIN_MSVC_FLAGS

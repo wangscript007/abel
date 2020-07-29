@@ -41,7 +41,7 @@
 #include <utility>
 #include <vector>
 
-#include <abel/asl/functional/call_once.h>
+#include <abel/functional/call_once.h>
 #include <abel/log/abel_logging.h>
 #include <abel/thread/internal/spinlock.h>
 #include <abel/chrono/internal/unscaled_cycle_clock.h>
@@ -264,12 +264,12 @@ namespace abel {
     }
 
     int num_cpus() {
-        base_internal::LowLevelCallOnce(&init_system_info_once, InitializeSystemInfo);
+        base_internal::low_level_call_once(&init_system_info_once, InitializeSystemInfo);
         return g_num_cpus;
     }
 
     double nominal_cpu_frequency() {
-        base_internal::LowLevelCallOnce(&init_system_info_once, InitializeSystemInfo);
+        base_internal::low_level_call_once(&init_system_info_once, InitializeSystemInfo);
         return g_nominal_cpu_frequency;
     }
 

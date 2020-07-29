@@ -13,5 +13,6 @@
 #include <abel/base/profile/pretty_function.h>
 #include <abel/base/profile/aes.h>
 #include <abel/base/profile/concept.h>
+#include <abel/base/profile/compiler_traits.h>
 
 #endif //ABEL_BASE_PROFILE_H_

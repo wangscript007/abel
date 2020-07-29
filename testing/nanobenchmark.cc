@@ -26,7 +26,7 @@
 #include <vector>
 #include <abel/base/profile.h>
 #include <abel/log/abel_logging.h>
-#include <abel/stats/random/engine/randen_engine.h>
+#include <abel/random/engine/randen_engine.h>
 
 // OS
 #if defined(_WIN32) || defined(_WIN64)

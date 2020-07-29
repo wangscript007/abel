@@ -12,7 +12,7 @@
 #include <abel/config/flag.h>
 #include <abel/strings/str_cat.h>
 #include <abel/strings/substitute.h>
-#include <abel/asl/span.h>
+#include <abel/utility/span.h>
 
 #ifdef _WIN32
 #include <windows.h>

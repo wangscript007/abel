@@ -5,7 +5,7 @@
 #include <cstdio>
 #include <string>
 
-#include <abel/asl/format/posix.h>
+#include <abel/strings/fmt/os.h>
 
 enum {
     BUFFER_SIZE = 256

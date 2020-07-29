@@ -1,138 +1,229 @@
+// Copyright(c) 2015-present, Gabi Melman & spdlog contributors.
+// Distributed under the MIT License (http://opensource.org/licenses/MIT)
 
-#ifndef ABEL_LOG_COMMON_H_
-#define ABEL_LOG_COMMON_H_
+#pragma once
 
+#include <abel/log/tweakme.h>
+#include <abel/log/details/null_mutex.h>
 #include <atomic>
 #include <chrono>
-#include <functional>
 #include <initializer_list>
 #include <memory>
-#include <stdexcept>
+#include <exception>
 #include <string>
-#include <unordered_map>
+#include <type_traits>
+#include <functional>
 
-#if !defined(ABEL_WCHAR_T_NON_NATIVE) && defined(_WIN32)
-#include <codecvt>
-#include <locale>
+
+#define SPDLOG_API
+#define SPDLOG_INLINE inline
+
+#include <abel/log/fmt/fmt.h>
+
+// visual studio upto 2013 does not support noexcept nor constexpr
+#if defined(_MSC_VER) && (_MSC_VER < 1900)
+#define SPDLOG_NOEXCEPT _NOEXCEPT
+#define SPDLOG_CONSTEXPR
+#else
+#define SPDLOG_NOEXCEPT noexcept
+#define SPDLOG_CONSTEXPR constexpr
 #endif
 
-#include <abel/base/profile.h>
-#include <abel/log/details/null_mutex.h>
-#include <abel/asl/format.h>
+#if defined(__GNUC__) || defined(__clang__)
+#define SPDLOG_DEPRECATED __attribute__((deprecated))
+#elif defined(_MSC_VER)
+#define SPDLOG_DEPRECATED __declspec(deprecated)
+#else
+#define SPDLOG_DEPRECATED
+#endif
+
+// disable thread local on msvc 2013
+#ifndef SPDLOG_NO_TLS
+#if (defined(_MSC_VER) && (_MSC_VER < 1900)) || defined(__cplusplus_winrt)
+#define SPDLOG_NO_TLS 1
+#endif
+#endif
+
+#ifndef SPDLOG_FUNCTION
+#define SPDLOG_FUNCTION static_cast<const char *>(__FUNCTION__)
+#endif
+
+#ifdef SPDLOG_NO_EXCEPTIONS
+#define SPDLOG_TRY
+#define SPDLOG_THROW(ex)                                                                                                                   \
+    do                                                                                                                                     \
+    {                                                                                                                                      \
+        printf("spdlog fatal error: %s\n", ex.what());                                                                                     \
+        std::abort();                                                                                                                      \
+    } while (0)
+#define SPDLOG_CATCH_ALL()
+#else
+#define SPDLOG_TRY try
+#define SPDLOG_THROW(ex) throw(ex)
+#define SPDLOG_CATCH_ALL() catch (...)
+#endif
 
 namespace abel {
-    namespace log {
-        class formatter;
 
-        namespace sinks {
-            class sink;
-        }
+class formatter;
 
-        using sink_ptr = std::shared_ptr<sinks::sink>;
-        using sinks_init_list = std::initializer_list<sink_ptr>;
-        using log_err_handler = std::function<void(const std::string &err_msg)>;
-        using level_t = std::atomic<int>;
+namespace sinks {
+class sink;
+}
 
-        enum level_enum : int{
-            trace = 0,
-            debug = 1,
-            info = 2,
-            warn = 3,
-            err = 4,
-            critical = 5,
-            off = 6
-        };
+#if defined(_WIN32) && defined(SPDLOG_WCHAR_FILENAMES)
+using filename_t = std::wstring;
+#define SPDLOG_FILENAME_T(s) L##s
+#else
+using filename_t = std::string;
+#define SPDLOG_FILENAME_T(s) s
+#endif
 
-#if !defined(ABEL_LOG_LEVEL_NAMES)
-#define ABEL_LOG_LEVEL_NAMES                                                                                                                 \
+using log_clock = std::chrono::system_clock;
+using sink_ptr = std::shared_ptr<sinks::sink>;
+using sinks_init_list = std::initializer_list<sink_ptr>;
+using err_handler = std::function<void(const std::string &err_msg)>;
+using string_view_t = fmt::basic_string_view<char>;
+using wstring_view_t = fmt::basic_string_view<wchar_t>;
+using memory_buf_t = fmt::basic_memory_buffer<char, 250>;
+
+#ifdef SPDLOG_WCHAR_TO_UTF8_SUPPORT
+#ifndef _WIN32
+#error SPDLOG_WCHAR_TO_UTF8_SUPPORT only supported on windows
+#else
+template<typename T>
+struct is_convertible_to_wstring_view : std::is_convertible<T, wstring_view_t>
+{};
+#endif // _WIN32
+#else
+template<typename>
+struct is_convertible_to_wstring_view : std::false_type
+{};
+#endif // SPDLOG_WCHAR_TO_UTF8_SUPPORT
+
+#if defined(SPDLOG_NO_ATOMIC_LEVELS)
+using level_t = details::null_atomic_int;
+#else
+using level_t = std::atomic<int>;
+#endif
+
+#define SPDLOG_LEVEL_TRACE 0
+#define SPDLOG_LEVEL_DEBUG 1
+#define SPDLOG_LEVEL_INFO 2
+#define SPDLOG_LEVEL_WARN 3
+#define SPDLOG_LEVEL_ERROR 4
+#define SPDLOG_LEVEL_CRITICAL 5
+#define SPDLOG_LEVEL_OFF 6
+
+#if !defined(SPDLOG_ACTIVE_LEVEL)
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
+#endif
+
+// Log level enum
+namespace level {
+enum level_enum
+{
+    trace = SPDLOG_LEVEL_TRACE,
+    debug = SPDLOG_LEVEL_DEBUG,
+    info = SPDLOG_LEVEL_INFO,
+    warn = SPDLOG_LEVEL_WARN,
+    err = SPDLOG_LEVEL_ERROR,
+    critical = SPDLOG_LEVEL_CRITICAL,
+    off = SPDLOG_LEVEL_OFF,
+    n_levels
+};
+
+#if !defined(SPDLOG_LEVEL_NAMES)
+#define SPDLOG_LEVEL_NAMES                                                                                                                 \
     {                                                                                                                                      \
         "trace", "debug", "info", "warning", "error", "critical", "off"                                                                    \
     }
 #endif
-        static const char *level_names[]ABEL_LOG_LEVEL_NAMES;
 
-        static const char *short_level_names[]{"T", "D", "I", "W", "E", "C", "O"};
+#if !defined(SPDLOG_SHORT_LEVEL_NAMES)
 
-        inline const char *to_c_str(abel::log::level_enum l) {
-            return level_names[l];
-        }
+#define SPDLOG_SHORT_LEVEL_NAMES                                                                                                           \
+    {                                                                                                                                      \
+        "T", "D", "I", "W", "E", "C", "O"                                                                                                  \
+    }
+#endif
 
-        inline const char *to_short_c_str(abel::log::level_enum l) {
-            return short_level_names[l];
-        }
+SPDLOG_API string_view_t &to_string_view(abel::level::level_enum l) SPDLOG_NOEXCEPT;
+SPDLOG_API const char *to_short_c_str(abel::level::level_enum l) SPDLOG_NOEXCEPT;
+SPDLOG_API abel::level::level_enum from_str(const std::string &name) SPDLOG_NOEXCEPT;
 
-        inline abel::log::level_enum from_str(const std::string &name) {
-            static std::unordered_map<std::string, level_enum> name_to_level = // map string->level
-                    {{level_names[0], trace},                               // trace
-                     {level_names[1], debug},                            // debug
-                     {level_names[2], info},                             // info
-                     {level_names[3], warn},                             // warn
-                     {level_names[4], err},                              // err
-                     {level_names[5], critical},                         // critical
-                     {level_names[6], off}};                             // off
+using level_hasher = std::hash<int>;
+} // namespace level
 
-            auto lvl_it = name_to_level.find(name);
-            return lvl_it != name_to_level.end() ? lvl_it->second : off;
-        }
-
-        using level_hasher = std::hash<int>;
+//
+// Color mode used by sinks with color support.
+//
+enum class color_mode
+{
+    always,
+    automatic,
+    never
+};
 
 //
 // Pattern time - specific time getting to use for pattern_formatter.
 // local time by default
 //
-        enum class pattern_time_type {
-            local, // log localtime
-            utc    // log utc
-        };
+enum class pattern_time_type
+{
+    local, // log localtime
+    utc    // log utc
+};
 
 //
 // Log exception
 //
-        class log_ex : public std::runtime_error {
-        public:
-            explicit log_ex(const std::string &msg)
-                    : runtime_error(msg) {
-            }
+class SPDLOG_API log_ex : public std::exception
+{
+public:
+    explicit log_ex(std::string msg);
+    log_ex(const std::string &msg, int last_errno);
+    const char *what() const SPDLOG_NOEXCEPT override;
 
-            log_ex(std::string msg, int last_errno)
-                    : runtime_error(std::move(msg)), last_errno_(last_errno) {
-            }
+private:
+    std::string msg_;
+};
 
-            const char *what() const ABEL_NOEXCEPT override {
-                if (last_errno_) {
-                    fmt::memory_buffer buf;
-                    std::string msg(runtime_error::what());
-                    fmt::format_system_error(buf, last_errno_, msg);
-                    return fmt::to_string(buf).c_str();
-                } else {
-                    return runtime_error::what();
-                }
-            }
+SPDLOG_API ABEL_NORETURN void throw_spdlog_ex(const std::string &msg, int last_errno);
+SPDLOG_API ABEL_NORETURN void throw_spdlog_ex(std::string msg);
 
-        private:
-            int last_errno_{0};
-        };
+struct source_loc
+{
+    SPDLOG_CONSTEXPR source_loc() = default;
+    SPDLOG_CONSTEXPR source_loc(const char *filename_in, int line_in, const char *funcname_in)
+        : filename{filename_in}
+        , line{line_in}
+        , funcname{funcname_in}
+    {}
 
-//
-// wchar support for windows file names (ABEL_WCHAR_T_NON_NATIVE must not be defined)
-//
-#if defined(_WIN32) && !defined(ABEL_WCHAR_T_NON_NATIVE)
-        using filename_t = std::wstring;
-#else
-        using filename_t = std::string;
-#endif
-
-#define ABEL_LOG_CATCH_AND_HANDLE                                                                                                            \
-    catch (const std::exception &ex)                                                                                                       \
-    {                                                                                                                                      \
-        err_handler_(ex.what());                                                                                                           \
-    }                                                                                                                                      \
-    catch (...)                                                                                                                            \
-    {                                                                                                                                      \
-        err_handler_("Unknown exeption in logger");                                                                                        \
+    SPDLOG_CONSTEXPR bool empty() const SPDLOG_NOEXCEPT
+    {
+        return line == 0;
     }
-    } //namespace log
+    const char *filename{nullptr};
+    int line{0};
+    const char *funcname{nullptr};
+};
+
+namespace details {
+// make_unique support for pre c++14
+
+#if __cplusplus >= 201402L // C++14 and beyond
+using std::make_unique;
+#else
+template<typename T, typename... Args>
+std::unique_ptr<T> make_unique(Args &&... args)
+{
+    static_assert(!std::is_array<T>::value, "arrays not supported");
+    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+}
+#endif
+} // namespace details
 } // namespace abel
 
-#endif//ABEL_LOG_COMMON_H_
+#include <abel/log/common_inl.h>

@@ -8,7 +8,7 @@
 #include <string>
 #include <typeinfo>
 
-#include <abel/stats/random/random.h>
+#include <abel/random/random.h>
 #include <abel/strings/str_cat.h>
 
 namespace abel {

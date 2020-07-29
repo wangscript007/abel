@@ -4,14 +4,12 @@
 //
 // $ blaze run :gaussian_distribution_gentables > gaussian_distribution.cc
 //
-#include <abel/stats/random/gaussian_distribution.h>
-
+#include <abel/random/gaussian_distribution.h>
 #include <cmath>
 #include <cstddef>
 #include <iostream>
 #include <limits>
 #include <string>
-
 #include <abel/base/profile.h>
 
 namespace abel {

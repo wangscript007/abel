@@ -6,9 +6,9 @@
 
 namespace abel {
 
-    std::shared_ptr<abel::log::logger> log_singleton::_log_ptr;
+    std::shared_ptr<abel::logger> log_singleton::_log_ptr;
 
     void create_log_ptr() {
-        log_singleton::_log_ptr = abel::log::stdout_color_mt("abel");
+        log_singleton::_log_ptr = abel::stdout_color_mt("abel");
     }
 } //namespace abel

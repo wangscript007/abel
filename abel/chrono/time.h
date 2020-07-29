@@ -10,14 +10,14 @@
 #include <sys/time.h>
 
 #else
-// We don't include `winsock2.h` because it drags in `windows.h` and friends,
-// and they define conflicting macros like OPAQUE, ERROR, and more. This has the
-// potential to break abel users.
-//
-// Instead we only forward declare `timeval` and require Windows users include
-// `winsock2.h` themselves. This is both inconsistent and troublesome, but so is
-// including 'windows.h' so we are picking the lesser of two evils here.
-struct timeval;
+    // We don't include `winsock2.h` because it drags in `windows.h` and friends,
+    // and they define conflicting macros like OPAQUE, ERROR, and more. This has the
+    // potential to break abel users.
+    //
+    // Instead we only forward declare `timeval` and require Windows users include
+    // `winsock2.h` themselves. This is both inconsistent and troublesome, but so is
+    // including 'windows.h' so we are picking the lesser of two evils here.
+    struct timeval;
 #endif
 
 #include <chrono>  // NOLINT(build/c++11)
@@ -29,7 +29,7 @@ struct timeval;
 #include <type_traits>
 #include <utility>
 #include <abel/base/profile.h>
-#include <abel/asl/string_view.h>
+#include <abel/strings/string_view.h>
 #include <abel/chrono/internal/chrono_time_internal.h>
 #include <abel/chrono/civil_time.h>
 #include <abel/chrono/internal/time_zone.h>
@@ -76,44 +76,44 @@ namespace abel {
     }  // namespace chrono_internal
 
 
-// duration
-//
-// The `abel::duration` class represents a signed, fixed-length span of time.
-// A `duration` is generated using a unit-specific factory function, or is
-// the result of subtracting one `abel::abel_time` from another. Durations behave
-// like unit-safe integers and they support all the natural integer-like
-// arithmetic operations. Arithmetic overflows and saturates at +/- infinity.
-// `duration` should be passed by value rather than const reference.
-//
-// Factory functions `nanoseconds()`, `microseconds()`, `milliseconds()`,
-// `seconds()`, `minutes()`, `hours()` and `infinite_duration()` allow for
-// creation of constexpr `duration` values
-//
-// Examples:
-//
-//   constexpr abel::duration ten_ns = abel::nanoseconds(10);
-//   constexpr abel::duration min = abel::minutes(1);
-//   constexpr abel::duration hour = abel::hours(1);
-//   abel::duration dur = 60 * min;  // dur == hour
-//   abel::duration half_sec = abel::milliseconds(500);
-//   abel::duration quarter_sec = 0.25 * abel::seconds(1);
-//
-// `duration` values can be easily converted to an integral number of units
-// using the division operator.
-//
-// Example:
-//
-//   constexpr abel::duration dur = abel::milliseconds(1500);
-//   int64_t ns = dur / abel::nanoseconds(1);   // ns == 1500000000
-//   int64_t ms = dur / abel::milliseconds(1);  // ms == 1500
-//   int64_t sec = dur / abel::seconds(1);    // sec == 1 (subseconds truncated)
-//   int64_t min = dur / abel::minutes(1);    // min == 0
-//
-// See the `integer_div_duration()` and `float_div_duration()` functions below for details on
-// how to access the fractional parts of the quotient.
-//
-// Alternatively, conversions can be performed using helpers such as
-// `to_int64_microseconds()` and `to_double_seconds()`.
+    // duration
+    //
+    // The `abel::duration` class represents a signed, fixed-length span of time.
+    // A `duration` is generated using a unit-specific factory function, or is
+    // the result of subtracting one `abel::abel_time` from another. Durations behave
+    // like unit-safe integers and they support all the natural integer-like
+    // arithmetic operations. Arithmetic overflows and saturates at +/- infinity.
+    // `duration` should be passed by value rather than const reference.
+    //
+    // Factory functions `nanoseconds()`, `microseconds()`, `milliseconds()`,
+    // `seconds()`, `minutes()`, `hours()` and `infinite_duration()` allow for
+    // creation of constexpr `duration` values
+    //
+    // Examples:
+    //
+    //   constexpr abel::duration ten_ns = abel::nanoseconds(10);
+    //   constexpr abel::duration min = abel::minutes(1);
+    //   constexpr abel::duration hour = abel::hours(1);
+    //   abel::duration dur = 60 * min;  // dur == hour
+    //   abel::duration half_sec = abel::milliseconds(500);
+    //   abel::duration quarter_sec = 0.25 * abel::seconds(1);
+    //
+    // `duration` values can be easily converted to an integral number of units
+    // using the division operator.
+    //
+    // Example:
+    //
+    //   constexpr abel::duration dur = abel::milliseconds(1500);
+    //   int64_t ns = dur / abel::nanoseconds(1);   // ns == 1500000000
+    //   int64_t ms = dur / abel::milliseconds(1);  // ms == 1500
+    //   int64_t sec = dur / abel::seconds(1);    // sec == 1 (subseconds truncated)
+    //   int64_t min = dur / abel::minutes(1);    // min == 0
+    //
+    // See the `integer_div_duration()` and `float_div_duration()` functions below for details on
+    // how to access the fractional parts of the quotient.
+    //
+    // Alternatively, conversions can be performed using helpers such as
+    // `to_int64_microseconds()` and `to_double_seconds()`.
     class duration {
     public:
         // Value semantics.
@@ -228,155 +228,155 @@ namespace abel {
 
     ABEL_FORCE_INLINE duration operator%(duration lhs, duration rhs) { return lhs %= rhs; }
 
-// integer_div_duration()
-//
-// Divides a numerator `duration` by a denominator `duration`, returning the
-// quotient and remainder. The remainder always has the same sign as the
-// numerator. The returned quotient and remainder respect the identity:
-//
-//   numerator = denominator * quotient + remainder
-//
-// Returned quotients are capped to the range of `int64_t`, with the difference
-// spilling into the remainder to uphold the above identity. This means that the
-// remainder returned could differ from the remainder returned by
-// `duration::operator%` for huge quotients.
-//
-// See also the notes on `infinite_duration()` below regarding the behavior of
-// division involving zero and infinite durations.
-//
-// Example:
-//
-//   constexpr abel::duration a =
-//       abel::seconds(std::numeric_limits<int64_t>::max());  // big
-//   constexpr abel::duration b = abel::nanoseconds(1);       // small
-//
-//   abel::duration rem = a % b;
-//   // rem == abel::zero_duration()
-//
-//   // Here, q would overflow int64_t, so rem accounts for the difference.
-//   int64_t q = abel::integer_div_duration(a, b, &rem);
-//   // q == std::numeric_limits<int64_t>::max(), rem == a - b * q
+    // integer_div_duration()
+    //
+    // Divides a numerator `duration` by a denominator `duration`, returning the
+    // quotient and remainder. The remainder always has the same sign as the
+    // numerator. The returned quotient and remainder respect the identity:
+    //
+    //   numerator = denominator * quotient + remainder
+    //
+    // Returned quotients are capped to the range of `int64_t`, with the difference
+    // spilling into the remainder to uphold the above identity. This means that the
+    // remainder returned could differ from the remainder returned by
+    // `duration::operator%` for huge quotients.
+    //
+    // See also the notes on `infinite_duration()` below regarding the behavior of
+    // division involving zero and infinite durations.
+    //
+    // Example:
+    //
+    //   constexpr abel::duration a =
+    //       abel::seconds(std::numeric_limits<int64_t>::max());  // big
+    //   constexpr abel::duration b = abel::nanoseconds(1);       // small
+    //
+    //   abel::duration rem = a % b;
+    //   // rem == abel::zero_duration()
+    //
+    //   // Here, q would overflow int64_t, so rem accounts for the difference.
+    //   int64_t q = abel::integer_div_duration(a, b, &rem);
+    //   // q == std::numeric_limits<int64_t>::max(), rem == a - b * q
     ABEL_FORCE_INLINE int64_t integer_div_duration(duration num, duration den, duration *rem) {
         return chrono_internal::integer_div_duration(true, num, den,
                                                      rem);  // trunc towards zero
     }
 
-// float_div_duration()
-//
-// Divides a `duration` numerator into a fractional number of units of a
-// `duration` denominator.
-//
-// See also the notes on `infinite_duration()` below regarding the behavior of
-// division involving zero and infinite durations.
-//
-// Example:
-//
-//   double d = abel::float_div_duration(abel::milliseconds(1500), abel::seconds(1));
-//   // d == 1.5
+    // float_div_duration()
+    //
+    // Divides a `duration` numerator into a fractional number of units of a
+    // `duration` denominator.
+    //
+    // See also the notes on `infinite_duration()` below regarding the behavior of
+    // division involving zero and infinite durations.
+    //
+    // Example:
+    //
+    //   double d = abel::float_div_duration(abel::milliseconds(1500), abel::seconds(1));
+    //   // d == 1.5
     double float_div_duration(duration num, duration den);
 
-// zero_duration()
-//
-// Returns a zero-length duration. This function behaves just like the default
-// constructor, but the name helps make the semantics clear at call sites.
+    // zero_duration()
+    //
+    // Returns a zero-length duration. This function behaves just like the default
+    // constructor, but the name helps make the semantics clear at call sites.
     constexpr duration zero_duration() { return duration(); }
 
-// abs_duration()
-//
-// Returns the absolute value of a duration.
+    // abs_duration()
+    //
+    // Returns the absolute value of a duration.
     ABEL_FORCE_INLINE duration abs_duration(duration d) {
         return (d < zero_duration()) ? -d : d;
     }
 
-// trunc()
-//
-// Truncates a duration (toward zero) to a multiple of a non-zero unit.
-//
-// Example:
-//
-//   abel::duration d = abel::nanoseconds(123456789);
-//   abel::duration a = abel::trunc(d, abel::microseconds(1));  // 123456us
+    // trunc()
+    //
+    // Truncates a duration (toward zero) to a multiple of a non-zero unit.
+    //
+    // Example:
+    //
+    //   abel::duration d = abel::nanoseconds(123456789);
+    //   abel::duration a = abel::trunc(d, abel::microseconds(1));  // 123456us
     duration trunc(duration d, duration unit);
 
-// floor()
-//
-// Floors a duration using the passed duration unit to its largest value not
-// greater than the duration.
-//
-// Example:
-//
-//   abel::duration d = abel::nanoseconds(123456789);
-//   abel::duration b = abel::floor(d, abel::microseconds(1));  // 123456us
+    // floor()
+    //
+    // Floors a duration using the passed duration unit to its largest value not
+    // greater than the duration.
+    //
+    // Example:
+    //
+    //   abel::duration d = abel::nanoseconds(123456789);
+    //   abel::duration b = abel::floor(d, abel::microseconds(1));  // 123456us
     duration floor(duration d, duration unit);
 
-// ceil()
-//
-// Returns the ceiling of a duration using the passed duration unit to its
-// smallest value not less than the duration.
-//
-// Example:
-//
-//   abel::duration d = abel::nanoseconds(123456789);
-//   abel::duration c = abel::ceil(d, abel::microseconds(1));   // 123457us
+    // ceil()
+    //
+    // Returns the ceiling of a duration using the passed duration unit to its
+    // smallest value not less than the duration.
+    //
+    // Example:
+    //
+    //   abel::duration d = abel::nanoseconds(123456789);
+    //   abel::duration c = abel::ceil(d, abel::microseconds(1));   // 123457us
     duration ceil(duration d, duration unit);
 
-// infinite_duration()
-//
-// Returns an infinite `duration`.  To get a `duration` representing negative
-// infinity, use `-infinite_duration()`.
-//
-// duration arithmetic overflows to +/- infinity and saturates. In general,
-// arithmetic with `duration` infinities is similar to IEEE 754 infinities
-// except where IEEE 754 NaN would be involved, in which case +/-
-// `infinite_duration()` is used in place of a "nan" duration.
-//
-// Examples:
-//
-//   constexpr abel::duration inf = abel::infinite_duration();
-//   const abel::duration d = ... any finite duration ...
-//
-//   inf == inf + inf
-//   inf == inf + d
-//   inf == inf - inf
-//   -inf == d - inf
-//
-//   inf == d * 1e100
-//   inf == inf / 2
-//   0 == d / inf
-//   INT64_MAX == inf / d
-//
-//   d < inf
-//   -inf < d
-//
-//   // Division by zero returns infinity, or INT64_MIN/MAX where appropriate.
-//   inf == d / 0
-//   INT64_MAX == d / abel::zero_duration()
-//
-// The examples involving the `/` operator above also apply to `integer_div_duration()`
-// and `float_div_duration()`.
+    // infinite_duration()
+    //
+    // Returns an infinite `duration`.  To get a `duration` representing negative
+    // infinity, use `-infinite_duration()`.
+    //
+    // duration arithmetic overflows to +/- infinity and saturates. In general,
+    // arithmetic with `duration` infinities is similar to IEEE 754 infinities
+    // except where IEEE 754 NaN would be involved, in which case +/-
+    // `infinite_duration()` is used in place of a "nan" duration.
+    //
+    // Examples:
+    //
+    //   constexpr abel::duration inf = abel::infinite_duration();
+    //   const abel::duration d = ... any finite duration ...
+    //
+    //   inf == inf + inf
+    //   inf == inf + d
+    //   inf == inf - inf
+    //   -inf == d - inf
+    //
+    //   inf == d * 1e100
+    //   inf == inf / 2
+    //   0 == d / inf
+    //   INT64_MAX == inf / d
+    //
+    //   d < inf
+    //   -inf < d
+    //
+    //   // Division by zero returns infinity, or INT64_MIN/MAX where appropriate.
+    //   inf == d / 0
+    //   INT64_MAX == d / abel::zero_duration()
+    //
+    // The examples involving the `/` operator above also apply to `integer_div_duration()`
+    // and `float_div_duration()`.
     constexpr duration infinite_duration();
 
-// nanoseconds()
-// microseconds()
-// milliseconds()
-// seconds()
-// minutes()
-// hours()
-//
-// Factory functions for constructing `duration` values from an integral number
-// of the unit indicated by the factory function's name. The number must be
-// representable as int64_t.
-//
-// NOTE: no "Days()" factory function exists because "a day" is ambiguous.
-// Civil days are not always 24 hours long, and a 24-hour duration often does
-// not correspond with a civil day. If a 24-hour duration is needed, use
-// `abel::hours(24)`. If you actually want a civil day, use abel::chrono_day
-// from civil_time.h.
-//
-// Example:
-//
-//   abel::duration a = abel::seconds(60);
-//   abel::duration b = abel::minutes(1);  // b == a
+    // nanoseconds()
+    // microseconds()
+    // milliseconds()
+    // seconds()
+    // minutes()
+    // hours()
+    //
+    // Factory functions for constructing `duration` values from an integral number
+    // of the unit indicated by the factory function's name. The number must be
+    // representable as int64_t.
+    //
+    // NOTE: no "Days()" factory function exists because "a day" is ambiguous.
+    // Civil days are not always 24 hours long, and a 24-hour duration often does
+    // not correspond with a civil day. If a 24-hour duration is needed, use
+    // `abel::hours(24)`. If you actually want a civil day, use abel::chrono_day
+    // from civil_time.h.
+    //
+    // Example:
+    //
+    //   abel::duration a = abel::seconds(60);
+    //   abel::duration b = abel::minutes(1);  // b == a
     constexpr duration nanoseconds(int64_t n);
 
     constexpr duration microseconds(int64_t n);
@@ -389,15 +389,15 @@ namespace abel {
 
     constexpr duration hours(int64_t n);
 
-// Factory overloads for constructing `duration` values from a floating-point
-// number of the unit indicated by the factory function's name. These functions
-// exist for convenience, but they are not as efficient as the integral
-// factories, which should be preferred.
-//
-// Example:
-//
-//   auto a = abel::seconds(1.5);        // OK
-//   auto b = abel::milliseconds(1500);  // BETTER
+    // Factory overloads for constructing `duration` values from a floating-point
+    // number of the unit indicated by the factory function's name. These functions
+    // exist for convenience, but they are not as efficient as the integral
+    // factories, which should be preferred.
+    //
+    // Example:
+    //
+    //   auto a = abel::seconds(1.5);        // OK
+    //   auto b = abel::milliseconds(1500);  // BETTER
     template<typename T, chrono_internal::EnableIfFloat<T> = 0>
     duration nanoseconds(T n) {
         return n * nanoseconds(1);
@@ -439,22 +439,22 @@ namespace abel {
         return n * hours(1);
     }
 
-// to_int64_nanoseconds()
-// to_int64_microseconds()
-// to_int64_milliseconds()
-// to_int64_seconds()
-// to_int64_minutes()
-// to_int64_hours()
-//
-// Helper functions that convert a duration to an integral count of the
-// indicated unit. These functions are shorthand for the `integer_div_duration()`
-// function above; see its documentation for details about overflow, etc.
-//
-// Example:
-//
-//   abel::duration d = abel::milliseconds(1500);
-//   int64_t isec = abel::to_int64_seconds(d);  // isec == 1
-    int64_t to_int64_nanoseconds(duration d);
+    // to_int64_nanoseconds()
+    // to_int64_microseconds()
+    // to_int64_milliseconds()
+    // to_int64_seconds()
+    // to_int64_minutes()
+    // to_int64_hours()
+    //
+    // Helper functions that convert a duration to an integral count of the
+    // indicated unit. These functions are shorthand for the `integer_div_duration()`
+    // function above; see its documentation for details about overflow, etc.
+    //
+    // Example:
+    //
+    //   abel::duration d = abel::milliseconds(1500);
+    //   int64_t isec = abel::to_int64_seconds(d);  // isec == 1
+        int64_t to_int64_nanoseconds(duration d);
 
     int64_t to_int64_microseconds(duration d);
 
@@ -466,15 +466,15 @@ namespace abel {
 
     int64_t to_int64_hours(duration d);
 
-//
-// Helper functions that convert a duration to a floating point count of the
-// indicated unit. These functions are shorthand for the `float_div_duration()`
-// function above; see its documentation for details about overflow, etc.
-//
-// Example:
-//
-//   abel::duration d = abel::milliseconds(1500);
-//   double dsec = abel::ToDoubleSeconds(d);  // dsec == 1.5
+    //
+    // Helper functions that convert a duration to a floating point count of the
+    // indicated unit. These functions are shorthand for the `float_div_duration()`
+    // function above; see its documentation for details about overflow, etc.
+    //
+    // Example:
+    //
+    //   abel::duration d = abel::milliseconds(1500);
+    //   double dsec = abel::ToDoubleSeconds(d);  // dsec == 1.5
     double to_double_nanoseconds(duration d);
 
     double to_double_microseconds(duration d);
@@ -487,14 +487,14 @@ namespace abel {
 
     double to_double_hours(duration d);
 
-// from_chrono()
-//
-// Converts any of the pre-defined std::chrono durations to an abel::duration.
-//
-// Example:
-//
-//   std::chrono::milliseconds ms(123);
-//   abel::duration d = abel::from_chrono(ms);
+    // from_chrono()
+    //
+    // Converts any of the pre-defined std::chrono durations to an abel::duration.
+    //
+    // Example:
+    //
+    //   std::chrono::milliseconds ms(123);
+    //   abel::duration d = abel::from_chrono(ms);
     constexpr duration from_chrono(const std::chrono::nanoseconds &d);
 
     constexpr duration from_chrono(const std::chrono::microseconds &d);
@@ -507,24 +507,24 @@ namespace abel {
 
     constexpr duration from_chrono(const std::chrono::hours &d);
 
-// to_chrono_nanoseconds()
-// to_chrono_microseconds()
-// to_chrono_milliseconds()
-// to_chrono_seconds()
-// to_chrono_minutes()
-// to_chrono_hours()
-//
-// Converts an abel::duration to any of the pre-defined std::chrono durations.
-// If overflow would occur, the returned value will saturate at the min/max
-// chrono duration value instead.
-//
-// Example:
-//
-//   abel::duration d = abel::microseconds(123);
-//   auto x = abel::to_chrono_microseconds(d);
-//   auto y = abel::to_chrono_nanoseconds(d);  // x == y
-//   auto z = abel::to_chrono_seconds(abel::infinite_duration());
-//   // z == std::chrono::seconds::max()
+    // to_chrono_nanoseconds()
+    // to_chrono_microseconds()
+    // to_chrono_milliseconds()
+    // to_chrono_seconds()
+    // to_chrono_minutes()
+    // to_chrono_hours()
+    //
+    // Converts an abel::duration to any of the pre-defined std::chrono durations.
+    // If overflow would occur, the returned value will saturate at the min/max
+    // chrono duration value instead.
+    //
+    // Example:
+    //
+    //   abel::duration d = abel::microseconds(123);
+    //   auto x = abel::to_chrono_microseconds(d);
+    //   auto y = abel::to_chrono_nanoseconds(d);  // x == y
+    //   auto z = abel::to_chrono_seconds(abel::infinite_duration());
+    //   // z == std::chrono::seconds::max()
     std::chrono::nanoseconds to_chrono_nanoseconds(duration d);
 
     std::chrono::microseconds to_chrono_microseconds(duration d);
@@ -537,80 +537,80 @@ namespace abel {
 
     std::chrono::hours to_chrono_hours(duration d);
 
-// format_duration()
-//
-// Returns a string representing the duration in the form "72h3m0.5s".
-// Returns "inf" or "-inf" for +/- `infinite_duration()`.
+    // format_duration()
+    //
+    // Returns a string representing the duration in the form "72h3m0.5s".
+    // Returns "inf" or "-inf" for +/- `infinite_duration()`.
     std::string format_duration(duration d);
 
-// Output stream operator.
+    // Output stream operator.
     ABEL_FORCE_INLINE std::ostream &operator<<(std::ostream &os, duration d) {
         return os << format_duration(d);
     }
 
-// parse_duration()
-//
-// Parses a duration string consisting of a possibly signed sequence of
-// decimal numbers, each with an optional fractional part and a unit
-// suffix.  The valid suffixes are "ns", "us" "ms", "s", "m", and "h".
-// Simple examples include "300ms", "-1.5h", and "2h45m".  Parses "0" as
-// `zero_duration()`. Parses "inf" and "-inf" as +/- `infinite_duration()`.
+    // parse_duration()
+    //
+    // Parses a duration string consisting of a possibly signed sequence of
+    // decimal numbers, each with an optional fractional part and a unit
+    // suffix.  The valid suffixes are "ns", "us" "ms", "s", "m", and "h".
+    // Simple examples include "300ms", "-1.5h", and "2h45m".  Parses "0" as
+    // `zero_duration()`. Parses "inf" and "-inf" as +/- `infinite_duration()`.
     bool parse_duration(const std::string &dur_string, duration *d);
 
-// Support for flag values of type duration. duration flags must be specified
-// in a format that is valid input for abel::parse_duration().
+    // Support for flag values of type duration. duration flags must be specified
+    // in a format that is valid input for abel::parse_duration().
     bool abel_parse_flag(abel::string_view text, duration *dst, std::string *error);
 
     std::string abel_unparse_flag(duration d);
-/*
-ABEL_DEPRECATED_MESSAGE("Use abel_parse_flag() instead.")
-bool parse_flag(const std::string& text, duration* dst, std::string* error);
-ABEL_DEPRECATED_MESSAGE("Use abel_unparse_flag() instead.")
-std::string unparse_flag(duration d);
-*/
-// abel_time
-//
-// An `abel::abel_time` represents a specific instant in time. Arithmetic operators
-// are provided for naturally expressing time calculations. Instances are
-// created using `abel::now()` and the `abel::From*()` factory functions that
-// accept the gamut of other time representations. Formatting and parsing
-// functions are provided for conversion to and from strings.  `abel::abel_time`
-// should be passed by value rather than const reference.
-//
-// `abel::abel_time` assumes there are 60 seconds in a minute, which means the
-// underlying time scales must be "smeared" to eliminate leap seconds.
-// See https://developers.google.com/time/smear.
-//
-// Even though `abel::abel_time` supports a wide range of timestamps, exercise
-// caution when using values in the distant past. `abel::abel_time` uses the
-// Proleptic Gregorian calendar, which extends the Gregorian calendar backward
-// to dates before its introduction in 1582.
-// See https://en.wikipedia.org/wiki/Proleptic_Gregorian_calendar
-// for more information. Use the ICU calendar classes to convert a date in
-// some other calendar (http://userguide.icu-project.org/datetime/calendar).
-//
-// Similarly, standardized time zones are a reasonably recent innovation, with
-// the Greenwich prime meridian being established in 1884. The TZ database
-// itself does not profess accurate offsets for timestamps prior to 1970. The
-// breakdown of future timestamps is subject to the whim of regional
-// governments.
-//
-// The `abel::abel_time` class represents an instant in time as a count of clock
-// ticks of some granularity (resolution) from some starting point (epoch).
-//
-// `abel::abel_time` uses a resolution that is high enough to avoid loss in
-// precision, and a range that is wide enough to avoid overflow, when
-// converting between tick counts in most Google time scales (i.e., resolution
-// of at least one nanosecond, and range +/-100 billion years).  Conversions
-// between the time scales are performed by truncating (towards negative
-// infinity) to the nearest representable point.
-//
-// Examples:
-//
-//   abel::abel_time t1 = ...;
-//   abel::abel_time t2 = t1 + abel::minutes(2);
-//   abel::duration d = t2 - t1;  // == abel::minutes(2)
-//
+    /*
+    ABEL_DEPRECATED_MESSAGE("Use abel_parse_flag() instead.")
+    bool parse_flag(const std::string& text, duration* dst, std::string* error);
+    ABEL_DEPRECATED_MESSAGE("Use abel_unparse_flag() instead.")
+    std::string unparse_flag(duration d);
+    */
+    // abel_time
+    //
+    // An `abel::abel_time` represents a specific instant in time. Arithmetic operators
+    // are provided for naturally expressing time calculations. Instances are
+    // created using `abel::now()` and the `abel::From*()` factory functions that
+    // accept the gamut of other time representations. Formatting and parsing
+    // functions are provided for conversion to and from strings.  `abel::abel_time`
+    // should be passed by value rather than const reference.
+    //
+    // `abel::abel_time` assumes there are 60 seconds in a minute, which means the
+    // underlying time scales must be "smeared" to eliminate leap seconds.
+    // See https://developers.google.com/time/smear.
+    //
+    // Even though `abel::abel_time` supports a wide range of timestamps, exercise
+    // caution when using values in the distant past. `abel::abel_time` uses the
+    // Proleptic Gregorian calendar, which extends the Gregorian calendar backward
+    // to dates before its introduction in 1582.
+    // See https://en.wikipedia.org/wiki/Proleptic_Gregorian_calendar
+    // for more information. Use the ICU calendar classes to convert a date in
+    // some other calendar (http://userguide.icu-project.org/datetime/calendar).
+    //
+    // Similarly, standardized time zones are a reasonably recent innovation, with
+    // the Greenwich prime meridian being established in 1884. The TZ database
+    // itself does not profess accurate offsets for timestamps prior to 1970. The
+    // breakdown of future timestamps is subject to the whim of regional
+    // governments.
+    //
+    // The `abel::abel_time` class represents an instant in time as a count of clock
+    // ticks of some granularity (resolution) from some starting point (epoch).
+    //
+    // `abel::abel_time` uses a resolution that is high enough to avoid loss in
+    // precision, and a range that is wide enough to avoid overflow, when
+    // converting between tick counts in most Google time scales (i.e., resolution
+    // of at least one nanosecond, and range +/-100 billion years).  Conversions
+    // between the time scales are performed by truncating (towards negative
+    // infinity) to the nearest representable point.
+    //
+    // Examples:
+    //
+    //   abel::abel_time t1 = ...;
+    //   abel::abel_time t2 = t1 + abel::minutes(2);
+    //   abel::duration d = t2 - t1;  // == abel::minutes(2)
+    //
     class abel_time {
     public:
         // Value semantics.
@@ -728,15 +728,15 @@ std::string unparse_flag(duration d);
 
     ABEL_FORCE_INLINE duration operator-(abel_time lhs, abel_time rhs) { return lhs.rep_ - rhs.rep_; }
 
-// unix_epoch()
-//
-// Returns the `abel::abel_time` representing "1970-01-01 00:00:00.0 +0000".
+    // unix_epoch()
+    //
+    // Returns the `abel::abel_time` representing "1970-01-01 00:00:00.0 +0000".
     constexpr abel_time unix_epoch() { return abel_time(); }
 
-// universal_epoch()
-//
-// Returns the `abel::abel_time` representing "0001-01-01 00:00:00.0 +0000", the
-// epoch of the ICU Universal abel_time Scale.
+    // universal_epoch()
+    //
+    // Returns the `abel::abel_time` representing "0001-01-01 00:00:00.0 +0000", the
+    // epoch of the ICU Universal abel_time Scale.
     constexpr abel_time universal_epoch() {
         // 719162 is the number of days from 0001-01-01 to 1970-01-01,
         // assuming the Gregorian calendar.
@@ -1171,14 +1171,14 @@ std::string unparse_flag(abel_time t);
         return ti.pre;
     }
 
-// time_conversion
-//
-// An `abel::time_conversion` represents the conversion of year, month, day,
-// hour, minute, and second values (i.e., a civil time), in a particular
-// `abel::time_zone`, to a time instant (an absolute time), as returned by
-// `abel::convert_date_time()`. Legacy version of `abel::time_zone::time_info`.
-//
-// Deprecated. Use `abel::time_zone::time_info`.
+    // time_conversion
+    //
+    // An `abel::time_conversion` represents the conversion of year, month, day,
+    // hour, minute, and second values (i.e., a civil time), in a particular
+    // `abel::time_zone`, to a time instant (an absolute time), as returned by
+    // `abel::convert_date_time()`. Legacy version of `abel::time_zone::time_info`.
+    //
+    // Deprecated. Use `abel::time_zone::time_info`.
     struct
     time_conversion {
         abel_time pre;    // time calculated using the pre-transition offset

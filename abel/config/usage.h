@@ -3,7 +3,7 @@
 #ifndef ABEL_CONFIG_USAGE_H_
 #define ABEL_CONFIG_USAGE_H_
 
-#include <abel/asl/string_view.h>
+#include <abel/strings/string_view.h>
 
 // --------------------------------------------------------------------
 // Usage reporting interfaces

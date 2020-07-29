@@ -1,118 +1,119 @@
-//
-// Copyright(c) 2015 Gabi Melman.
+// Copyright(c) 2015-present, Gabi Melman & spdlog contributors.
 // Distributed under the MIT License (http://opensource.org/licenses/MIT)
-//
 
-#ifndef ABEL_LOG_SINK_ANDROID_SINK_H_
-#define ABEL_LOG_SINK_ANDROID_SINK_H_
+#pragma once
+
+#ifdef __ANDROID__
 
 #include <abel/log/details/fmt_helper.h>
 #include <abel/log/details/null_mutex.h>
+#include <abel/log/details/os.h>
 #include <abel/log/sinks/base_sink.h>
+#include <abel/log/details/synchronous_factory.h>
+
 #include <android/log.h>
+#include <chrono>
 #include <mutex>
 #include <string>
 #include <thread>
 
-#if !defined(ABEL_LOG_ANDROID_RETRIES)
-#define ABEL_LOG_ANDROID_RETRIES 2
+#if !defined(SPDLOG_ANDROID_RETRIES)
+#define SPDLOG_ANDROID_RETRIES 2
 #endif
 
 namespace abel {
-    namespace log {
-        namespace sinks {
+namespace sinks {
 
 /*
  * Android sink (logging using __android_log_write)
  */
-            template<typename Mutex>
-            class android_sink ABEL_INHERITANCE_FINAL : public base_sink<Mutex> {
-            public:
-                explicit android_sink(const std::string &tag =
+template<typename Mutex>
+class android_sink final : public base_sink<Mutex>
+{
+public:
+    explicit android_sink(std::string tag = "spdlog", bool use_raw_msg = false)
+        : tag_(std::move(tag))
+        , use_raw_msg_(use_raw_msg)
+    {}
 
-                <able/log", bool use_raw_msg = false)
-                :
+protected:
+    void sink_it_(const details::log_msg &msg) override
+    {
+        const android_LogPriority priority = convert_to_android_(msg.level);
+        memory_buf_t formatted;
+        if (use_raw_msg_)
+        {
+            details::fmt_helper::append_string_view(msg.payload, formatted);
+        }
+        else
+        {
+            base_sink<Mutex>::formatter_->format(msg, formatted);
+        }
+        formatted.push_back('\0');
+        const char *msg_output = formatted.data();
 
-                tag_ (tag)
-                , use_raw_msg_(use_raw_msg) {
-                }
+        // See system/core/liblog/logger_write.c for explanation of return value
+        int ret = __android_log_write(priority, tag_.c_str(), msg_output);
+        int retry_count = 0;
+        while ((ret == -11 /*EAGAIN*/) && (retry_count < SPDLOG_ANDROID_RETRIES))
+        {
+            details::os::sleep_for_millis(5);
+            ret = __android_log_write(priority, tag_.c_str(), msg_output);
+            retry_count++;
+        }
 
-            protected:
-                void sink_it_(const details::log_msg &msg) override {
-                    const android_LogPriority priority = convert_to_android_(msg.level);
-                    fmt::memory_buffer formatted;
-                    if (use_raw_msg_) {
-                        fmt_helper::append_buf(msg.raw, formatted);
-                    } else {
-                        formatter_->format(msg, formatted);
-                    }
-                    formatted.push_back('\0');
-                    const char *msg_output = formatted.data();
+        if (ret < 0)
+        {
+            throw_spdlog_ex("__android_log_write() failed", ret);
+        }
+    }
 
-                    // See system/core/liblog/logger_write.c for explanation of return value
-                    int ret = __android_log_write(priority, tag_.c_str(), msg_output);
-                    int retry_count = 0;
-                    while ((ret == -11 /*EAGAIN*/) && (retry_count < ABEL_LOG_ANDROID_RETRIES)) {
-                        details::os::sleep_for_millis(5);
-                        ret = __android_log_write(priority, tag_.c_str(), msg_output);
-                        retry_count++;
-                    }
+    void flush_() override {}
 
-                    if (ret < 0) {
-                        throw log_ex("__android_log_write() failed", ret);
-                    }
-                }
+private:
+    static android_LogPriority convert_to_android_(abel::level::level_enum level)
+    {
+        switch (level)
+        {
+        case abel::level::trace:
+            return ANDROID_LOG_VERBOSE;
+        case abel::level::debug:
+            return ANDROID_LOG_DEBUG;
+        case abel::level::info:
+            return ANDROID_LOG_INFO;
+        case abel::level::warn:
+            return ANDROID_LOG_WARN;
+        case abel::level::err:
+            return ANDROID_LOG_ERROR;
+        case abel::level::critical:
+            return ANDROID_LOG_FATAL;
+        default:
+            return ANDROID_LOG_DEFAULT;
+        }
+    }
 
-                void flush_() override {}
+    std::string tag_;
+    bool use_raw_msg_;
+};
 
-            private:
-                static android_LogPriority convert_to_android_(abel::level_enum level) {
-                    switch (level) {
-                        case abel::trace:
-                            return ANDROID_LOG_VERBOSE;
-                        case abel::debug:
-                            return ANDROID_LOG_DEBUG;
-                        case abel::info:
-                            return ANDROID_LOG_INFO;
-                        case abel::warn:
-                            return ANDROID_LOG_WARN;
-                        case abel::err:
-                            return ANDROID_LOG_ERROR;
-                        case abel::critical:
-                            return ANDROID_LOG_FATAL;
-                        default:
-                            return ANDROID_LOG_DEFAULT;
-                    }
-                }
-
-                std::string tag_;
-                bool use_raw_msg_;
-            };
-
-            using android_sink_mt = android_sink<std::mutex>;
-            using android_sink_st = android_sink<details::null_mutex>;
-        } // namespace sinks
+using android_sink_mt = android_sink<std::mutex>;
+using android_sink_st = android_sink<details::null_mutex>;
+} // namespace sinks
 
 // Create and register android syslog logger
 
-        template<typename Factory = default_factory>
-        inline std::shared_ptr<logger> android_logger_mt(const std::string &logger_name, const std::string &tag =
-
-        <able/log") {
-        return
-        Factory::template create<sinks::android_sink_mt>(logger_name, tag
-        );
-    }
-
-    template<typename Factory = default_factory>
-    inline std::shared_ptr<logger> android_logger_st(const std::string &logger_name, const std::string &tag =
-
-    <able/log") {
-    return
-    Factory::template create<sinks::android_sink_st>(logger_name, tag
-    );
+template<typename Factory = abel::synchronous_factory>
+inline std::shared_ptr<logger> android_logger_mt(const std::string &logger_name, const std::string &tag = "spdlog")
+{
+    return Factory::template create<sinks::android_sink_mt>(logger_name, tag);
 }
-} //namespace log
+
+template<typename Factory = abel::synchronous_factory>
+inline std::shared_ptr<logger> android_logger_st(const std::string &logger_name, const std::string &tag = "spdlog")
+{
+    return Factory::template create<sinks::android_sink_st>(logger_name, tag);
+}
+
 } // namespace abel
 
-#endif //ABEL_LOG_SINK_ANDROID_SINK_H_
+#endif // __ANDROID__

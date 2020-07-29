@@ -8,7 +8,7 @@
 #include <abel/log/log.h>
 #include <abel/log/sinks/stdout_color_sinks.h>
 #include <memory>
-#include <abel/asl/functional.h>
+#include <abel/functional/functional.h>
 
 namespace abel {
 
@@ -18,11 +18,11 @@ namespace abel {
     public:
         friend void create_log_ptr();
 
-        static void set_logger(std::shared_ptr<abel::log::logger> &log_ptr) {
+        static void set_logger(std::shared_ptr<abel::logger> &log_ptr) {
             _log_ptr = log_ptr;
         }
 
-        static std::shared_ptr<abel::log::logger> get_logger() {
+        static std::shared_ptr<abel::logger> get_logger() {
             if (!_log_ptr) {
                 static abel::once_flag log_once;
                 abel::call_once(log_once, create_log_ptr);
@@ -31,7 +31,7 @@ namespace abel {
         }
 
     private:
-        static std::shared_ptr<abel::log::logger> _log_ptr;
+        static std::shared_ptr<abel::logger> _log_ptr;
 
     };
 

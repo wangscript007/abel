@@ -6,7 +6,7 @@
 #include <cstdlib>
 
 #include <benchmark/benchmark.h>
-#include <abel/asl/ascii.h>
+#include <abel/strings/ascii.h>
 
 // We fill the haystack with aaaaaaaaaaaaaaaaaa...aaaab.
 // That gives us:
