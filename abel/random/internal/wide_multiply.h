@@ -32,7 +32,7 @@ namespace abel {
             // uint64_t * uint64_t => uint128 multiply using imul intrinsic on MSVC.
             uint64_t high = 0;
             const uint64_t low = _umul128(a, b, &high);
-            return abel::MakeUint128(high, low);
+            return abel::make_uint128(high, low);
 #else
             // uint128(a) * uint128(b) in emulated mode computes a full 128-bit x 128-bit
             // multiply.  However there are many cases where that is not necessary, and it
@@ -53,7 +53,7 @@ namespace abel {
                                        static_cast<uint32_t>(c32b)) >>
                                       32);
 
-            return abel::MakeUint128(c64 + (c32a >> 32) + (c32b >> 32) + carry,
+            return abel::make_uint128(c64 + (c32a >> 32) + (c32b >> 32) + carry,
                                      c00 + (c32a << 32) + (c32b << 32));
 #endif
         }

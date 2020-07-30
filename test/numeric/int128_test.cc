@@ -98,16 +98,16 @@ namespace {
     TEST(Uint128, AllTests) {
         abel::uint128 zero = 0;
         abel::uint128 one = 1;
-        abel::uint128 one_2arg = abel::MakeUint128(0, 1);
+        abel::uint128 one_2arg = abel::make_uint128(0, 1);
         abel::uint128 two = 2;
         abel::uint128 three = 3;
-        abel::uint128 big = abel::MakeUint128(2000, 2);
-        abel::uint128 big_minus_one = abel::MakeUint128(2000, 1);
-        abel::uint128 bigger = abel::MakeUint128(2001, 1);
+        abel::uint128 big = abel::make_uint128(2000, 2);
+        abel::uint128 big_minus_one = abel::make_uint128(2000, 1);
+        abel::uint128 bigger = abel::make_uint128(2001, 1);
         abel::uint128 biggest = abel::Uint128Max();
-        abel::uint128 high_low = abel::MakeUint128(1, 0);
+        abel::uint128 high_low = abel::make_uint128(1, 0);
         abel::uint128 low_high =
-                abel::MakeUint128(0, std::numeric_limits<uint64_t>::max());
+                abel::make_uint128(0, std::numeric_limits<uint64_t>::max());
         EXPECT_LT(one, two);
         EXPECT_GT(two, one);
         EXPECT_LT(one, big);
@@ -228,14 +228,14 @@ namespace {
     }
 
     TEST(Uint128, ConversionTests) {
-        EXPECT_TRUE(abel::MakeUint128(1, 0));
+        EXPECT_TRUE(abel::make_uint128(1, 0));
 
 #ifdef ABEL_HAVE_INTRINSIC_INT128
         unsigned __int128 intrinsic =
                 (static_cast<unsigned __int128>(0x3a5b76c209de76f6) << 64) +
                 0x1f25e1d63a2b46c5;
         abel::uint128 custom =
-                abel::MakeUint128(0x3a5b76c209de76f6, 0x1f25e1d63a2b46c5);
+                abel::make_uint128(0x3a5b76c209de76f6, 0x1f25e1d63a2b46c5);
 
         EXPECT_EQ(custom, abel::uint128(intrinsic));
         EXPECT_EQ(custom, abel::uint128(static_cast<__int128>(intrinsic)));
@@ -249,7 +249,7 @@ namespace {
         double precise_double = 0x530e * std::pow(2.0, 64.0) + 0xda74000000000000;
         abel::uint128 from_precise_double(precise_double);
         abel::uint128 from_precise_ints =
-                abel::MakeUint128(0x530e, 0xda74000000000000);
+                abel::make_uint128(0x530e, 0xda74000000000000);
         EXPECT_EQ(from_precise_double, from_precise_ints);
         EXPECT_DOUBLE_EQ(static_cast<double>(from_precise_ints), precise_double);
 
@@ -272,7 +272,7 @@ namespace {
                           static_cast<long double>(highest_precision_in_long_double)));
         // Apply a mask just to make sure all the bits are the right place.
         const abel::uint128 arbitrary_mask =
-                abel::MakeUint128(0xa29f622677ded751, 0xf8ca66add076f468);
+                abel::make_uint128(0xa29f622677ded751, 0xf8ca66add076f468);
         EXPECT_EQ(highest_precision_in_long_double & arbitrary_mask,
                   static_cast<abel::uint128>(static_cast<long double>(
                           highest_precision_in_long_double & arbitrary_mask)));
@@ -317,30 +317,30 @@ namespace {
         }
 
         // Verified with dc.
-        a = abel::MakeUint128(0xffffeeeeddddcccc, 0xbbbbaaaa99998888);
-        b = abel::MakeUint128(0x7777666655554444, 0x3333222211110000);
+        a = abel::make_uint128(0xffffeeeeddddcccc, 0xbbbbaaaa99998888);
+        b = abel::make_uint128(0x7777666655554444, 0x3333222211110000);
         c = a * b;
-        EXPECT_EQ(abel::MakeUint128(0x530EDA741C71D4C3, 0xBF25975319080000), c);
+        EXPECT_EQ(abel::make_uint128(0x530EDA741C71D4C3, 0xBF25975319080000), c);
         EXPECT_EQ(0, c - b * a);
         EXPECT_EQ(a * a - b * b, (a + b) * (a - b));
 
         // Verified with dc.
-        a = abel::MakeUint128(0x0123456789abcdef, 0xfedcba9876543210);
-        b = abel::MakeUint128(0x02468ace13579bdf, 0xfdb97531eca86420);
+        a = abel::make_uint128(0x0123456789abcdef, 0xfedcba9876543210);
+        b = abel::make_uint128(0x02468ace13579bdf, 0xfdb97531eca86420);
         c = a * b;
-        EXPECT_EQ(abel::MakeUint128(0x97a87f4f261ba3f2, 0x342d0bbf48948200), c);
+        EXPECT_EQ(abel::make_uint128(0x97a87f4f261ba3f2, 0x342d0bbf48948200), c);
         EXPECT_EQ(0, c - b * a);
         EXPECT_EQ(a * a - b * b, (a + b) * (a - b));
     }
 
     TEST(Uint128, AliasTests) {
-        abel::uint128 x1 = abel::MakeUint128(1, 2);
-        abel::uint128 x2 = abel::MakeUint128(2, 4);
+        abel::uint128 x1 = abel::make_uint128(1, 2);
+        abel::uint128 x2 = abel::make_uint128(2, 4);
         x1 += x1;
         EXPECT_EQ(x2, x1);
 
-        abel::uint128 x3 = abel::MakeUint128(1, static_cast<uint64_t>(1) << 63);
-        abel::uint128 x4 = abel::MakeUint128(3, 0);
+        abel::uint128 x3 = abel::make_uint128(1, static_cast<uint64_t>(1) << 63);
+        abel::uint128 x4 = abel::make_uint128(3, 0);
         x3 += x3;
         EXPECT_EQ(x4, x3);
     }
@@ -359,8 +359,8 @@ namespace {
         EXPECT_EQ(0, q);
         EXPECT_EQ(0, r);
 
-        a = abel::MakeUint128(0x530eda741c71d4c3, 0xbf25975319080000);
-        q = abel::MakeUint128(0x4de2cab081, 0x14c34ab4676e4bab);
+        a = abel::make_uint128(0x530eda741c71d4c3, 0xbf25975319080000);
+        q = abel::make_uint128(0x4de2cab081, 0x14c34ab4676e4bab);
         b = abel::uint128(0x1110001);
         r = abel::uint128(0x3eb455);
         ASSERT_EQ(a, q * b + r);  // Sanity-check.
@@ -399,7 +399,7 @@ namespace {
         // Try a large remainder.
         b = a / 2 + 1;
         abel::uint128 expected_r =
-                abel::MakeUint128(0x29876d3a0e38ea61, 0xdf92cba98c83ffff);
+                abel::make_uint128(0x29876d3a0e38ea61, 0xdf92cba98c83ffff);
         // Sanity checks.
         ASSERT_EQ(a / 2 - 1, expected_r);
         ASSERT_EQ(a, b + expected_r);
@@ -415,9 +415,9 @@ namespace {
         std::uniform_int_distribution<uint64_t> uniform_uint64;
         for (int i = 0; i < kNumIters; ++i) {
             const abel::uint128 a =
-                    abel::MakeUint128(uniform_uint64(random), uniform_uint64(random));
+                    abel::make_uint128(uniform_uint64(random), uniform_uint64(random));
             const abel::uint128 b =
-                    abel::MakeUint128(uniform_uint64(random), uniform_uint64(random));
+                    abel::make_uint128(uniform_uint64(random), uniform_uint64(random));
             if (b == 0) {
                 continue;  // Avoid a div-by-zero.
             }
@@ -433,7 +433,7 @@ namespace {
         constexpr abel::uint128 minus_two = -2;
         EXPECT_EQ(zero, abel::uint128(0));
         EXPECT_EQ(one, abel::uint128(1));
-        EXPECT_EQ(minus_two, abel::MakeUint128(-1, -2));
+        EXPECT_EQ(minus_two, abel::make_uint128(-1, -2));
     }
 
     TEST(Uint128, NumericLimitsTest) {

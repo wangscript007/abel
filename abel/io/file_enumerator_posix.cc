@@ -29,7 +29,7 @@ namespace abel {
     }
 
     abel::abel_time file_enumerator::enumerator_info::get_last_modified_time() const {
-        return abel::from_unix_seconds(stat_.st_mtime);
+        return abel::abel_time::from_unix_seconds(stat_.st_mtime);
     }
 
 // file_enumerator --------------------------------------------------------------

@@ -35,11 +35,11 @@ namespace abel {
 
         bucket bucket_builder::liner_duration(abel::duration start, abel::duration width, size_t num) {
             abel::duration value = start;
-            ABEL_ASSERT(abel::to_double_microseconds(width) > 0);
+            ABEL_ASSERT(width.to_double_microseconds() > 0);
             std::vector<double> ret;
             ret.reserve(num);
             for (size_t i = 0; i < num; ++i) {
-                ret.push_back(abel::to_double_microseconds(value));
+                ret.push_back(value.to_double_microseconds());
                 value += width;
             }
             return ret;
@@ -51,7 +51,7 @@ namespace abel {
             std::vector<double> ret;
             ret.reserve(num);
             for (size_t i = 0; i < num; ++i) {
-                ret.push_back(abel::to_double_microseconds(value));
+                ret.push_back(value.to_double_microseconds());
                 value *= factor;
             }
             return ret;

@@ -12,7 +12,7 @@
 namespace abel {
 
 
-    const uint128 kuint128max = MakeUint128(std::numeric_limits<uint64_t>::max(),
+    const uint128 kuint128max = make_uint128(std::numeric_limits<uint64_t>::max(),
                                             std::numeric_limits<uint64_t>::max());
 
     namespace {
@@ -108,10 +108,10 @@ namespace abel {
             if (v >= std::ldexp(static_cast<T>(1), 64)) {
                 uint64_t hi = static_cast<uint64_t>(std::ldexp(v, -64));
                 uint64_t lo = static_cast<uint64_t>(v - std::ldexp(static_cast<T>(hi), 64));
-                return MakeUint128(hi, lo);
+                return make_uint128(hi, lo);
             }
 
-            return MakeUint128(0, static_cast<uint64_t>(v));
+            return make_uint128(0, static_cast<uint64_t>(v));
         }
 
 #if defined(__clang__) && !defined(__SSE3__)

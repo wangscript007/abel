@@ -22,7 +22,7 @@ namespace abel {
 
         void timer::observe(abel::duration d) {
 
-            auto value = abel::to_double_microseconds(d);
+            auto value = d.to_double_microseconds();
             const auto bucket_index = static_cast<std::size_t>(std::distance(
                     _bucket_boundaries.begin(),
                     std::find_if(
@@ -34,7 +34,7 @@ namespace abel {
         }
 
         void timer::observe(int64_t tick) {
-            auto d = abel::microseconds(tick);
+            auto d = abel::duration::microseconds(tick);
             observe(d);
         }
 

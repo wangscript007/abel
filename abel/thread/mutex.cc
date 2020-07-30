@@ -153,7 +153,7 @@ namespace abel {
                 abel_internal_mutex_yield();
                 c++;
             } else {           // then wait
-                abel::sleep_for(abel::microseconds(10));
+                abel::sleep_for(abel::duration::microseconds(10));
                 c = 0;
             }
             ABEL_TSAN_MUTEX_POST_DIVERT(nullptr, 0);
@@ -586,7 +586,7 @@ namespace abel {
 #ifndef _WIN32
         struct timeval tv;
         gettimeofday(&tv, nullptr);
-        return abel::time_from_timeval(tv) + timeout;
+        return abel::abel_time::from_timeval(tv) + timeout;
 #else
         return abel::now() + timeout;
 #endif

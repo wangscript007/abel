@@ -79,7 +79,7 @@ namespace abel {
 
             explicit Generator(int m) : maxval(m) {}
 
-            abel::abel_time operator()(int i) const { return abel::from_unix_millis(i); }
+            abel::abel_time operator()(int i) const { return abel::abel_time::from_unix_millis(i); }
         };
 
         template<>

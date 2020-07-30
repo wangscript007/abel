@@ -175,7 +175,7 @@ namespace abel {
                 uint64_t h = 0;
                 uint64_t l = 0;
                 in >> h >> l;
-                return abel::MakeUint128(h, l);
+                return abel::make_uint128(h, l);
             }
 
             template<typename OStream>

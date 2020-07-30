@@ -101,7 +101,7 @@ namespace {
     static void TestR20ms(TestContext *cxt, int c) {
         for (int i = 0; i != cxt->iterations; i++) {
             abel::reader_mutex_lock l(&cxt->mu);
-            abel::sleep_for(abel::milliseconds(20));
+            abel::sleep_for( abel::duration::milliseconds(20));
             cxt->mu.assert_reader_held();
         }
     }
@@ -195,7 +195,7 @@ namespace {
         cxt->mu.assert_held();
         while (cxt->g0 < cxt->iterations) {
             while (cxt->g0 != target && cxt->g0 != cxt->iterations) {
-                cxt->cv.wait_with_timeout(&cxt->mu, abel::seconds(100));
+                cxt->cv.wait_with_timeout(&cxt->mu,  abel::duration::seconds(100));
             }
             if (cxt->g0 < cxt->iterations) {
                 int a = cxt->g0 + 1;
@@ -219,27 +219,27 @@ namespace {
 
             abel::abel_time start = abel::now();
             if (use_cv) {
-                cxt->cv.wait_with_timeout(&cxt->mu, abel::seconds(1));
+                cxt->cv.wait_with_timeout(&cxt->mu,  abel::duration::seconds(1));
             } else {
-                ABEL_RAW_CHECK(!cxt->mu.await_with_timeout(false_cond, abel::seconds(1)),
+                ABEL_RAW_CHECK(!cxt->mu.await_with_timeout(false_cond,  abel::duration::seconds(1)),
                                "TestTime failed");
             }
             abel::duration elapsed = abel::now() - start;
             ABEL_RAW_CHECK(
-                    abel::seconds(0.9) <= elapsed && elapsed <= abel::seconds(2.0),
+                     abel::duration::seconds(0.9) <= elapsed && elapsed <=  abel::duration::seconds(2.0),
                     "TestTime failed");
             ABEL_RAW_CHECK(cxt->g0 == 1, "TestTime failed");
 
             start = abel::now();
             if (use_cv) {
-                cxt->cv.wait_with_timeout(&cxt->mu, abel::seconds(1));
+                cxt->cv.wait_with_timeout(&cxt->mu,  abel::duration::seconds(1));
             } else {
-                ABEL_RAW_CHECK(!cxt->mu.await_with_timeout(false_cond, abel::seconds(1)),
+                ABEL_RAW_CHECK(!cxt->mu.await_with_timeout(false_cond,  abel::duration::seconds(1)),
                                "TestTime failed");
             }
             elapsed = abel::now() - start;
             ABEL_RAW_CHECK(
-                    abel::seconds(0.9) <= elapsed && elapsed <= abel::seconds(2.0),
+                     abel::duration::seconds(0.9) <= elapsed && elapsed <=  abel::duration::seconds(2.0),
                     "TestTime failed");
             cxt->g0++;
             if (use_cv) {
@@ -248,27 +248,27 @@ namespace {
 
             start = abel::now();
             if (use_cv) {
-                cxt->cv.wait_with_timeout(&cxt->mu, abel::seconds(4));
+                cxt->cv.wait_with_timeout(&cxt->mu,  abel::duration::seconds(4));
             } else {
-                ABEL_RAW_CHECK(!cxt->mu.await_with_timeout(false_cond, abel::seconds(4)),
+                ABEL_RAW_CHECK(!cxt->mu.await_with_timeout(false_cond,  abel::duration::seconds(4)),
                                "TestTime failed");
             }
             elapsed = abel::now() - start;
             ABEL_RAW_CHECK(
-                    abel::seconds(3.9) <= elapsed && elapsed <= abel::seconds(6.0),
+                     abel::duration::seconds(3.9) <= elapsed && elapsed <=  abel::duration::seconds(6.0),
                     "TestTime failed");
             ABEL_RAW_CHECK(cxt->g0 >= 3, "TestTime failed");
 
             start = abel::now();
             if (use_cv) {
-                cxt->cv.wait_with_timeout(&cxt->mu, abel::seconds(1));
+                cxt->cv.wait_with_timeout(&cxt->mu,  abel::duration::seconds(1));
             } else {
-                ABEL_RAW_CHECK(!cxt->mu.await_with_timeout(false_cond, abel::seconds(1)),
+                ABEL_RAW_CHECK(!cxt->mu.await_with_timeout(false_cond,  abel::duration::seconds(1)),
                                "TestTime failed");
             }
             elapsed = abel::now() - start;
             ABEL_RAW_CHECK(
-                    abel::seconds(0.9) <= elapsed && elapsed <= abel::seconds(2.0),
+                     abel::duration::seconds(0.9) <= elapsed && elapsed <=  abel::duration::seconds(2.0),
                     "TestTime failed");
             if (use_cv) {
                 cxt->cv.signal_all();
@@ -276,39 +276,39 @@ namespace {
 
             start = abel::now();
             if (use_cv) {
-                cxt->cv.wait_with_timeout(&cxt->mu, abel::seconds(1));
+                cxt->cv.wait_with_timeout(&cxt->mu,  abel::duration::seconds(1));
             } else {
-                ABEL_RAW_CHECK(!cxt->mu.await_with_timeout(false_cond, abel::seconds(1)),
+                ABEL_RAW_CHECK(!cxt->mu.await_with_timeout(false_cond,  abel::duration::seconds(1)),
                                "TestTime failed");
             }
             elapsed = abel::now() - start;
-            ABEL_RAW_CHECK(abel::seconds(0.9) <= elapsed &&
-                           elapsed <= abel::seconds(2.0), "TestTime failed");
+            ABEL_RAW_CHECK( abel::duration::seconds(0.9) <= elapsed &&
+                           elapsed <=  abel::duration::seconds(2.0), "TestTime failed");
             ABEL_RAW_CHECK(cxt->g0 == cxt->threads, "TestTime failed");
 
         } else if (c == 1) {
             abel::mutex_lock l(&cxt->mu);
             const abel::abel_time start = abel::now();
             if (use_cv) {
-                cxt->cv.wait_with_timeout(&cxt->mu, abel::milliseconds(500));
+                cxt->cv.wait_with_timeout(&cxt->mu,  abel::duration::milliseconds(500));
             } else {
                 ABEL_RAW_CHECK(
-                        !cxt->mu.await_with_timeout(false_cond, abel::milliseconds(500)),
+                        !cxt->mu.await_with_timeout(false_cond,  abel::duration::milliseconds(500)),
                         "TestTime failed");
             }
             const abel::duration elapsed = abel::now() - start;
             ABEL_RAW_CHECK(
-                    abel::seconds(0.4) <= elapsed && elapsed <= abel::seconds(0.9),
+                     abel::duration::seconds(0.4) <= elapsed && elapsed <=  abel::duration::seconds(0.9),
                     "TestTime failed");
             cxt->g0++;
         } else if (c == 2) {
             abel::mutex_lock l(&cxt->mu);
             if (use_cv) {
                 while (cxt->g0 < 2) {
-                    cxt->cv.wait_with_timeout(&cxt->mu, abel::seconds(100));
+                    cxt->cv.wait_with_timeout(&cxt->mu,  abel::duration::seconds(100));
                 }
             } else {
-                ABEL_RAW_CHECK(cxt->mu.await_with_timeout(g0ge2, abel::seconds(100)),
+                ABEL_RAW_CHECK(cxt->mu.await_with_timeout(g0ge2,  abel::duration::seconds(100)),
                                "TestTime failed");
             }
             cxt->g0++;
@@ -489,7 +489,7 @@ namespace {
         // which will signal released_cv.  If not, the test will hang.
         state.release = true;
         EXPECT_TRUE(
-                !state.released_cv.wait_with_timeout(&state.release_mu, abel::seconds(10)))
+                !state.released_cv.wait_with_timeout(&state.release_mu,  abel::duration::seconds(10)))
                             << "; Unrecoverable test failure: cond_var::wait_with_timeout did not "
                                "unblock the abel::mutex::await call in another thread.";
 
@@ -505,7 +505,7 @@ namespace {
         x.a_waiter_count = 2;
         tp->schedule(std::bind(&WaitForA, &x));
         tp->schedule(std::bind(&WaitForA, &x));
-        abel::sleep_for(abel::seconds(1));  // Allow first two threads to hang.
+        abel::sleep_for( abel::duration::seconds(1));  // Allow first two threads to hang.
         // The skip field of the second will point to the first because there are
         // only two.
 
@@ -513,7 +513,7 @@ namespace {
         // This would deadlock when the bug was present.
         bool always_false = false;
         x.mu.lock_when_with_timeout(abel::condition(&always_false),
-                                 abel::milliseconds(500));
+                                  abel::duration::milliseconds(500));
 
         // if we get here, the bug is not present.   Cleanup the state.
 
@@ -580,7 +580,7 @@ namespace {
         waiter2->schedule([this] { this->Waiter2(); });
 
         // wait while threads block (best-effort is fine).
-        abel::sleep_for(abel::milliseconds(100));
+        abel::sleep_for( abel::duration::milliseconds(100));
 
         // Wake condwaiter.
         mu.lock();
@@ -628,7 +628,7 @@ namespace {
         x->done1 = (x->unfinished_count == 0);
         x->mu2.unlock();
         // make sure that both readers acquired mu before we release it.
-        abel::sleep_for(abel::seconds(2));
+        abel::sleep_for( abel::duration::seconds(2));
         x->mu.reader_unlock();
 
         x->mu2.lock();
@@ -650,16 +650,16 @@ namespace {
         // queue two thread that will block on reader locks on x.mu
         tp->schedule(std::bind(&AcquireAsReader, &x));
         tp->schedule(std::bind(&AcquireAsReader, &x));
-        abel::sleep_for(abel::seconds(1));  // give time for reader threads to block
+        abel::sleep_for( abel::duration::seconds(1));  // give time for reader threads to block
         x.mu.unlock();                     // wake them up
 
         // both readers should finish promptly
         EXPECT_TRUE(
-                x.mu2.lock_when_with_timeout(abel::condition(&x.done1), abel::seconds(10)));
+                x.mu2.lock_when_with_timeout(abel::condition(&x.done1),  abel::duration::seconds(10)));
         x.mu2.unlock();
 
         EXPECT_TRUE(
-                x.mu2.lock_when_with_timeout(abel::condition(&x.done2), abel::seconds(10)));
+                x.mu2.lock_when_with_timeout(abel::condition(&x.done2),  abel::duration::seconds(10)));
         x.mu2.unlock();
     }
 
@@ -845,8 +845,8 @@ namespace {
         std::uniform_int_distribution<int> random_millis(0, 15);
         mu->reader_lock();
         while (*running == 3) {
-            abel::sleep_for(abel::milliseconds(random_millis(gen)));
-            cv->wait_with_timeout(mu, abel::milliseconds(random_millis(gen)));
+            abel::sleep_for( abel::duration::milliseconds(random_millis(gen)));
+            cv->wait_with_timeout(mu,  abel::duration::milliseconds(random_millis(gen)));
         }
         mu->reader_unlock();
         mu->lock();
@@ -914,7 +914,7 @@ namespace {
         int running = 3;
         tp->schedule(std::bind(&ReaderForReaderOnCondVar, &mu, &cv, &running));
         tp->schedule(std::bind(&ReaderForReaderOnCondVar, &mu, &cv, &running));
-        abel::sleep_for(abel::seconds(2));
+        abel::sleep_for( abel::duration::seconds(2));
         mu.lock();
         running--;
         mu.await(abel::condition(&IntIsZero, &running));
@@ -941,7 +941,7 @@ namespace {
             // this side effect; previously it did not.  it was illegal.
             bool always_false = false;
             x->mu1.lock_when_with_timeout(abel::condition(&always_false),
-                                       abel::milliseconds(100));
+                                        abel::duration::milliseconds(100));
             x->mu1.unlock();
         }
         ABEL_RAW_CHECK(x->value < 4, "should not be invoked a fourth time");
@@ -968,10 +968,10 @@ namespace {
                 std::bind(&WaitForCond2, &x));  // run WaitForCond2() in a thread T
         // T will hang because the first invocation of ConditionWithAcquire() will
         // return false.
-        abel::sleep_for(abel::milliseconds(500));  // allow T time to hang
+        abel::sleep_for( abel::duration::milliseconds(500));  // allow T time to hang
 
         x.mu0.lock();
-        x.cv.wait_with_timeout(&x.mu0, abel::milliseconds(500));  // wake T
+        x.cv.wait_with_timeout(&x.mu0,  abel::duration::milliseconds(500));  // wake T
         // T will be woken because the wait() will call ConditionWithAcquire()
         // for the second time, and it will return true.
 
@@ -1164,7 +1164,7 @@ namespace {
     static abel::duration TimeoutTestAllowedSchedulingDelay() {
         // Note: we use a function here because Microsoft Visual Studio fails to
         // properly initialize constexpr static abel::duration variables.
-        return abel::milliseconds(150);
+        return  abel::duration::milliseconds(150);
     }
 
 // Returns true if `actual_delay` is close enough to `expected_delay` to pass
@@ -1180,9 +1180,9 @@ namespace {
         if (actual_delay < expected_delay) {
             ABEL_RAW_WARN(
                          "Actual delay {} was too short, expected {} (difference {})",
-                         abel::format_duration(actual_delay).c_str(),
-                         abel::format_duration(expected_delay).c_str(),
-                         abel::format_duration(actual_delay - expected_delay).c_str());
+                         actual_delay.format_duration().c_str(),
+                         expected_delay.format_duration().c_str(),
+                         (actual_delay - expected_delay).format_duration().c_str());
             pass = false;
         }
         // If the expected delay is <= zero then allow a small error tolerance, since
@@ -1190,14 +1190,14 @@ namespace {
         // Otherwise, thread scheduling delays may be substantial in rare cases, so
         // tolerate up to kTimeoutTestAllowedSchedulingDelay of error.
         abel::duration tolerance = expected_delay <= abel::zero_duration()
-                                   ? abel::milliseconds(10)
+                                   ?  abel::duration::milliseconds(10)
                                    : TimeoutTestAllowedSchedulingDelay();
         if (actual_delay > expected_delay + tolerance) {
             ABEL_RAW_WARN(
                          "Actual delay {} was too long, expected {} (difference {})",
-                         abel::format_duration(actual_delay).c_str(),
-                         abel::format_duration(expected_delay).c_str(),
-                         abel::format_duration(actual_delay - expected_delay).c_str());
+                         actual_delay.format_duration().c_str(),
+                         expected_delay.format_duration().c_str(),
+                         (actual_delay - expected_delay).format_duration().c_str());
             pass = false;
         }
         return pass;
@@ -1535,7 +1535,7 @@ namespace {
         abel::cond_var logged_cv;
         logged_cv.enable_debug_log("rover_cv");
         logged_mutex.lock();
-        logged_cv.wait_with_timeout(&logged_mutex, abel::milliseconds(20));
+        logged_cv.wait_with_timeout(&logged_mutex,  abel::duration::milliseconds(20));
         logged_mutex.unlock();
         logged_mutex.reader_lock();
         logged_mutex.reader_unlock();

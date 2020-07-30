@@ -40,7 +40,7 @@ TEST(barrier, SanityTest) {
     // sleep has elapsed. Sleeping in a test is usually bad form, but we
     // need to make sure that we are testing the barrier instead of some
     // other synchronization method.
-    abel::sleep_for(abel::seconds(1));
+    abel::sleep_for( abel::duration::seconds(1));
 
     // The counter should still be zero since no thread should have
     // been able to pass the barrier yet.

@@ -33,9 +33,9 @@ namespace abel {
 // Requires that 't' is finite. See duration.cc for details about rep_hi and
 // rep_lo.
         cctz_parts Split(abel::abel_time t) {
-            const auto d = chrono_internal::to_unix_duration(t);
-            const int64_t rep_hi = chrono_internal::get_rep_hi(d);
-            const int64_t rep_lo = chrono_internal::get_rep_lo(d);
+            const auto d = abel_time::to_unix_duration(t);
+            const int64_t rep_hi = duration::get_rep_hi(d);
+            const int64_t rep_lo = duration::get_rep_lo(d);
             const auto sec = unix_epoch() + abel::chrono_internal::seconds(rep_hi);
             const auto fem = abel::chrono_internal::detail::femtoseconds(rep_lo * (1000 * 1000 / 4));
             return {sec, fem};
@@ -46,17 +46,17 @@ namespace abel {
         abel::abel_time Join(const cctz_parts &parts) {
             const int64_t rep_hi = (parts.sec - unix_epoch()).count();
             const uint32_t rep_lo = parts.fem.count() / (1000 * 1000 / 4);
-            const auto d = chrono_internal::make_duration(rep_hi, rep_lo);
-            return chrono_internal::from_unix_duration(d);
+            const auto d = duration::make_duration(rep_hi, rep_lo);
+            return abel_time::from_unix_duration(d);
         }
 
     }  // namespace
 
     std::string format_time(const std::string &format, abel::abel_time t,
                             abel::time_zone tz) {
-        if (t == abel::infinite_future())
+        if (t == abel::abel_time::infinite_future())
             return kInfiniteFutureStr;
-        if (t == abel::infinite_past())
+        if (t == abel::abel_time::infinite_past())
             return kInfinitePastStr;
         const auto parts = Split(t);
         return abel::chrono_internal::detail::format(format, parts.sec, parts.fem,
@@ -90,7 +90,7 @@ namespace abel {
             while (std::isspace(*new_data))
                 ++new_data;
             if (*new_data == '\0') {
-                *time = infinite_future();
+                *time = abel_time::infinite_future();
                 return true;
             }
         }
@@ -101,7 +101,7 @@ namespace abel {
             while (std::isspace(*new_data))
                 ++new_data;
             if (*new_data == '\0') {
-                *time = infinite_past();
+                *time = abel_time::infinite_past();
                 return true;
             }
         }

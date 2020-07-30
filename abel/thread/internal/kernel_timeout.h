@@ -55,8 +55,8 @@ namespace abel {
             static int64_t make_ns(abel::abel_time t) {
                 // optimization--infinite_future is common "no timeout" value
                 // and cheaper to compare than convert.
-                if (t == abel::infinite_future()) return 0;
-                int64_t x = to_unix_nanos(t);
+                if (t == abel::abel_time::infinite_future()) return 0;
+                int64_t x = t.to_unix_nanos();
 
                 // A timeout that lands exactly on the epoch (x=0) needs to be respected,
                 // so we alter it unnoticably to 1.  Negative timeouts are in

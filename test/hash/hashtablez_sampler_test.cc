@@ -77,7 +77,7 @@ namespace abel {
                 info.total_probe_length.store(1, std::memory_order_relaxed);
                 info.hashes_bitwise_or.store(1, std::memory_order_relaxed);
                 info.hashes_bitwise_and.store(1, std::memory_order_relaxed);
-                info.create_time = test_start - abel::hours(20);
+                info.create_time = test_start - abel::duration::hours(20);
 
                 info.PrepareForSampling();
                 EXPECT_EQ(info.capacity.load(), 0);
@@ -312,7 +312,7 @@ namespace abel {
                 }
                 // The threads will hammer away.  Give it a little bit of time for tsan to
                 // spot errors.
-                abel::sleep_for(abel::seconds(3));
+                abel::sleep_for( abel::duration::seconds(3));
                 stop.notify();
             }
 

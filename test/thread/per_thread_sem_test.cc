@@ -81,7 +81,7 @@ namespace abel {
                 ThreadData t;
                 t.num_iterations = kNumIterations;
                 t.timeout = timeout ?
-                            kernel_timeout(abel::now() + abel::seconds(10000))  // far in the future
+                            kernel_timeout(abel::now() +  abel::duration::seconds(10000))  // far in the future
                                     : kernel_timeout::never();
                 t.identity1 = get_or_create_current_thread_identity();
 
@@ -95,7 +95,7 @@ namespace abel {
                 int64_t min_cycles = std::numeric_limits<int64_t>::max();
                 int64_t total_cycles = 0;
                 for (int i = 0; i < kNumIterations; ++i) {
-                    abel::sleep_for(abel::milliseconds(20));
+                    abel::sleep_for( abel::duration::milliseconds(20));
                     int64_t cycles = abel::chrono_internal::cycle_clock::now();
                     post(t.identity2);
                     wait(t.timeout);
@@ -141,18 +141,18 @@ namespace abel {
             }
 
             TEST_F(PerThreadSemTest, Timeouts) {
-                const abel::duration delay = abel::milliseconds(50);
+                const abel::duration delay =  abel::duration::milliseconds(50);
                 const abel::abel_time start = abel::now();
                 EXPECT_FALSE(wait(start + delay));
                 const abel::duration elapsed = abel::now() - start;
                 // Allow for a slight early return, to account for quality of implementation
                 // issues on various platforms.
-                const abel::duration slop = abel::microseconds(200);
+                const abel::duration slop =  abel::duration::microseconds(200);
                 EXPECT_LE(delay - slop, elapsed)
                                     << "wait returned " << delay - elapsed
                                     << " early (with " << slop << " slop), start time was " << start;
 
-                abel::abel_time negative_timeout = abel::unix_epoch() - abel::milliseconds(100);
+                abel::abel_time negative_timeout = abel::abel_time::unix_epoch() -  abel::duration::milliseconds(100);
                 EXPECT_FALSE(wait(negative_timeout));
                 EXPECT_LE(negative_timeout, abel::now() + slop);  // trivially true :)
 

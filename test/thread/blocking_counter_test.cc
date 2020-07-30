@@ -14,7 +14,7 @@ namespace abel {
     namespace {
 
         void PauseAndDecreaseCounter(blocking_counter *counter, int *done) {
-            abel::sleep_for(abel::seconds(1));
+            abel::sleep_for( abel::duration::seconds(1));
             *done = 1;
             counter->decrement_count();
         }

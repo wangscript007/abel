@@ -84,5 +84,5 @@ SPDLOG_INLINE std::shared_ptr<abel::logger> abel::async_logger::clone(std::strin
 {
     auto cloned = std::make_shared<abel::async_logger>(*this);
     cloned->name_ = std::move(new_name);
-    return cloned;
+    return std::move(cloned);
 }

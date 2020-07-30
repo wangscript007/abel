@@ -38,7 +38,7 @@ namespace abel {
                 return UNCHANGED;
             }
         } else {
-            *new_timestamp = abel::from_chrono(st);
+            *new_timestamp = abel::abel_time::from_chrono(st);
             if(_last_ts != abel::abel_time()) {
                 if(*new_timestamp != _last_ts) {
                     return UPDATED;

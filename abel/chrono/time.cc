@@ -46,7 +46,7 @@ namespace abel {
 // Floors d to the next unit boundary closer to negative infinity.
         ABEL_FORCE_INLINE int64_t FloorToUnit(abel::duration d, abel::duration unit) {
             abel::duration rem;
-            int64_t q = abel::integer_div_duration(d, unit, &rem);
+            int64_t q = duration::integer_div_duration(d, unit, &rem);
             return (q > 0 ||
                     rem >= zero_duration() ||
                     q == std::numeric_limits<int64_t>::min()) ? q : q - 1;
@@ -108,7 +108,7 @@ namespace abel {
 
         ABEL_FORCE_INLINE abel::time_conversion InfiniteFutureTimeConversion() {
             abel::time_conversion tc;
-            tc.pre = tc.trans = tc.post = abel::infinite_future();
+            tc.pre = tc.trans = tc.post = abel::abel_time::infinite_future();
             tc.kind = abel::time_conversion::UNIQUE;
             tc.normalized = true;
             return tc;
@@ -116,7 +116,7 @@ namespace abel {
 
         ABEL_FORCE_INLINE time_conversion InfinitePastTimeConversion() {
             abel::time_conversion tc;
-            tc.pre = tc.trans = tc.post = abel::infinite_past();
+            tc.pre = tc.trans = tc.post = abel::abel_time::infinite_past();
             tc.kind = abel::time_conversion::UNIQUE;
             tc.normalized = true;
             return tc;
@@ -135,7 +135,7 @@ namespace abel {
                 if (cs > al.cs) {
                     if (normalized)
                         *normalized = true;
-                    return abel::infinite_future();
+                    return abel::abel_time::infinite_future();
                 }
             }
             if (sec == min) {
@@ -143,11 +143,11 @@ namespace abel {
                 if (cs < al.cs) {
                     if (normalized)
                         *normalized = true;
-                    return abel::infinite_past();
+                    return abel::abel_time::infinite_past();
                 }
             }
             const auto hi = (sec - internal_unix_epoch()).count();
-            return chrono_internal::from_unix_duration(chrono_internal::make_duration(hi));
+            return abel_time::from_unix_duration(duration::make_duration(hi));
         }
 
 // Returns Mon=1..Sun=7.
@@ -177,7 +177,7 @@ namespace abel {
                                     abel::chrono_internal::time_zone::civil_transition *trans) const,
                             abel_time t, time_zone::chrono_transition *trans) {
             // Transitions are second-aligned, so we can discard any fractional part.
-            const auto tp = internal_unix_epoch() + abel::chrono_internal::seconds(to_unix_seconds(t));
+            const auto tp = internal_unix_epoch() + abel::chrono_internal::seconds(t.to_unix_seconds());
             abel::chrono_internal::time_zone::civil_transition tr;
             if (!(tz.*find_transition)(tp, &tr))
                 return false;
@@ -193,12 +193,12 @@ namespace abel {
 //
 
     abel::abel_time::breakdown abel_time::in(abel::time_zone tz) const {
-        if (*this == abel::infinite_future())
+        if (*this == abel::abel_time::infinite_future())
             return InfiniteFutureBreakdown();
-        if (*this == abel::infinite_past())
+        if (*this == abel::abel_time::infinite_past())
             return InfinitePastBreakdown();
 
-        const auto tp = internal_unix_epoch() + abel::chrono_internal::seconds(chrono_internal::get_rep_hi(rep_));
+        const auto tp = internal_unix_epoch() + abel::chrono_internal::seconds(duration::get_rep_hi(rep_));
         const auto al = abel::chrono_internal::time_zone(tz).lookup(tp);
         const auto cs = al.cs;
         const auto cd = abel::chrono_internal::civil_day(cs);
@@ -210,7 +210,7 @@ namespace abel {
         bd.hour = cs.hour();
         bd.minute = cs.minute();
         bd.second = cs.second();
-        bd.subsecond = chrono_internal::make_duration(0, chrono_internal::get_rep_lo(rep_));
+        bd.subsecond = duration::make_duration(0, duration::get_rep_lo(rep_));
         bd.weekday = MapWeekday(abel::chrono_internal::get_weekday(cd));
         bd.yearday = abel::chrono_internal::get_yearday(cd);
         bd.offset = al.offset;
@@ -219,78 +219,77 @@ namespace abel {
         return bd;
     }
 
-//
-// Conversions from/to other time types.
-//
+    //
+    // Conversions from/to other time types.
+    //
 
-    abel::abel_time from_date(double udate) {
-        return chrono_internal::from_unix_duration(abel::milliseconds(udate));
+    abel::abel_time abel_time::from_date(double udate) {
+        return abel_time::from_unix_duration(duration::milliseconds(udate));
     }
 
-    abel::abel_time from_universal(int64_t universal) {
-        return abel::universal_epoch() + 100 * abel::nanoseconds(universal);
+    abel::abel_time abel_time::from_universal(int64_t universal) {
+        return abel::abel_time::universal_epoch() + 100 * duration::nanoseconds(universal);
     }
 
-    int64_t to_unix_nanos(abel_time t) {
-        if (chrono_internal::get_rep_hi(chrono_internal::to_unix_duration(t)) >= 0 &&
-            chrono_internal::get_rep_hi(chrono_internal::to_unix_duration(t)) >> 33 == 0) {
-            return (chrono_internal::get_rep_hi(chrono_internal::to_unix_duration(t)) *
+    int64_t abel_time::to_unix_nanos() const {
+        if (duration::get_rep_hi(abel_time::to_unix_duration(*this)) >= 0 &&
+            duration::get_rep_hi(abel_time::to_unix_duration(*this)) >> 33 == 0) {
+            return (duration::get_rep_hi(abel_time::to_unix_duration(*this)) *
                     1000 * 1000 * 1000) +
-                   (chrono_internal::get_rep_lo(chrono_internal::to_unix_duration(t)) / 4);
+                   (duration::get_rep_lo(abel_time::to_unix_duration(*this)) / 4);
         }
-        return FloorToUnit(chrono_internal::to_unix_duration(t), abel::nanoseconds(1));
+        return FloorToUnit(abel_time::to_unix_duration(*this), duration::nanoseconds(1));
     }
 
-    int64_t to_unix_micros(abel_time t) {
-        if (chrono_internal::get_rep_hi(chrono_internal::to_unix_duration(t)) >= 0 &&
-            chrono_internal::get_rep_hi(chrono_internal::to_unix_duration(t)) >> 43 == 0) {
-            return (chrono_internal::get_rep_hi(chrono_internal::to_unix_duration(t)) *
+    int64_t abel_time::to_unix_micros() const{
+        if (duration::get_rep_hi(abel_time::to_unix_duration(*this)) >= 0 &&
+            duration::get_rep_hi(abel_time::to_unix_duration(*this)) >> 43 == 0) {
+            return (duration::get_rep_hi(abel_time::to_unix_duration(*this)) *
                     1000 * 1000) +
-                   (chrono_internal::get_rep_lo(chrono_internal::to_unix_duration(t)) / 4000);
+                   (duration::get_rep_lo(abel_time::to_unix_duration(*this)) / 4000);
         }
-        return FloorToUnit(chrono_internal::to_unix_duration(t), abel::microseconds(1));
+        return FloorToUnit(abel_time::to_unix_duration(*this), duration::microseconds(1));
     }
 
-    int64_t to_unix_millis(abel_time t) {
-        if (chrono_internal::get_rep_hi(chrono_internal::to_unix_duration(t)) >= 0 &&
-            chrono_internal::get_rep_hi(chrono_internal::to_unix_duration(t)) >> 53 == 0) {
-            return (chrono_internal::get_rep_hi(chrono_internal::to_unix_duration(t)) * 1000) +
-                   (chrono_internal::get_rep_lo(chrono_internal::to_unix_duration(t)) /
+    int64_t abel_time::to_unix_millis() const {
+        if (duration::get_rep_hi(abel_time::to_unix_duration(*this)) >= 0 &&
+            duration::get_rep_hi(abel_time::to_unix_duration(*this)) >> 53 == 0) {
+            return (duration::get_rep_hi(abel_time::to_unix_duration(*this)) * 1000) +
+                   (duration::get_rep_lo(abel_time::to_unix_duration(*this)) /
                     (4000 * 1000));
         }
-        return FloorToUnit(chrono_internal::to_unix_duration(t), abel::milliseconds(1));
+        return FloorToUnit(abel_time::to_unix_duration(*this), duration::milliseconds(1));
     }
 
-    int64_t to_unix_seconds(abel_time t) {
-        return chrono_internal::get_rep_hi(chrono_internal::to_unix_duration(t));
+    int64_t abel_time::to_unix_seconds() const {
+        return duration::get_rep_hi(abel_time::to_unix_duration(*this));
     }
 
-    time_t to_time_t(abel_time t) { return abel::to_timespec(t).tv_sec; }
+    time_t abel_time::to_time_t() const { return to_timespec().tv_sec; }
 
-    double to_date(abel_time t) {
-        return abel::float_div_duration(chrono_internal::to_unix_duration(t),
-                                        abel::milliseconds(1));
+    double abel_time::to_date() const {
+        return rep_.float_div_duration(duration::milliseconds(1));
     }
 
-    int64_t to_universal(abel::abel_time t) {
-        return abel::FloorToUnit(t - abel::universal_epoch(), abel::nanoseconds(100));
+    int64_t abel_time::to_universal() const {
+        return abel::FloorToUnit(*this - abel::abel_time::universal_epoch(), duration::nanoseconds(100));
     }
 
-    abel::abel_time time_from_timespec(timespec ts) {
-        return chrono_internal::from_unix_duration(abel::duration_from_timespec(ts));
+    abel::abel_time abel_time::from_timespec(timespec ts) {
+        return from_unix_duration(duration::from_timespec(ts));
     }
 
-    abel::abel_time time_from_timeval(timeval tv) {
-        return chrono_internal::from_unix_duration(abel::duration_from_timeval(tv));
+    abel::abel_time abel_time::from_timeval(timeval tv) {
+        return from_unix_duration(duration::from_timeval(tv));
     }
 
-    timespec to_timespec(abel_time t) {
+    timespec abel_time::to_timespec() const{
         timespec ts;
-        abel::duration d = chrono_internal::to_unix_duration(t);
-        if (!chrono_internal::is_infinite_duration(d)) {
-            ts.tv_sec = chrono_internal::get_rep_hi(d);
-            if (ts.tv_sec == chrono_internal::get_rep_hi(d)) {  // no time_t narrowing
-                ts.tv_nsec = chrono_internal::get_rep_lo(d) / 4;  // floor
+        abel::duration d = to_unix_duration(*this);
+        if (!d.is_infinite_duration()) {
+            ts.tv_sec = duration::get_rep_hi(d);
+            if (ts.tv_sec == duration::get_rep_hi(d)) {  // no time_t narrowing
+                ts.tv_nsec = duration::get_rep_lo(d) / 4;  // floor
                 return ts;
             }
         }
@@ -304,9 +303,9 @@ namespace abel {
         return ts;
     }
 
-    timeval to_timeval(abel_time t) {
+    timeval abel_time::to_timeval() const{
         timeval tv;
-        timespec ts = abel::to_timespec(t);
+        timespec ts = to_timespec();
         tv.tv_sec = ts.tv_sec;
         if (tv.tv_sec != ts.tv_sec) {  // narrowing
             if (ts.tv_sec < 0) {
@@ -322,18 +321,17 @@ namespace abel {
         return tv;
     }
 
-    abel_time from_chrono(const std::chrono::system_clock::time_point &tp) {
-        return chrono_internal::from_unix_duration(chrono_internal::from_chrono(
-                tp - std::chrono::system_clock::from_time_t(0)));
+    abel_time abel_time::from_chrono(const std::chrono::system_clock::time_point &tp) {
+        return abel_time::from_unix_duration(duration::from_chrono(tp - std::chrono::system_clock::from_time_t(0)));
     }
 
-    std::chrono::system_clock::time_point to_chrono_time(abel::abel_time t) {
+    std::chrono::system_clock::time_point abel_time::to_chrono_time() const{
         using D = std::chrono::system_clock::duration;
-        auto d = chrono_internal::to_unix_duration(t);
+        auto d = abel_time::to_unix_duration(*this);
         if (d < zero_duration())
-            d = floor(d, from_chrono(D{1}));
+            d = d.floor(duration::from_chrono(D{1}));
         return std::chrono::system_clock::from_time_t(0) +
-               chrono_internal::to_chrono_duration<D>(d);
+               d.to_chrono_duration<D>();
     }
 
 //
@@ -341,18 +339,18 @@ namespace abel {
 //
 
     abel::time_zone::chrono_info time_zone::at(abel_time t) const {
-        if (t == abel::infinite_future())
+        if (t == abel::abel_time::infinite_future())
             return InfiniteFutureCivilInfo();
-        if (t == abel::infinite_past())
+        if (t == abel::abel_time::infinite_past())
             return InfinitePastCivilInfo();
 
-        const auto ud = chrono_internal::to_unix_duration(t);
-        const auto tp = internal_unix_epoch() + abel::chrono_internal::seconds(chrono_internal::get_rep_hi(ud));
+        const auto ud = abel_time::to_unix_duration(t);
+        const auto tp = internal_unix_epoch() + abel::chrono_internal::seconds(duration::get_rep_hi(ud));
         const auto al = cz_.lookup(tp);
 
         time_zone::chrono_info ci;
         ci.cs = chrono_second(al.cs);
-        ci.subsecond = chrono_internal::make_duration(0, chrono_internal::get_rep_lo(ud));
+        ci.subsecond = duration::make_duration(0, duration::get_rep_lo(ud));
         ci.offset = al.offset;
         ci.is_dst = al.is_dst;
         ci.zone_abbr = al.abbr;
@@ -431,9 +429,9 @@ namespace abel {
         chrono_year_t tm_year = tm.tm_year;
         // Avoids years that are too extreme for chrono_second to normalize.
         if (tm_year > 300000000000ll)
-            return infinite_future();
+            return abel_time::infinite_future();
         if (tm_year < -300000000000ll)
-            return infinite_past();
+            return abel_time::infinite_past();
         int tm_mon = tm.tm_mon;
         if (tm_mon == std::numeric_limits<int>::max()) {
             tm_mon -= 12;

@@ -57,17 +57,17 @@ namespace abel {
     static void BasicTests(bool notify_before_waiting, notification *notification) {
         EXPECT_FALSE(notification->has_been_notified());
         EXPECT_FALSE(
-                notification->wait_for_notification_with_timeout(abel::milliseconds(0)));
+                notification->wait_for_notification_with_timeout(abel::duration::milliseconds(0)));
         EXPECT_FALSE(notification->wait_for_notification_with_deadline(abel::now()));
 
-        const abel::duration delay = abel::milliseconds(50);
+        const abel::duration delay = abel::duration::milliseconds(50);
         const abel::abel_time start = abel::now();
         EXPECT_FALSE(notification->wait_for_notification_with_timeout(delay));
         const abel::duration elapsed = abel::now() - start;
 
         // Allow for a slight early return, to account for quality of implementation
         // issues on various platforms.
-        const abel::duration slop = abel::microseconds(200);
+        const abel::duration slop = abel::duration::microseconds(200);
         EXPECT_LE(delay - slop, elapsed)
                             << "wait_for_notification_with_timeout returned " << delay - elapsed
                             << " early (with " << slop << " slop), start time was " << start;
@@ -102,7 +102,7 @@ namespace abel {
         // fully incremented.
         notification->wait_for_notification();  // should exit immediately
         EXPECT_TRUE(notification->has_been_notified());
-        EXPECT_TRUE(notification->wait_for_notification_with_timeout(abel::seconds(0)));
+        EXPECT_TRUE(notification->wait_for_notification_with_timeout(abel::duration::seconds(0)));
         EXPECT_TRUE(notification->wait_for_notification_with_deadline(abel::now()));
         for (std::thread &worker : workers) {
             worker.join();

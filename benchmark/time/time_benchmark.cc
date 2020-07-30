@@ -38,9 +38,9 @@ namespace {
 //
 
     void BM_Time_Arithmetic(benchmark::State &state) {
-        const abel::duration nano = abel::nanoseconds(1);
-        const abel::duration sec = abel::seconds(1);
-        abel::abel_time t = abel::unix_epoch();
+        const abel::duration nano = abel::duration::nanoseconds(1);
+        const abel::duration sec = abel::duration::seconds(1);
+        abel::abel_time t = abel::abel_time::unix_epoch();
         while (state.KeepRunning()) {
             benchmark::DoNotOptimize(t += nano);
             benchmark::DoNotOptimize(t -= sec);
@@ -55,7 +55,7 @@ namespace {
 
     void BM_Time_Difference(benchmark::State &state) {
         abel::abel_time start = abel::now();
-        abel::abel_time end = start + abel::nanoseconds(1);
+        abel::abel_time end = start + abel::duration::nanoseconds(1);
         abel::duration diff;
         while (state.KeepRunning()) {
             benchmark::DoNotOptimize(diff += end - start);
@@ -77,11 +77,11 @@ namespace {
     void BM_Time_ToDateTime_Abel(benchmark::State &state) {
         const abel::time_zone tz =
                 abel::chrono_internal::load_time_zone("America/Los_Angeles");
-        abel::abel_time t = abel::from_unix_seconds(1384569027);
-        abel::abel_time t2 = abel::from_unix_seconds(1418962578);
+        abel::abel_time t = abel::abel_time::from_unix_seconds(1384569027);
+        abel::abel_time t2 = abel::abel_time::from_unix_seconds(1418962578);
         while (state.KeepRunning()) {
             std::swap(t, t2);
-            t += abel::seconds(1);
+            t += abel::duration::seconds(1);
             benchmark::DoNotOptimize(t.in(tz));
         }
     }
@@ -108,9 +108,9 @@ namespace {
 
     void BM_Time_ToDateTimeUTC_Abel(benchmark::State &state) {
         const abel::time_zone tz = abel::utc_time_zone();
-        abel::abel_time t = abel::from_unix_seconds(1384569027);
+        abel::abel_time t = abel::abel_time::from_unix_seconds(1384569027);
         while (state.KeepRunning()) {
-            t += abel::seconds(1);
+            t += abel::duration::seconds(1);
             benchmark::DoNotOptimize(t.in(tz));
         }
     }
@@ -139,7 +139,7 @@ namespace {
     void BM_Time_FromUnixMicros(benchmark::State &state) {
         int i = 0;
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(abel::from_unix_micros(i));
+            benchmark::DoNotOptimize(abel::abel_time::from_unix_micros(i));
             ++i;
         }
     }
@@ -147,36 +147,36 @@ namespace {
     BENCHMARK(BM_Time_FromUnixMicros);
 
     void BM_Time_ToUnixNanos(benchmark::State &state) {
-        const abel::abel_time t = abel::unix_epoch() + abel::seconds(123);
+        const abel::abel_time t = abel::abel_time::unix_epoch() + abel::duration::seconds(123);
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(to_unix_nanos(t));
+            benchmark::DoNotOptimize(t.to_unix_nanos());
         }
     }
 
     BENCHMARK(BM_Time_ToUnixNanos);
 
     void BM_Time_ToUnixMicros(benchmark::State &state) {
-        const abel::abel_time t = abel::unix_epoch() + abel::seconds(123);
+        const abel::abel_time t = abel::abel_time::unix_epoch() + abel::duration::seconds(123);
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(to_unix_micros(t));
+            benchmark::DoNotOptimize(t.to_unix_micros());
         }
     }
 
     BENCHMARK(BM_Time_ToUnixMicros);
 
     void BM_Time_ToUnixMillis(benchmark::State &state) {
-        const abel::abel_time t = abel::unix_epoch() + abel::seconds(123);
+        const abel::abel_time t = abel::abel_time::unix_epoch() + abel::duration::seconds(123);
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(to_unix_millis(t));
+            benchmark::DoNotOptimize(t.to_unix_millis());
         }
     }
 
     BENCHMARK(BM_Time_ToUnixMillis);
 
     void BM_Time_ToUnixSeconds(benchmark::State &state) {
-        const abel::abel_time t = abel::unix_epoch() + abel::seconds(123);
+        const abel::abel_time t = abel::abel_time::unix_epoch() + abel::duration::seconds(123);
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(abel::to_unix_seconds(t));
+            benchmark::DoNotOptimize(t.to_unix_seconds());
         }
     }
 
@@ -297,20 +297,20 @@ namespace {
     void BM_Time_ToTimespec(benchmark::State &state) {
         abel::abel_time now = abel::now();
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(abel::to_timespec(now));
+            benchmark::DoNotOptimize(now.to_timespec());
         }
     }
 
     BENCHMARK(BM_Time_ToTimespec);
 
     void BM_Time_FromTimespec(benchmark::State &state) {
-        timespec ts = abel::to_timespec(abel::now());
+        timespec ts = abel::now().to_timespec();
         while (state.KeepRunning()) {
             if (++ts.tv_nsec == 1000 * 1000 * 1000) {
                 ++ts.tv_sec;
                 ts.tv_nsec = 0;
             }
-            benchmark::DoNotOptimize(abel::time_from_timespec(ts));
+            benchmark::DoNotOptimize(abel::abel_time::from_timespec(ts));
         }
     }
 
@@ -322,7 +322,7 @@ namespace {
 
     void BM_Time_InfiniteFuture(benchmark::State &state) {
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(abel::infinite_future());
+            benchmark::DoNotOptimize(abel::abel_time::infinite_future());
         }
     }
 
@@ -330,7 +330,7 @@ namespace {
 
     void BM_Time_InfinitePast(benchmark::State &state) {
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(abel::infinite_past());
+            benchmark::DoNotOptimize(abel::abel_time::infinite_past());
         }
     }
 

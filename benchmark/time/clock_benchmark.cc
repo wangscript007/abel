@@ -46,7 +46,7 @@ namespace {
 
     void BM_Clock_Now_AbelTime_ToUnixNanos(benchmark::State &state) {
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(abel::to_unix_nanos(abel::now()));
+            benchmark::DoNotOptimize(abel::now().to_unix_nanos());
         }
     }
 

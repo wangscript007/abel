@@ -107,17 +107,17 @@ namespace {
         CheckUint128Case({std::numeric_limits<uint64_t>::max(), kHex,
                                  /*width = */ 0, "ffffffffffffffff"});
         CheckUint128Case(
-                {abel::MakeUint128(1, 0), kDec, /*width = */ 0, "18446744073709551616"});
-        CheckUint128Case({abel::MakeUint128(1, 0), kOct, /*width = */ 0,
+                {abel::make_uint128(1, 0), kDec, /*width = */ 0, "18446744073709551616"});
+        CheckUint128Case({abel::make_uint128(1, 0), kOct, /*width = */ 0,
                           "2000000000000000000000"});
         CheckUint128Case(
-                {abel::MakeUint128(1, 0), kHex, /*width = */ 0, "10000000000000000"});
-        CheckUint128Case({abel::MakeUint128(0x8000000000000000, 0), kDec,
+                {abel::make_uint128(1, 0), kHex, /*width = */ 0, "10000000000000000"});
+        CheckUint128Case({abel::make_uint128(0x8000000000000000, 0), kDec,
                                  /*width = */ 0, "170141183460469231731687303715884105728"});
-        CheckUint128Case({abel::MakeUint128(0x8000000000000000, 0), kOct,
+        CheckUint128Case({abel::make_uint128(0x8000000000000000, 0), kOct,
                                  /*width = */ 0,
                           "2000000000000000000000000000000000000000000"});
-        CheckUint128Case({abel::MakeUint128(0x8000000000000000, 0), kHex,
+        CheckUint128Case({abel::make_uint128(0x8000000000000000, 0), kHex,
                                  /*width = */ 0, "80000000000000000000000000000000"});
         CheckUint128Case({abel::kuint128max, kDec, /*width = */ 0,
                           "340282366920938463463374607431768211455"});

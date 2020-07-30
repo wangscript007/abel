@@ -30,7 +30,7 @@ namespace {
     void BM_Duration_Factory_Nanoseconds(benchmark::State &state) {
         int64_t i = 0;
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(abel::nanoseconds(i));
+            benchmark::DoNotOptimize(abel::duration::nanoseconds(i));
             i += 314159;
         }
     }
@@ -40,7 +40,7 @@ namespace {
     void BM_Duration_Factory_Microseconds(benchmark::State &state) {
         int64_t i = 0;
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(abel::microseconds(i));
+            benchmark::DoNotOptimize(abel::duration::microseconds(i));
             i += 314;
         }
     }
@@ -50,7 +50,7 @@ namespace {
     void BM_Duration_Factory_Milliseconds(benchmark::State &state) {
         int64_t i = 0;
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(abel::milliseconds(i));
+            benchmark::DoNotOptimize(abel::duration::milliseconds(i));
             i += 1;
         }
     }
@@ -60,7 +60,7 @@ namespace {
     void BM_Duration_Factory_Seconds(benchmark::State &state) {
         int64_t i = 0;
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(abel::seconds(i));
+            benchmark::DoNotOptimize(abel::duration::seconds(i));
             i += 1;
         }
     }
@@ -70,7 +70,7 @@ namespace {
     void BM_Duration_Factory_Minutes(benchmark::State &state) {
         int64_t i = 0;
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(abel::minutes(i));
+            benchmark::DoNotOptimize(abel::duration::minutes(i));
             i += 1;
         }
     }
@@ -80,7 +80,7 @@ namespace {
     void BM_Duration_Factory_Hours(benchmark::State &state) {
         int64_t i = 0;
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(abel::hours(i));
+            benchmark::DoNotOptimize(abel::duration::hours(i));
             i += 1;
         }
     }
@@ -90,7 +90,7 @@ namespace {
     void BM_Duration_Factory_DoubleNanoseconds(benchmark::State &state) {
         double d = 1;
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(abel::nanoseconds(d));
+            benchmark::DoNotOptimize(abel::duration::nanoseconds(d));
             d = d * 1.00000001 + 1;
         }
     }
@@ -100,7 +100,7 @@ namespace {
     void BM_Duration_Factory_DoubleMicroseconds(benchmark::State &state) {
         double d = 1e-3;
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(abel::microseconds(d));
+            benchmark::DoNotOptimize(abel::duration::microseconds(d));
             d = d * 1.00000001 + 1e-3;
         }
     }
@@ -110,7 +110,7 @@ namespace {
     void BM_Duration_Factory_DoubleMilliseconds(benchmark::State &state) {
         double d = 1e-6;
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(abel::milliseconds(d));
+            benchmark::DoNotOptimize(abel::duration::milliseconds(d));
             d = d * 1.00000001 + 1e-6;
         }
     }
@@ -120,7 +120,7 @@ namespace {
     void BM_Duration_Factory_DoubleSeconds(benchmark::State &state) {
         double d = 1e-9;
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(abel::seconds(d));
+            benchmark::DoNotOptimize(abel::duration::seconds(d));
             d = d * 1.00000001 + 1e-9;
         }
     }
@@ -130,7 +130,7 @@ namespace {
     void BM_Duration_Factory_DoubleMinutes(benchmark::State &state) {
         double d = 1e-9;
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(abel::minutes(d));
+            benchmark::DoNotOptimize(abel::duration::minutes(d));
             d = d * 1.00000001 + 1e-9;
         }
     }
@@ -140,7 +140,7 @@ namespace {
     void BM_Duration_Factory_DoubleHours(benchmark::State &state) {
         double d = 1e-9;
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(abel::hours(d));
+            benchmark::DoNotOptimize(abel::duration::hours(d));
             d = d * 1.00000001 + 1e-9;
         }
     }
@@ -152,8 +152,8 @@ namespace {
 //
 
     void BM_Duration_Addition(benchmark::State &state) {
-        abel::duration d = abel::nanoseconds(1);
-        abel::duration step = abel::milliseconds(1);
+        abel::duration d = abel::duration::nanoseconds(1);
+        abel::duration step = abel::duration::milliseconds(1);
         while (state.KeepRunning()) {
             benchmark::DoNotOptimize(d += step);
         }
@@ -162,8 +162,8 @@ namespace {
     BENCHMARK(BM_Duration_Addition);
 
     void BM_Duration_Subtraction(benchmark::State &state) {
-        abel::duration d = abel::seconds(std::numeric_limits<int64_t>::max());
-        abel::duration step = abel::milliseconds(1);
+        abel::duration d = abel::duration::seconds(std::numeric_limits<int64_t>::max());
+        abel::duration step = abel::duration::milliseconds(1);
         while (state.KeepRunning()) {
             benchmark::DoNotOptimize(d -= step);
         }
@@ -172,7 +172,7 @@ namespace {
     BENCHMARK(BM_Duration_Subtraction);
 
     void BM_Duration_Multiplication_Fixed(benchmark::State &state) {
-        abel::duration d = abel::milliseconds(1);
+        abel::duration d = abel::duration::milliseconds(1);
         abel::duration s;
         int i = 0;
         while (state.KeepRunning()) {
@@ -184,7 +184,7 @@ namespace {
     BENCHMARK(BM_Duration_Multiplication_Fixed);
 
     void BM_Duration_Multiplication_Double(benchmark::State &state) {
-        abel::duration d = abel::milliseconds(1);
+        abel::duration d = abel::duration::milliseconds(1);
         abel::duration s;
         int i = 0;
         while (state.KeepRunning()) {
@@ -196,7 +196,7 @@ namespace {
     BENCHMARK(BM_Duration_Multiplication_Double);
 
     void BM_Duration_Division_Fixed(benchmark::State &state) {
-        abel::duration d = abel::seconds(1);
+        abel::duration d = abel::duration::seconds(1);
         int i = 0;
         while (state.KeepRunning()) {
             benchmark::DoNotOptimize(d /= i + 1);
@@ -207,7 +207,7 @@ namespace {
     BENCHMARK(BM_Duration_Division_Fixed);
 
     void BM_Duration_Division_Double(benchmark::State &state) {
-        abel::duration d = abel::seconds(1);
+        abel::duration d = abel::duration::seconds(1);
         int i = 0;
         while (state.KeepRunning()) {
             benchmark::DoNotOptimize(d /= i + 1.0);
@@ -222,7 +222,7 @@ namespace {
         int i = 0;
         while (state.KeepRunning()) {
             benchmark::DoNotOptimize(
-                    d += abel::float_div_duration(abel::milliseconds(i), abel::nanoseconds(1)));
+                    d += abel::duration::milliseconds(i).float_div_duration(abel::duration::nanoseconds(1)));
             ++i;
         }
     }
@@ -235,8 +235,8 @@ namespace {
         int i = 0;
         while (state.KeepRunning()) {
             benchmark::DoNotOptimize(a +=
-                                             abel::integer_div_duration(abel::nanoseconds(i),
-                                                                        abel::nanoseconds(1), &ignore));
+                                             abel::duration::integer_div_duration(abel::duration::nanoseconds(i),
+                                                                        abel::duration::nanoseconds(1), &ignore));
             ++i;
         }
     }
@@ -248,8 +248,8 @@ namespace {
         abel::duration ignore;
         int i = 0;
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(a += abel::integer_div_duration(abel::microseconds(i),
-                                                                     abel::microseconds(1),
+            benchmark::DoNotOptimize(a += abel::duration::integer_div_duration(abel::duration::microseconds(i),
+                                                                     abel::duration::microseconds(1),
                                                                      &ignore));
             ++i;
         }
@@ -262,8 +262,8 @@ namespace {
         abel::duration ignore;
         int i = 0;
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(a += abel::integer_div_duration(abel::milliseconds(i),
-                                                                     abel::milliseconds(1),
+            benchmark::DoNotOptimize(a += abel::duration::integer_div_duration(abel::duration::milliseconds(i),
+                                                                     abel::duration::milliseconds(1),
                                                                      &ignore));
             ++i;
         }
@@ -277,7 +277,8 @@ namespace {
         int i = 0;
         while (state.KeepRunning()) {
             benchmark::DoNotOptimize(
-                    a += abel::integer_div_duration(abel::seconds(i), abel::seconds(1), &ignore));
+                    a += abel::duration::integer_div_duration(abel::duration::seconds(i), abel::duration::seconds(1),
+                                                              &ignore));
             ++i;
         }
     }
@@ -290,7 +291,8 @@ namespace {
         int i = 0;
         while (state.KeepRunning()) {
             benchmark::DoNotOptimize(
-                    a += abel::integer_div_duration(abel::minutes(i), abel::minutes(1), &ignore));
+                    a += abel::duration::integer_div_duration(abel::duration::minutes(i), abel::duration::minutes(1),
+                                                              &ignore));
             ++i;
         }
     }
@@ -303,7 +305,8 @@ namespace {
         int i = 0;
         while (state.KeepRunning()) {
             benchmark::DoNotOptimize(
-                    a += abel::integer_div_duration(abel::hours(i), abel::hours(1), &ignore));
+                    a += abel::duration::integer_div_duration(abel::duration::hours(i), abel::duration::hours(1),
+                                                              &ignore));
             ++i;
         }
     }
@@ -311,54 +314,54 @@ namespace {
     BENCHMARK(BM_Duration_IDivDuration_Hours);
 
     void BM_Duration_ToInt64Nanoseconds(benchmark::State &state) {
-        abel::duration d = abel::seconds(100000);
+        abel::duration d = abel::duration::seconds(100000);
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(abel::to_int64_nanoseconds(d));
+            benchmark::DoNotOptimize(d.to_int64_nanoseconds());
         }
     }
 
     BENCHMARK(BM_Duration_ToInt64Nanoseconds);
 
     void BM_Duration_ToInt64Microseconds(benchmark::State &state) {
-        abel::duration d = abel::seconds(100000);
+        abel::duration d = abel::duration::seconds(100000);
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(abel::to_int64_microseconds(d));
+            benchmark::DoNotOptimize(d.to_int64_microseconds());
         }
     }
 
     BENCHMARK(BM_Duration_ToInt64Microseconds);
 
     void BM_Duration_ToInt64Milliseconds(benchmark::State &state) {
-        abel::duration d = abel::seconds(100000);
+        abel::duration d = abel::duration::seconds(100000);
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(abel::to_int64_milliseconds(d));
+            benchmark::DoNotOptimize(d.to_int64_milliseconds());
         }
     }
 
     BENCHMARK(BM_Duration_ToInt64Milliseconds);
 
     void BM_Duration_ToInt64Seconds(benchmark::State &state) {
-        abel::duration d = abel::seconds(100000);
+        abel::duration d = abel::duration::seconds(100000);
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(abel::to_int64_seconds(d));
+            benchmark::DoNotOptimize(d.to_int64_seconds());
         }
     }
 
     BENCHMARK(BM_Duration_ToInt64Seconds);
 
     void BM_Duration_ToInt64Minutes(benchmark::State &state) {
-        abel::duration d = abel::seconds(100000);
+        abel::duration d = abel::duration::seconds(100000);
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(abel::to_int64_minutes(d));
+            benchmark::DoNotOptimize(d.to_int64_minutes());
         }
     }
 
     BENCHMARK(BM_Duration_ToInt64Minutes);
 
     void BM_Duration_ToInt64Hours(benchmark::State &state) {
-        abel::duration d = abel::seconds(100000);
+        abel::duration d = abel::duration::seconds(100000);
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(abel::to_int64_hours(d));
+            benchmark::DoNotOptimize(d.to_int64_hours());
         }
     }
 
@@ -369,9 +372,9 @@ namespace {
 //
 
     void BM_Duration_ToTimespec_AbelTime(benchmark::State &state) {
-        abel::duration d = abel::seconds(1);
+        abel::duration d = abel::duration::seconds(1);
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(abel::to_timespec(d));
+            benchmark::DoNotOptimize(d.to_timespec());
         }
     }
 
@@ -401,7 +404,7 @@ namespace {
                 ++ts.tv_sec;
                 ts.tv_nsec = 0;
             }
-            benchmark::DoNotOptimize(abel::duration_from_timespec(ts));
+            benchmark::DoNotOptimize(abel::duration::from_timespec(ts));
         }
     }
 
@@ -445,7 +448,7 @@ namespace {
         abel::duration d;
         abel::parse_duration(kDurations[state.range(0)], &d);
         while (state.KeepRunning()) {
-            benchmark::DoNotOptimize(abel::format_duration(d));
+            benchmark::DoNotOptimize(d.format_duration());
         }
     }
 

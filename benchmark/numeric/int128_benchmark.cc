@@ -28,9 +28,9 @@ namespace {
         values.reserve(kSampleSize);
         for (size_t i = 0; i < kSampleSize; ++i) {
             abel::uint128 a =
-                    abel::MakeUint128(uniform_uint64(random), uniform_uint64(random));
+                    abel::make_uint128(uniform_uint64(random), uniform_uint64(random));
             abel::uint128 b =
-                    abel::MakeUint128(uniform_uint64(random), uniform_uint64(random));
+                    abel::make_uint128(uniform_uint64(random), uniform_uint64(random));
             values.emplace_back(std::max(a, b),
                                 std::max(abel::uint128(2), std::min(a, b)));
         }
@@ -56,7 +56,7 @@ namespace {
         values.reserve(kSampleSize);
         for (size_t i = 0; i < kSampleSize; ++i) {
             abel::uint128 a =
-                    abel::MakeUint128(uniform_uint64(random), uniform_uint64(random));
+                    abel::make_uint128(uniform_uint64(random), uniform_uint64(random));
             uint64_t b = std::max(uint64_t{2}, uniform_uint64(random));
             values.emplace_back(std::max(a, abel::uint128(b)), b);
         }
@@ -81,8 +81,8 @@ namespace {
         values.reserve(kSampleSize);
         for (size_t i = 0; i < kSampleSize; ++i) {
             values.emplace_back(
-                    abel::MakeUint128(uniform_uint64(random), uniform_uint64(random)),
-                    abel::MakeUint128(uniform_uint64(random), uniform_uint64(random)));
+                    abel::make_uint128(uniform_uint64(random), uniform_uint64(random)),
+                    abel::make_uint128(uniform_uint64(random), uniform_uint64(random)));
         }
         return values;
     }

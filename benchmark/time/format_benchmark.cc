@@ -38,7 +38,7 @@ namespace {
                 abel::chrono_internal::load_time_zone("America/Los_Angeles");
         const abel::abel_time t =
                 abel::from_chrono(abel::chrono_second(1977, 6, 28, 9, 8, 7), lax) +
-                abel::nanoseconds(1);
+                abel::duration::nanoseconds(1);
         while (state.KeepRunning()) {
             benchmark::DoNotOptimize(abel::format_time(fmt, t, lax).length());
         }
@@ -53,7 +53,7 @@ namespace {
         const abel::time_zone lax =
                 abel::chrono_internal::load_time_zone("America/Los_Angeles");
         abel::abel_time t = abel::from_chrono(abel::chrono_second(1977, 6, 28, 9, 8, 7), lax) +
-                            abel::nanoseconds(1);
+                            abel::duration::nanoseconds(1);
         const std::string when = abel::format_time(fmt, t, lax);
         std::string err;
         while (state.KeepRunning()) {

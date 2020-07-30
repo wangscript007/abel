@@ -22,10 +22,10 @@ namespace abel {
         // TODO(bww): Get a timespec instead so we don't have to divide.
         int64_t n = abel::get_current_time_nanos();
         if (n >= 0) {
-            return chrono_internal::from_unix_duration(
-                    chrono_internal::make_duration(n / 1000000000, n % 1000000000 * 4));
+            return abel_time::from_unix_duration(
+                    duration::make_duration(n / 1000000000, n % 1000000000 * 4));
         }
-        return chrono_internal::from_unix_duration(abel::nanoseconds(n));
+        return abel_time::from_unix_duration(abel::duration::nanoseconds(n));
     }
 
 }  // namespace abel
@@ -520,7 +520,7 @@ namespace abel {
             return abel::milliseconds(
                 std::numeric_limits<unsigned long>::max());  // NOLINT(runtime/int)
 #else
-            return abel::seconds(std::numeric_limits<time_t>::max());
+            return abel::duration::seconds(std::numeric_limits<time_t>::max());
 #endif
         }
 
@@ -530,7 +530,7 @@ namespace abel {
 #ifdef _WIN32
             Sleep(to_sleep / abel::milliseconds(1));
 #else
-            struct timespec sleep_time = abel::to_timespec(to_sleep);
+            struct timespec sleep_time = to_sleep.to_timespec();
             while (nanosleep(&sleep_time, &sleep_time) != 0 && errno == EINTR) {
                 // Ignore signals and wait for the full interval to elapse.
             }

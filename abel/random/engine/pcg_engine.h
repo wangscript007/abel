@@ -220,7 +220,7 @@ namespace abel {
 #else
             using state_type = abel::uint128;
             static ABEL_FORCE_INLINE constexpr state_type make_u128(uint64_t a, uint64_t b) {
-              return abel::MakeUint128(a, b);
+              return abel::make_uint128(a, b);
             }
 #endif
 

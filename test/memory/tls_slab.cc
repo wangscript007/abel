@@ -197,14 +197,14 @@ namespace {
             *get_resource(&id) = i;
         }
         tm.stop();
-        printf("get a int takes %.1fns\n", abel::to_double_nanoseconds(tm.elapsed()));
+        printf("get a int takes %.1fns\n", tm.elapsed().to_double_nanoseconds());
 
         tm.start();
         for (size_t i = 0; i < N; ++i) {
             *(new int) = i;
         }
         tm.stop();
-        printf("new a int takes %luns\n", (uint64_t)abel::to_int64_nanoseconds(tm.elapsed()));
+        printf("new a int takes %luns\n", (uint64_t)(tm.elapsed()).to_int64_nanoseconds());
 
         tm.start();
         for (size_t i = 0; i < N; ++i) {
@@ -212,7 +212,7 @@ namespace {
             *tls_slab<int>::unsafe_address_resource(id) = i;
         }
         tm.stop();
-        printf("unsafe_address a int takes %.1fns\n", abel::to_double_nanoseconds(tm.elapsed()));
+        printf("unsafe_address a int takes %.1fns\n", tm.elapsed().to_double_nanoseconds());
 
         tm.start();
         for (size_t i = 0; i < N; ++i) {
@@ -220,7 +220,7 @@ namespace {
             *address_resource(id) = i;
         }
         tm.stop();
-        printf("address a int takes %.1fns\n", abel::to_double_nanoseconds(tm.elapsed()));
+        printf("address a int takes %.1fns\n", tm.elapsed().to_double_nanoseconds());
 
         std::cout << describe_resources<int>() << std::endl;
         clear_resources<int>();
@@ -254,7 +254,7 @@ namespace {
                 get_resource(&id);
             }
             tm1.stop();
-            printf("get a SilentObj takes %lluns\n", (uint64_t)abel::to_int64_nanoseconds(tm1.elapsed()));
+            printf("get a SilentObj takes %lluns\n", (uint64_t)tm1.elapsed().to_int64_nanoseconds());
             //clear_resources<SilentObj>(); // free all blocks
 
             tm2.start();
@@ -262,7 +262,7 @@ namespace {
                 new_list.push_back(new SilentObj);
             }
             tm2.stop();
-            printf("new a SilentObj takes %lluns\n", (uint64_t)abel::to_int64_nanoseconds(tm2.elapsed()));
+            printf("new a SilentObj takes %lluns\n", (uint64_t)tm2.elapsed().to_int64_nanoseconds());
             for (size_t i = 0; i < new_list.size(); ++i) {
                 delete new_list[i];
             }
@@ -291,7 +291,7 @@ namespace {
         }
         tm0.stop();
 
-        printf("[%lu] warmup=%lu\n", pthread_self(), (uint64_t)abel::to_int64_nanoseconds(tm0.elapsed()));
+        printf("[%lu] warmup=%lu\n", pthread_self(), (uint64_t)tm0.elapsed().to_int64_nanoseconds());
 
         for (int j = 0; j < 5; ++j) {
             v.clear();
@@ -317,7 +317,7 @@ namespace {
             }
 
             printf("[%lu:%d] get<D>=%.1f return<D>=%.1f\n",
-                   pthread_self(), j, abel::to_double_nanoseconds(tm1.elapsed()), abel::to_double_nanoseconds(tm1.elapsed()));
+                   pthread_self(), j, tm1.elapsed().to_double_nanoseconds(), tm1.elapsed().to_double_nanoseconds());
         }
         return NULL;
     }
@@ -352,7 +352,7 @@ namespace {
             tm2.stop();
 
             printf("[%lu:%d] new<D>=%.1f delete<D>=%.1f\n",
-                   pthread_self(), j, abel::to_double_nanoseconds(tm1.elapsed()), abel::to_double_nanoseconds(tm2.elapsed()));
+                   pthread_self(), j, tm1.elapsed().to_double_nanoseconds(), tm2.elapsed().to_double_nanoseconds());
         }
 
         return NULL;
