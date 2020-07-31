@@ -13,25 +13,24 @@
 #include <sstream>
 
 namespace abel {
-namespace cfg {
-namespace helpers {
+    namespace cfg {
+        namespace helpers {
 
 // inplace convert to lowercase
-inline std::string &to_lower_(std::string &str)
-{
-    std::transform(
-        str.begin(), str.end(), str.begin(), [](char ch) { return static_cast<char>((ch >= 'A' && ch <= 'Z') ? ch + ('a' - 'A') : ch); });
-    return str;
-}
+            inline std::string &to_lower_(std::string &str) {
+                std::transform(
+                        str.begin(), str.end(), str.begin(),
+                        [](char ch) { return static_cast<char>((ch >= 'A' && ch <= 'Z') ? ch + ('a' - 'A') : ch); });
+                return str;
+            }
 
 // inplace trim spaces
-inline std::string &trim_(std::string &str)
-{
-    const char *spaces = " \n\r\t";
-    str.erase(str.find_last_not_of(spaces) + 1);
-    str.erase(0, str.find_first_not_of(spaces));
-    return str;
-}
+            inline std::string &trim_(std::string &str) {
+                const char *spaces = " \n\r\t";
+                str.erase(str.find_last_not_of(spaces) + 1);
+                str.erase(0, str.find_first_not_of(spaces));
+                return str;
+            }
 
 // return (name,value) trimmed pair from given "name=value" string.
 // return empty string on missing parts
@@ -40,61 +39,51 @@ inline std::string &trim_(std::string &str)
 // "key=" => ("key", "")
 // "val" => ("", "val")
 
-inline std::pair<std::string, std::string> extract_kv_(char sep, const std::string &str)
-{
-    auto n = str.find(sep);
-    std::string k, v;
-    if (n == std::string::npos)
-    {
-        v = str;
-    }
-    else
-    {
-        k = str.substr(0, n);
-        v = str.substr(n + 1);
-    }
-    return std::make_pair(trim_(k), trim_(v));
-}
+            inline std::pair<std::string, std::string> extract_kv_(char sep, const std::string &str) {
+                auto n = str.find(sep);
+                std::string k, v;
+                if (n == std::string::npos) {
+                    v = str;
+                } else {
+                    k = str.substr(0, n);
+                    v = str.substr(n + 1);
+                }
+                return std::make_pair(trim_(k), trim_(v));
+            }
 
 // return vector of key/value pairs from sequence of "K1=V1,K2=V2,.."
 // "a=AAA,b=BBB,c=CCC,.." => {("a","AAA"),("b","BBB"),("c", "CCC"),...}
-inline std::unordered_map<std::string, std::string> extract_key_vals_(const std::string &str)
-{
-    std::string token;
-    std::istringstream token_stream(str);
-    std::unordered_map<std::string, std::string> rv{};
-    while (std::getline(token_stream, token, ','))
-    {
-        if (token.empty())
-        {
-            continue;
-        }
-        auto kv = extract_kv_('=', token);
-        rv[kv.first] = kv.second;
-    }
-    return rv;
-}
+            inline std::unordered_map<std::string, std::string> extract_key_vals_(const std::string &str) {
+                std::string token;
+                std::istringstream token_stream(str);
+                std::unordered_map<std::string, std::string> rv{};
+                while (std::getline(token_stream, token, ',')) {
+                    if (token.empty()) {
+                        continue;
+                    }
+                    auto kv = extract_kv_('=', token);
+                    rv[kv.first] = kv.second;
+                }
+                return rv;
+            }
 
-SPDLOG_INLINE log_levels extract_levels(const std::string &input)
-{
-    auto key_vals = extract_key_vals_(input);
-    log_levels rv;
+            SPDLOG_INLINE log_levels extract_levels(const std::string &input) {
+                auto key_vals = extract_key_vals_(input);
+                log_levels rv;
 
-    for (auto &name_level : key_vals)
-    {
-        auto &logger_name = name_level.first;
-        auto level_name = to_lower_(name_level.second);
-        auto level = level::from_str(level_name);
-        // fallback to "info" if unrecognized level name
-        if (level == level::off && level_name != "off")
-        {
-            level = level::info;
-        }
-        rv.set(logger_name, level);
-    }
-    return rv;
-}
+                for (auto &name_level : key_vals) {
+                    auto &logger_name = name_level.first;
+                    auto level_name = to_lower_(name_level.second);
+                    auto level = level::from_str(level_name);
+                    // fallback to "info" if unrecognized level name
+                    if (level == level::off && level_name != "off") {
+                        level = level::info;
+                    }
+                    rv.set(logger_name, level);
+                }
+                return rv;
+            }
 
-} // namespace helpers
-} // namespace cfg
+        } // namespace helpers
+    } // namespace cfg
 } // namespace abel

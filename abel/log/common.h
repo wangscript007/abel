@@ -65,46 +65,46 @@
 
 namespace abel {
 
-class formatter;
+    class formatter;
 
-namespace sinks {
-class sink;
-}
+    namespace sinks {
+        class sink;
+    }
 
 #if defined(_WIN32) && defined(SPDLOG_WCHAR_FILENAMES)
-using filename_t = std::wstring;
+    using filename_t = std::wstring;
 #define SPDLOG_FILENAME_T(s) L##s
 #else
-using filename_t = std::string;
+    using filename_t = std::string;
 #define SPDLOG_FILENAME_T(s) s
 #endif
 
-using log_clock = std::chrono::system_clock;
-using sink_ptr = std::shared_ptr<sinks::sink>;
-using sinks_init_list = std::initializer_list<sink_ptr>;
-using err_handler = std::function<void(const std::string &err_msg)>;
-using string_view_t = fmt::basic_string_view<char>;
-using wstring_view_t = fmt::basic_string_view<wchar_t>;
-using memory_buf_t = fmt::basic_memory_buffer<char, 250>;
+    using log_clock = std::chrono::system_clock;
+    using sink_ptr = std::shared_ptr<sinks::sink>;
+    using sinks_init_list = std::initializer_list<sink_ptr>;
+    using err_handler = std::function<void(const std::string &err_msg)>;
+    using string_view_t = fmt::basic_string_view<char>;
+    using wstring_view_t = fmt::basic_string_view<wchar_t>;
+    using memory_buf_t = fmt::basic_memory_buffer<char, 250>;
 
 #ifdef SPDLOG_WCHAR_TO_UTF8_SUPPORT
 #ifndef _WIN32
 #error SPDLOG_WCHAR_TO_UTF8_SUPPORT only supported on windows
 #else
-template<typename T>
-struct is_convertible_to_wstring_view : std::is_convertible<T, wstring_view_t>
-{};
+    template<typename T>
+    struct is_convertible_to_wstring_view : std::is_convertible<T, wstring_view_t>
+    {};
 #endif // _WIN32
 #else
-template<typename>
-struct is_convertible_to_wstring_view : std::false_type
-{};
+    template<typename>
+    struct is_convertible_to_wstring_view : std::false_type {
+    };
 #endif // SPDLOG_WCHAR_TO_UTF8_SUPPORT
 
 #if defined(SPDLOG_NO_ATOMIC_LEVELS)
-using level_t = details::null_atomic_int;
+    using level_t = details::null_atomic_int;
 #else
-using level_t = std::atomic<int>;
+    using level_t = std::atomic<int>;
 #endif
 
 #define SPDLOG_LEVEL_TRACE 0
@@ -120,18 +120,17 @@ using level_t = std::atomic<int>;
 #endif
 
 // Log level enum
-namespace level {
-enum level_enum
-{
-    trace = SPDLOG_LEVEL_TRACE,
-    debug = SPDLOG_LEVEL_DEBUG,
-    info = SPDLOG_LEVEL_INFO,
-    warn = SPDLOG_LEVEL_WARN,
-    err = SPDLOG_LEVEL_ERROR,
-    critical = SPDLOG_LEVEL_CRITICAL,
-    off = SPDLOG_LEVEL_OFF,
-    n_levels
-};
+    namespace level {
+        enum level_enum {
+            trace = SPDLOG_LEVEL_TRACE,
+            debug = SPDLOG_LEVEL_DEBUG,
+            info = SPDLOG_LEVEL_INFO,
+            warn = SPDLOG_LEVEL_WARN,
+            err = SPDLOG_LEVEL_ERROR,
+            critical = SPDLOG_LEVEL_CRITICAL,
+            off = SPDLOG_LEVEL_OFF,
+            n_levels
+        };
 
 #if !defined(SPDLOG_LEVEL_NAMES)
 #define SPDLOG_LEVEL_NAMES                                                                                                                 \
@@ -148,82 +147,81 @@ enum level_enum
     }
 #endif
 
-SPDLOG_API string_view_t &to_string_view(abel::level::level_enum l) SPDLOG_NOEXCEPT;
-SPDLOG_API const char *to_short_c_str(abel::level::level_enum l) SPDLOG_NOEXCEPT;
-SPDLOG_API abel::level::level_enum from_str(const std::string &name) SPDLOG_NOEXCEPT;
+        SPDLOG_API string_view_t &to_string_view(abel::level::level_enum l) SPDLOG_NOEXCEPT;
 
-using level_hasher = std::hash<int>;
-} // namespace level
+        SPDLOG_API const char *to_short_c_str(abel::level::level_enum l) SPDLOG_NOEXCEPT;
+
+        SPDLOG_API abel::level::level_enum from_str(const std::string &name) SPDLOG_NOEXCEPT;
+
+        using level_hasher = std::hash<int>;
+    } // namespace level
 
 //
 // Color mode used by sinks with color support.
 //
-enum class color_mode
-{
-    always,
-    automatic,
-    never
-};
+    enum class color_mode {
+        always,
+        automatic,
+        never
+    };
 
 //
 // Pattern time - specific time getting to use for pattern_formatter.
 // local time by default
 //
-enum class pattern_time_type
-{
-    local, // log localtime
-    utc    // log utc
-};
+    enum class pattern_time_type {
+        local, // log localtime
+        utc    // log utc
+    };
 
 //
 // Log exception
 //
-class SPDLOG_API log_ex : public std::exception
-{
-public:
-    explicit log_ex(std::string msg);
-    log_ex(const std::string &msg, int last_errno);
-    const char *what() const SPDLOG_NOEXCEPT override;
+    class SPDLOG_API log_ex : public std::exception {
+    public:
+        explicit log_ex(std::string msg);
 
-private:
-    std::string msg_;
-};
+        log_ex(const std::string &msg, int last_errno);
 
-SPDLOG_API ABEL_NORETURN void throw_spdlog_ex(const std::string &msg, int last_errno);
-SPDLOG_API ABEL_NORETURN void throw_spdlog_ex(std::string msg);
+        const char *what() const SPDLOG_NOEXCEPT override;
 
-struct source_loc
-{
-    SPDLOG_CONSTEXPR source_loc() = default;
-    SPDLOG_CONSTEXPR source_loc(const char *filename_in, int line_in, const char *funcname_in)
-        : filename{filename_in}
-        , line{line_in}
-        , funcname{funcname_in}
-    {}
+    private:
+        std::string msg_;
+    };
 
-    SPDLOG_CONSTEXPR bool empty() const SPDLOG_NOEXCEPT
-    {
-        return line == 0;
-    }
-    const char *filename{nullptr};
-    int line{0};
-    const char *funcname{nullptr};
-};
+    SPDLOG_API ABEL_NORETURN void throw_spdlog_ex(const std::string &msg, int last_errno);
 
-namespace details {
+    SPDLOG_API ABEL_NORETURN void throw_spdlog_ex(std::string msg);
+
+    struct source_loc {
+        SPDLOG_CONSTEXPR source_loc() = default;
+
+        SPDLOG_CONSTEXPR source_loc(const char *filename_in, int line_in, const char *funcname_in)
+                : filename{filename_in}, line{line_in}, funcname{funcname_in} {}
+
+        SPDLOG_CONSTEXPR bool empty() const SPDLOG_NOEXCEPT {
+            return line == 0;
+        }
+
+        const char *filename{nullptr};
+        int line{0};
+        const char *funcname{nullptr};
+    };
+
+    namespace details {
 // make_unique support for pre c++14
 
 #if __cplusplus >= 201402L // C++14 and beyond
-using std::make_unique;
+        using std::make_unique;
 #else
-template<typename T, typename... Args>
-std::unique_ptr<T> make_unique(Args &&... args)
-{
-    static_assert(!std::is_array<T>::value, "arrays not supported");
-    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-}
+        template<typename T, typename... Args>
+        std::unique_ptr<T> make_unique(Args &&... args)
+        {
+            static_assert(!std::is_array<T>::value, "arrays not supported");
+            return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+        }
 #endif
-} // namespace details
+    } // namespace details
 } // namespace abel
 
 #include <abel/log/common_inl.h>

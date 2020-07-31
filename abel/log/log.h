@@ -22,7 +22,7 @@
 
 namespace abel {
 
-using default_factory = synchronous_factory;
+    using default_factory = synchronous_factory;
 
 // Create and register a logger with a templated sink type
 // The logger's level, formatter and flush level will be set according the
@@ -30,11 +30,10 @@ using default_factory = synchronous_factory;
 //
 // Example:
 //   abel::create<daily_file_sink_st>("logger_name", "dailylog_filename", 11, 59);
-template<typename Sink, typename... SinkArgs>
-inline std::shared_ptr<abel::logger> create(std::string logger_name, SinkArgs &&... sink_args)
-{
-    return default_factory::create<Sink>(std::move(logger_name), std::forward<SinkArgs>(sink_args)...);
-}
+    template<typename Sink, typename... SinkArgs>
+    inline std::shared_ptr<abel::logger> create(std::string logger_name, SinkArgs &&... sink_args) {
+        return default_factory::create<Sink>(std::move(logger_name), std::forward<SinkArgs>(sink_args)...);
+    }
 
 // Initialize and register a logger,
 // formatter and flush level will be set according the global settings.
@@ -44,61 +43,61 @@ inline std::shared_ptr<abel::logger> create(std::string logger_name, SinkArgs &&
 // Example:
 //   auto mylogger = std::make_shared<abel::logger>("mylogger", ...);
 //   abel::initialize_logger(mylogger);
-SPDLOG_API void initialize_logger(std::shared_ptr<logger> logger);
+    SPDLOG_API void initialize_logger(std::shared_ptr<logger> logger);
 
 // Return an existing logger or nullptr if a logger with such name doesn't
 // exist.
 // example: abel::get("my_logger")->info("hello {}", "world");
-SPDLOG_API std::shared_ptr<logger> get(const std::string &name);
+    SPDLOG_API std::shared_ptr<logger> get(const std::string &name);
 
 // Set global formatter. Each sink in each logger will get a clone of this object
-SPDLOG_API void set_formatter(std::unique_ptr<abel::formatter> formatter);
+    SPDLOG_API void set_formatter(std::unique_ptr<abel::formatter> formatter);
 
 // Set global format string.
 // example: abel::set_pattern("%Y-%m-%d %H:%M:%S.%e %l : %v");
-SPDLOG_API void set_pattern(std::string pattern, pattern_time_type time_type = pattern_time_type::local);
+    SPDLOG_API void set_pattern(std::string pattern, pattern_time_type time_type = pattern_time_type::local);
 
 // enable global backtrace support
-SPDLOG_API void enable_backtrace(size_t n_messages);
+    SPDLOG_API void enable_backtrace(size_t n_messages);
 
 // disable global backtrace support
-SPDLOG_API void disable_backtrace();
+    SPDLOG_API void disable_backtrace();
 
 // call dump backtrace on default logger
-SPDLOG_API void dump_backtrace();
+    SPDLOG_API void dump_backtrace();
 
 // Set global logging level
-SPDLOG_API void set_level(level::level_enum log_level);
+    SPDLOG_API void set_level(level::level_enum log_level);
 
 // Set global flush level
-SPDLOG_API void flush_on(level::level_enum log_level);
+    SPDLOG_API void flush_on(level::level_enum log_level);
 
 // Start/Restart a periodic flusher thread
 // Warning: Use only if all your loggers are thread safe!
-SPDLOG_API void flush_every(std::chrono::seconds interval);
+    SPDLOG_API void flush_every(std::chrono::seconds interval);
 
 // Set global error handler
-SPDLOG_API void set_error_handler(void (*handler)(const std::string &msg));
+    SPDLOG_API void set_error_handler(void (*handler)(const std::string &msg));
 
 // Register the given logger with the given name
-SPDLOG_API void register_logger(std::shared_ptr<logger> logger);
+    SPDLOG_API void register_logger(std::shared_ptr<logger> logger);
 
 // Apply a user defined function on all registered loggers
 // Example:
 // abel::apply_all([&](std::shared_ptr<abel::logger> l) {l->flush();});
-SPDLOG_API void apply_all(const std::function<void(std::shared_ptr<logger>)> &fun);
+    SPDLOG_API void apply_all(const std::function<void(std::shared_ptr<logger>)> &fun);
 
 // Drop the reference to the given logger
-SPDLOG_API void drop(const std::string &name);
+    SPDLOG_API void drop(const std::string &name);
 
 // Drop all references from the registry
-SPDLOG_API void drop_all();
+    SPDLOG_API void drop_all();
 
 // stop any running threads started by spdlog and clean registry loggers
-SPDLOG_API void shutdown();
+    SPDLOG_API void shutdown();
 
 // Automatic registration of loggers when using abel::create() or abel::create_async
-SPDLOG_API void set_automatic_registration(bool automatic_registration);
+    SPDLOG_API void set_automatic_registration(bool automatic_registration);
 
 // API for using default logger (stdout_color_mt),
 // e.g: abel::info("Message {}", 1);
@@ -115,107 +114,91 @@ SPDLOG_API void set_automatic_registration(bool automatic_registration);
 // set_default_logger() *should not* be used concurrently with the default API.
 // e.g do not call set_default_logger() from one thread while calling abel::info() from another.
 
-SPDLOG_API std::shared_ptr<abel::logger> default_logger();
+    SPDLOG_API std::shared_ptr<abel::logger> default_logger();
 
-SPDLOG_API abel::logger *default_logger_raw();
+    SPDLOG_API abel::logger *default_logger_raw();
 
-SPDLOG_API void set_default_logger(std::shared_ptr<abel::logger> default_logger);
+    SPDLOG_API void set_default_logger(std::shared_ptr<abel::logger> default_logger);
 
-template<typename FormatString, typename... Args>
-inline void log(source_loc source, level::level_enum lvl, const FormatString &fmt, const Args &... args)
-{
-    default_logger_raw()->log(source, lvl, fmt, args...);
-}
+    template<typename FormatString, typename... Args>
+    inline void log(source_loc source, level::level_enum lvl, const FormatString &fmt, const Args &... args) {
+        default_logger_raw()->log(source, lvl, fmt, args...);
+    }
 
-template<typename FormatString, typename... Args>
-inline void log(level::level_enum lvl, const FormatString &fmt, const Args &... args)
-{
-    default_logger_raw()->log(source_loc{}, lvl, fmt, args...);
-}
+    template<typename FormatString, typename... Args>
+    inline void log(level::level_enum lvl, const FormatString &fmt, const Args &... args) {
+        default_logger_raw()->log(source_loc{}, lvl, fmt, args...);
+    }
 
-template<typename FormatString, typename... Args>
-inline void trace(const FormatString &fmt, const Args &... args)
-{
-    default_logger_raw()->trace(fmt, args...);
-}
+    template<typename FormatString, typename... Args>
+    inline void trace(const FormatString &fmt, const Args &... args) {
+        default_logger_raw()->trace(fmt, args...);
+    }
 
-template<typename FormatString, typename... Args>
-inline void debug(const FormatString &fmt, const Args &... args)
-{
-    default_logger_raw()->debug(fmt, args...);
-}
+    template<typename FormatString, typename... Args>
+    inline void debug(const FormatString &fmt, const Args &... args) {
+        default_logger_raw()->debug(fmt, args...);
+    }
 
-template<typename FormatString, typename... Args>
-inline void info(const FormatString &fmt, const Args &... args)
-{
-    default_logger_raw()->info(fmt, args...);
-}
+    template<typename FormatString, typename... Args>
+    inline void info(const FormatString &fmt, const Args &... args) {
+        default_logger_raw()->info(fmt, args...);
+    }
 
-template<typename FormatString, typename... Args>
-inline void warn(const FormatString &fmt, const Args &... args)
-{
-    default_logger_raw()->warn(fmt, args...);
-}
+    template<typename FormatString, typename... Args>
+    inline void warn(const FormatString &fmt, const Args &... args) {
+        default_logger_raw()->warn(fmt, args...);
+    }
 
-template<typename FormatString, typename... Args>
-inline void error(const FormatString &fmt, const Args &... args)
-{
-    default_logger_raw()->error(fmt, args...);
-}
+    template<typename FormatString, typename... Args>
+    inline void error(const FormatString &fmt, const Args &... args) {
+        default_logger_raw()->error(fmt, args...);
+    }
 
-template<typename FormatString, typename... Args>
-inline void critical(const FormatString &fmt, const Args &... args)
-{
-    default_logger_raw()->critical(fmt, args...);
-}
+    template<typename FormatString, typename... Args>
+    inline void critical(const FormatString &fmt, const Args &... args) {
+        default_logger_raw()->critical(fmt, args...);
+    }
 
-template<typename T>
-inline void log(source_loc source, level::level_enum lvl, const T &msg)
-{
-    default_logger_raw()->log(source, lvl, msg);
-}
+    template<typename T>
+    inline void log(source_loc source, level::level_enum lvl, const T &msg) {
+        default_logger_raw()->log(source, lvl, msg);
+    }
 
-template<typename T>
-inline void log(level::level_enum lvl, const T &msg)
-{
-    default_logger_raw()->log(lvl, msg);
-}
+    template<typename T>
+    inline void log(level::level_enum lvl, const T &msg) {
+        default_logger_raw()->log(lvl, msg);
+    }
 
-template<typename T>
-inline void trace(const T &msg)
-{
-    default_logger_raw()->trace(msg);
-}
+    template<typename T>
+    inline void trace(const T &msg) {
+        default_logger_raw()->trace(msg);
+    }
 
-template<typename T>
-inline void debug(const T &msg)
-{
-    default_logger_raw()->debug(msg);
-}
+    template<typename T>
+    inline void debug(const T &msg) {
+        default_logger_raw()->debug(msg);
+    }
 
-template<typename T>
-inline void info(const T &msg)
-{
-    default_logger_raw()->info(msg);
-}
+    template<typename T>
+    inline void info(const T &msg) {
+        default_logger_raw()->info(msg);
+    }
 
-template<typename T>
-inline void warn(const T &msg)
-{
-    default_logger_raw()->warn(msg);
-}
+    template<typename T>
+    inline void warn(const T &msg) {
+        default_logger_raw()->warn(msg);
+    }
 
-template<typename T>
-inline void error(const T &msg)
-{
-    default_logger_raw()->error(msg);
-}
+    template<typename T>
+    inline void error(const T &msg) {
+        default_logger_raw()->error(msg);
+    }
 
-template<typename T>
-inline void critical(const T &msg)
-{
-    default_logger_raw()->critical(msg);
-}
+    template<typename T>
+    inline void critical(const T &msg) {
+        default_logger_raw()->critical(msg);
+    }
 
 } // namespace abel
 

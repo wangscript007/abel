@@ -10,68 +10,71 @@
 
 namespace abel {
 
-namespace sinks {
+    namespace sinks {
 
-template<typename ConsoleMutex>
-class stdout_sink_base : public sink
-{
-public:
-    using mutex_t = typename ConsoleMutex::mutex_t;
-    explicit stdout_sink_base(FILE *file);
-    ~stdout_sink_base() override = default;
+        template<typename ConsoleMutex>
+        class stdout_sink_base : public sink {
+        public:
+            using mutex_t = typename ConsoleMutex::mutex_t;
 
-    stdout_sink_base(const stdout_sink_base &other) = delete;
-    stdout_sink_base(stdout_sink_base &&other) = delete;
+            explicit stdout_sink_base(FILE *file);
 
-    stdout_sink_base &operator=(const stdout_sink_base &other) = delete;
-    stdout_sink_base &operator=(stdout_sink_base &&other) = delete;
+            ~stdout_sink_base() override = default;
 
-    void log(const details::log_msg &msg) override;
-    void flush() override;
-    void set_pattern(const std::string &pattern) override;
+            stdout_sink_base(const stdout_sink_base &other) = delete;
 
-    void set_formatter(std::unique_ptr<abel::formatter> sink_formatter) override;
+            stdout_sink_base(stdout_sink_base &&other) = delete;
 
-protected:
-    mutex_t &mutex_;
-    FILE *file_;
-    std::unique_ptr<abel::formatter> formatter_;
-};
+            stdout_sink_base &operator=(const stdout_sink_base &other) = delete;
 
-template<typename ConsoleMutex>
-class stdout_sink : public stdout_sink_base<ConsoleMutex>
-{
-public:
-    stdout_sink();
-};
+            stdout_sink_base &operator=(stdout_sink_base &&other) = delete;
 
-template<typename ConsoleMutex>
-class stderr_sink : public stdout_sink_base<ConsoleMutex>
-{
-public:
-    stderr_sink();
-};
+            void log(const details::log_msg &msg) override;
 
-using stdout_sink_mt = stdout_sink<details::console_mutex>;
-using stdout_sink_st = stdout_sink<details::console_nullmutex>;
+            void flush() override;
 
-using stderr_sink_mt = stderr_sink<details::console_mutex>;
-using stderr_sink_st = stderr_sink<details::console_nullmutex>;
+            void set_pattern(const std::string &pattern) override;
 
-} // namespace sinks
+            void set_formatter(std::unique_ptr<abel::formatter> sink_formatter) override;
+
+        protected:
+            mutex_t &mutex_;
+            FILE *file_;
+            std::unique_ptr<abel::formatter> formatter_;
+        };
+
+        template<typename ConsoleMutex>
+        class stdout_sink : public stdout_sink_base<ConsoleMutex> {
+        public:
+            stdout_sink();
+        };
+
+        template<typename ConsoleMutex>
+        class stderr_sink : public stdout_sink_base<ConsoleMutex> {
+        public:
+            stderr_sink();
+        };
+
+        using stdout_sink_mt = stdout_sink<details::console_mutex>;
+        using stdout_sink_st = stdout_sink<details::console_nullmutex>;
+
+        using stderr_sink_mt = stderr_sink<details::console_mutex>;
+        using stderr_sink_st = stderr_sink<details::console_nullmutex>;
+
+    } // namespace sinks
 
 // factory methods
-template<typename Factory = abel::synchronous_factory>
-std::shared_ptr<logger> stdout_logger_mt(const std::string &logger_name);
+    template<typename Factory = abel::synchronous_factory>
+    std::shared_ptr<logger> stdout_logger_mt(const std::string &logger_name);
 
-template<typename Factory = abel::synchronous_factory>
-std::shared_ptr<logger> stdout_logger_st(const std::string &logger_name);
+    template<typename Factory = abel::synchronous_factory>
+    std::shared_ptr<logger> stdout_logger_st(const std::string &logger_name);
 
-template<typename Factory = abel::synchronous_factory>
-std::shared_ptr<logger> stderr_logger_mt(const std::string &logger_name);
+    template<typename Factory = abel::synchronous_factory>
+    std::shared_ptr<logger> stderr_logger_mt(const std::string &logger_name);
 
-template<typename Factory = abel::synchronous_factory>
-std::shared_ptr<logger> stderr_logger_st(const std::string &logger_name);
+    template<typename Factory = abel::synchronous_factory>
+    std::shared_ptr<logger> stderr_logger_st(const std::string &logger_name);
 
 } // namespace abel
 

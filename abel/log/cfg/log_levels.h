@@ -8,40 +8,32 @@
 #include <unordered_map>
 
 namespace abel {
-namespace cfg {
-class log_levels
-{
-    std::unordered_map<std::string, abel::level::level_enum> levels_;
-    abel::level::level_enum default_level_ = level::info;
+    namespace cfg {
+        class log_levels {
+            std::unordered_map<std::string, abel::level::level_enum> levels_;
+            abel::level::level_enum default_level_ = level::info;
 
-public:
-    void set(const std::string &logger_name, level::level_enum lvl)
-    {
-        if (logger_name.empty())
-        {
-            default_level_ = lvl;
-        }
-        else
-        {
-            levels_[logger_name] = lvl;
-        }
-    }
+        public:
+            void set(const std::string &logger_name, level::level_enum lvl) {
+                if (logger_name.empty()) {
+                    default_level_ = lvl;
+                } else {
+                    levels_[logger_name] = lvl;
+                }
+            }
 
-    void set_default(level::level_enum lvl)
-    {
-        default_level_ = lvl;
-    }
+            void set_default(level::level_enum lvl) {
+                default_level_ = lvl;
+            }
 
-    level::level_enum get(const std::string &logger_name)
-    {
-        auto it = levels_.find(logger_name);
-        return it != levels_.end() ? it->second : default_level_;
-    }
+            level::level_enum get(const std::string &logger_name) {
+                auto it = levels_.find(logger_name);
+                return it != levels_.end() ? it->second : default_level_;
+            }
 
-    level::level_enum default_level()
-    {
-        return default_level_;
-    }
-};
-} // namespace cfg
+            level::level_enum default_level() {
+                return default_level_;
+            }
+        };
+    } // namespace cfg
 } // namespace abel

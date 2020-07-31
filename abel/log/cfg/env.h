@@ -2,6 +2,7 @@
 // Distributed under the MIT License (http://opensource.org/licenses/MIT)
 
 #pragma once
+
 #include <abel/log/cfg/helpers.h>
 #include <abel/log/details/registry.h>
 #include <abel/log/details/os.h>
@@ -24,13 +25,12 @@
 // export SPDLOG_LEVEL="off,logger1=debug,logger2=info"
 
 namespace abel {
-namespace cfg {
-void load_env_levels()
-{
-    auto env_val = details::os::getenv("SPDLOG_LEVEL");
-    auto levels = helpers::extract_levels(env_val);
-    details::registry::instance().update_levels(std::move(levels));
-}
+    namespace cfg {
+        void load_env_levels() {
+            auto env_val = details::os::getenv("SPDLOG_LEVEL");
+            auto levels = helpers::extract_levels(env_val);
+            details::registry::instance().update_levels(std::move(levels));
+        }
 
-} // namespace cfg
+    } // namespace cfg
 } // namespace abel
