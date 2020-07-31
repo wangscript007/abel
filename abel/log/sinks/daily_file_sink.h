@@ -30,7 +30,7 @@ namespace abel {
                 filename_t basename, ext;
                 std::tie(basename, ext) = details::file_helper::split_by_extension(filename);
                 return fmt::format(
-                        SPDLOG_FILENAME_T("{}_{:04d}-{:02d}-{:02d}{}"), basename, now_tm.tm_year + 1900,
+                        LOG_FILENAME_T("{}_{:04d}-{:02d}-{:02d}{}"), basename, now_tm.tm_year + 1900,
                         now_tm.tm_mon + 1, now_tm.tm_mday, ext);
             }
         };
@@ -49,7 +49,7 @@ namespace abel {
                     : base_filename_(std::move(base_filename)), rotation_h_(rotation_hour),
                       rotation_m_(rotation_minute), truncate_(truncate), max_files_(max_files), filenames_q_() {
                 if (rotation_hour < 0 || rotation_hour > 23 || rotation_minute < 0 || rotation_minute > 59) {
-                    throw_spdlog_ex("daily_file_sink: Invalid rotation time in ctor");
+                    throw_log_ex("daily_file_sink: Invalid rotation time in ctor");
                 }
 
                 auto now = log_clock::now();
@@ -141,7 +141,7 @@ namespace abel {
                     bool ok = remove_if_exists(old_filename) == 0;
                     if (!ok) {
                         filenames_q_.push_back(std::move(current_file));
-                        throw_spdlog_ex("Failed removing daily file " + filename_to_str(old_filename), errno);
+                        throw_log_ex("Failed removing daily file " + filename_to_str(old_filename), errno);
                     }
                 }
                 filenames_q_.push_back(std::move(current_file));

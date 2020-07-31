@@ -12,7 +12,7 @@
 
 #include <benchmark/benchmark.h>
 #include <abel/base/profile.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <abel/base/profile.h>
 #include <abel/strings/str_cat.h>
 
@@ -300,7 +300,7 @@ namespace {
             indices.insert(indices.end(), hot_indices.begin(), hot_indices.end());
         }
         std::shuffle(indices.begin(), indices.end(), rng);
-        ABEL_RAW_CHECK(
+        DCHECK(
                 static_cast<size_t>(num_cold * kNumLookupsOfColdKeys + num_hot * kNumLookupsOfHotKeys) ==
                 indices.size(),
                 "");
@@ -319,7 +319,7 @@ namespace {
             for (int i = 0; i < table_size; i++) {
                 h[keys[i]] = i * 2;
             }
-            ABEL_RAW_CHECK(h.size() == static_cast<size_t>(table_size), "");
+            DCHECK(h.size() == static_cast<size_t>(table_size), "");
             uint64_t sum = 0;
             for (size_t i = 0; i < indices.size(); i++) {
                 sum += h[test_strings[i]];

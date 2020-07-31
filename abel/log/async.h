@@ -28,9 +28,9 @@ namespace abel {
         static const size_t default_async_q_size = 8192;
     }
 
-// async logger factory - creates async loggers backed with thread pool.
-// if a global thread pool doesn't already exist, create it with default queue
-// size of 8192 items and single thread.
+    // async logger factory - creates async loggers backed with thread pool.
+    // if a global thread pool doesn't already exist, create it with default queue
+    // size of 8192 items and single thread.
     template<async_overflow_policy OverflowPolicy = async_overflow_policy::block>
     struct async_factory_impl {
         template<typename Sink, typename... SinkArgs>
@@ -68,18 +68,18 @@ namespace abel {
         return async_factory_nonblock::create<Sink>(std::move(logger_name), std::forward<SinkArgs>(sink_args)...);
     }
 
-// set global thread pool.
+    // set global thread pool.
     inline void init_thread_pool(size_t q_size, size_t thread_count, std::function<void()> on_thread_start) {
         auto tp = std::make_shared<details::thread_pool>(q_size, thread_count, on_thread_start);
         details::registry::instance().set_tp(std::move(tp));
     }
 
-// set global thread pool.
+    // set global thread pool.
     inline void init_thread_pool(size_t q_size, size_t thread_count) {
         init_thread_pool(q_size, thread_count, [] {});
     }
 
-// get the global thread pool.
+    // get the global thread pool.
     inline std::shared_ptr<abel::details::thread_pool> thread_pool() {
         return details::registry::instance().get_tp();
     }

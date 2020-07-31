@@ -4,7 +4,7 @@
 
 #include <algorithm>
 
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <abel/strings/ascii.h>
 #include <abel/strings/escaping.h>
 #include <abel/strings/string_view.h>
@@ -22,14 +22,14 @@ namespace abel {
                 if (format[i] == '$') {
                     if (i + 1 >= format.size()) {
 #ifndef NDEBUG
-                        ABEL_RAW_CRITICAL("Invalid abel::Substitute() format std::string: \"{}\".",abel::escape(format).c_str());
+                        DLOG_CRITICAL("Invalid abel::Substitute() format std::string: \"{}\".",abel::escape(format).c_str());
 #endif
                         return;
                     } else if (abel::ascii::is_digit(format[i + 1])) {
                         int index = format[i + 1] - '0';
                         if (static_cast<size_t>(index) >= num_args) {
 #ifndef NDEBUG
-                            ABEL_RAW_CRITICAL("Invalid abel::Substitute() format std::string: asked for \"$"
+                            DLOG_CRITICAL("Invalid abel::Substitute() format std::string: asked for \"$"
                                     "{}\", but only {} args were given.  Full format std::string was: "
                                     "\"{}\".",
                                     index, static_cast<int>(num_args), abel::escape(format).c_str());
@@ -43,7 +43,7 @@ namespace abel {
                         ++i;  // Skip next char.
                     } else {
 #ifndef NDEBUG
-                        ABEL_RAW_CRITICAL(
+                        DLOG_CRITICAL(
                                      "Invalid abel::Substitute() format std::string: \"{}\".",
                                      abel::escape(format).c_str());
 #endif

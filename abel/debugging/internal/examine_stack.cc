@@ -13,7 +13,7 @@
 #include <cstdio>
 
 #include <abel/base/profile.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <abel/base/profile.h>
 #include <abel/debugging/stacktrace.h>
 #include <abel/debugging/symbolize.h>

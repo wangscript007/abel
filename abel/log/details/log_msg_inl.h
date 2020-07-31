@@ -9,20 +9,20 @@
 namespace abel {
     namespace details {
 
-        SPDLOG_INLINE log_msg::log_msg(abel::log_clock::time_point log_time, abel::source_loc loc,
+        ABEL_FORCE_INLINE log_msg::log_msg(abel::log_clock::time_point log_time, abel::source_loc loc,
                                        string_view_t a_logger_name,
                                        abel::level::level_enum lvl, abel::string_view_t msg)
                 : logger_name(a_logger_name), level(lvl), time(log_time)
-#ifndef SPDLOG_NO_THREAD_ID
+#ifndef LOG_NO_THREAD_ID
                 , thread_id(os::thread_id())
 #endif
                 , source(loc), payload(msg) {}
 
-        SPDLOG_INLINE log_msg::log_msg(
+        ABEL_FORCE_INLINE log_msg::log_msg(
                 abel::source_loc loc, string_view_t a_logger_name, abel::level::level_enum lvl, abel::string_view_t msg)
                 : log_msg(os::now(), loc, a_logger_name, lvl, msg) {}
 
-        SPDLOG_INLINE log_msg::log_msg(string_view_t a_logger_name, abel::level::level_enum lvl,
+        ABEL_FORCE_INLINE log_msg::log_msg(string_view_t a_logger_name, abel::level::level_enum lvl,
                                        abel::string_view_t msg)
                 : log_msg(os::now(), source_loc{}, a_logger_name, lvl, msg) {}
 

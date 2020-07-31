@@ -18,7 +18,7 @@
 #include <memory>
 #include <utility>
 
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <abel/strings/ascii.h>
 #include <abel/strings/char_conv.h>
 #include <abel/strings/escaping.h>
@@ -83,7 +83,7 @@ namespace abel {
     }
 
     bool simple_atob(abel::string_view str, bool *out) {
-        ABEL_RAW_CHECK(out != nullptr, "Output pointer must not be nullptr.");
+        DCHECK(out != nullptr, "Output pointer must not be nullptr.");
         if (equal_case(str, "true") || equal_case(str, "t") ||
             equal_case(str, "yes") || equal_case(str, "y") ||
             equal_case(str, "1")) {

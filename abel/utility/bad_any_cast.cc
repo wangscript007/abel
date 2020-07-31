@@ -7,7 +7,7 @@
 #include <cstdlib>
 
 #include <abel/base/profile.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 
 namespace abel {
 
@@ -22,7 +22,7 @@ namespace abel {
 #ifdef ABEL_HAVE_EXCEPTIONS
             throw bad_any_cast();
 #else
-            ABEL_RAW_CRITICAL("Bad any cast");
+            DLOG_CRITICAL("Bad any cast");
             std::abort();
 #endif
         }

@@ -7,7 +7,7 @@
 #include <abel/log/details/log_msg.h>
 #include <abel/log/details/os.h>
 #include <abel/log/formatter.h>
-
+#include <abel/memory/memory.h>
 #include <chrono>
 #include <ctime>
 #include <memory>
@@ -42,7 +42,7 @@ namespace abel {
             bool enabled_ = false;
         };
 
-        class SPDLOG_API flag_formatter {
+        class ABEL_API flag_formatter {
         public:
             explicit flag_formatter(padding_info padinfo)
                     : padinfo_(padinfo) {}
@@ -59,7 +59,7 @@ namespace abel {
 
     } // namespace details
 
-    class SPDLOG_API custom_flag_formatter : public details::flag_formatter {
+    class ABEL_API custom_flag_formatter : public details::flag_formatter {
     public:
         virtual std::unique_ptr<custom_flag_formatter> clone() const = 0;
 
@@ -68,7 +68,7 @@ namespace abel {
         }
     };
 
-    class SPDLOG_API pattern_formatter final : public formatter {
+    class ABEL_API pattern_formatter final : public formatter {
     public:
         using custom_flags = std::unordered_map<char, std::unique_ptr<custom_flag_formatter>>;
 
@@ -90,7 +90,7 @@ namespace abel {
 
         template<typename T, typename... Args>
         pattern_formatter &add_flag(char flag, const Args &... args) {
-            custom_handlers_[flag] = details::make_unique<T>(args...);
+            custom_handlers_[flag] = abel::make_unique<T>(args...);
             return *this;
         }
 

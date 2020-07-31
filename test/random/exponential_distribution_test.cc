@@ -16,7 +16,7 @@
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <abel/base/profile.h>
 #include <testing/chi_square.h>
 #include <testing/distribution_test_util.h>
@@ -98,8 +98,8 @@ namespace {
                 if (sample < sample_min) sample_min = sample;
             }
             if (!std::is_same<TypeParam, long double>::value) {
-                ABEL_RAW_INFO(fmt::sprintf("Range {%f}: %f, %f, lambda=%f", lambda,
-                                               sample_min, sample_max, lambda));
+                DLOG_INFO("Range {%f}: %f, %f, lambda=%f", lambda,
+                                               sample_min, sample_max, lambda);
             }
 
             std::stringstream ss;
@@ -219,7 +219,7 @@ namespace {
         const bool pass = abel::random_internal::Near("z", z, 0.0, max_err);
 
         if (!pass) {
-            ABEL_RAW_INFO(fmt::sprintf("p=%f max_err=%f\n"
+            DLOG_INFO("p=%f max_err=%f\n"
                                        " lambda=%f\n"
                                        " mean=%f vs. %f\n"
                                        " stddev=%f vs. %f\n"
@@ -228,7 +228,7 @@ namespace {
                                        " z=%f vs. 0",
                                        p, max_err, lambda(), m.mean, mean(),
                                        std::sqrt(m.variance), stddev(), m.skewness,
-                                       skew(), m.kurtosis, kurtosis(), z));
+                                       skew(), m.kurtosis, kurtosis(), z);
         }
         return pass;
     }
@@ -274,10 +274,10 @@ namespace {
 
         if (chi_square > threshold) {
             for (size_t i = 0; i < cutoffs.size(); i++) {
-                ABEL_RAW_INFO(fmt::sprintf("%d : (%f) = %d", i, cutoffs[i], counts[i]));
+                DLOG_INFO("%d : (%f) = %d", i, cutoffs[i], counts[i]);
             }
 
-            ABEL_RAW_INFO(
+            DLOG_INFO(
                               abel::string_cat("lambda ", lambda(), "\n",     //
                                                " expected ", expected, "\n",  //
                                                kChiSquared, " ", chi_square, " (", p, ")\n",

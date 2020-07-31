@@ -17,7 +17,7 @@
 
 #include <algorithm>
 
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <abel/chrono/time.h>
 
 namespace abel {
@@ -100,19 +100,19 @@ bool cond_var_impl::wait_with_deadline(mutex_impl* mu, abel::abel_time deadline)
 #else  // ! _WIN32
 
 mutex_impl::mutex_impl() {
-  ABEL_RAW_CHECK(pthread_mutex_init(&pthread_mutex_, nullptr) == 0,
+  DCHECK(pthread_mutex_init(&pthread_mutex_, nullptr) == 0,
                  "pthread error");
 }
 
 mutex_impl::~mutex_impl() {
   if (locked_) {
-    ABEL_RAW_CHECK(pthread_mutex_unlock(&pthread_mutex_) == 0, "pthread error");
+    DCHECK(pthread_mutex_unlock(&pthread_mutex_) == 0, "pthread error");
   }
-  ABEL_RAW_CHECK(pthread_mutex_destroy(&pthread_mutex_) == 0, "pthread error");
+  DCHECK(pthread_mutex_destroy(&pthread_mutex_) == 0, "pthread error");
 }
 
 void mutex_impl::lock() {
-  ABEL_RAW_CHECK(pthread_mutex_lock(&pthread_mutex_) == 0, "pthread error");
+  DCHECK(pthread_mutex_lock(&pthread_mutex_) == 0, "pthread error");
   locked_ = true;
 }
 
@@ -125,29 +125,29 @@ bool mutex_impl::try_lock() {
 void mutex_impl::unlock() {
   locked_ = false;
   released_.signal_all();
-  ABEL_RAW_CHECK(pthread_mutex_unlock(&pthread_mutex_) == 0, "pthread error");
+  DCHECK(pthread_mutex_unlock(&pthread_mutex_) == 0, "pthread error");
 }
 
 cond_var_impl::cond_var_impl() {
-  ABEL_RAW_CHECK(pthread_cond_init(&pthread_cv_, nullptr) == 0,
+  DCHECK(pthread_cond_init(&pthread_cv_, nullptr) == 0,
                  "pthread error");
 }
 
 cond_var_impl::~cond_var_impl() {
-  ABEL_RAW_CHECK(pthread_cond_destroy(&pthread_cv_) == 0, "pthread error");
+  DCHECK(pthread_cond_destroy(&pthread_cv_) == 0, "pthread error");
 }
 
 void cond_var_impl::signal() {
-  ABEL_RAW_CHECK(pthread_cond_signal(&pthread_cv_) == 0, "pthread error");
+  DCHECK(pthread_cond_signal(&pthread_cv_) == 0, "pthread error");
 }
 
 void cond_var_impl::signal_all() {
-  ABEL_RAW_CHECK(pthread_cond_broadcast(&pthread_cv_) == 0, "pthread error");
+  DCHECK(pthread_cond_broadcast(&pthread_cv_) == 0, "pthread error");
 }
 
 void cond_var_impl::wait(mutex_impl* mu) {
   mu->released_.signal_all();
-  ABEL_RAW_CHECK(pthread_cond_wait(&pthread_cv_, &mu->pthread_mutex_) == 0,
+  DCHECK(pthread_cond_wait(&pthread_cv_, &mu->pthread_mutex_) == 0,
                  "pthread error");
 }
 
@@ -156,7 +156,7 @@ bool cond_var_impl::wait_with_deadline(mutex_impl* mu, abel::abel_time deadline)
   struct timespec ts = to_timespec(deadline);
   int rc = pthread_cond_timedwait(&pthread_cv_, &mu->pthread_mutex_, &ts);
   if (rc == ETIMEDOUT) return true;
-  ABEL_RAW_CHECK(rc == 0, "pthread error");
+  DCHECK(rc == 0, "pthread error");
   return false;
 }
 

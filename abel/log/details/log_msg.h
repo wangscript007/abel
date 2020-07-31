@@ -8,7 +8,7 @@
 
 namespace abel {
     namespace details {
-        struct SPDLOG_API log_msg {
+        struct ABEL_API log_msg {
             log_msg() = default;
 
             log_msg(log_clock::time_point log_time, source_loc loc, string_view_t logger_name, level::level_enum lvl,

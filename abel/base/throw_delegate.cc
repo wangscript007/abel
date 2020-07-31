@@ -7,7 +7,7 @@
 #include <new>
 #include <stdexcept>
 #include <abel/base/profile.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 
 namespace abel {
 
@@ -17,7 +17,7 @@ namespace abel {
 #ifdef ABEL_HAVE_EXCEPTIONS
                 throw error;
 #else
-                ABEL_RAW_CRITICAL("{}", error.what());
+                DLOG_CRITICAL("{}", error.what());
                 std::abort();
 #endif
             }

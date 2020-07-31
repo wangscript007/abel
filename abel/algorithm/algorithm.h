@@ -11,7 +11,7 @@ namespace abel {
 
     namespace algorithm_internal {
 
-// Performs comparisons with operator==, similar to C++14's `std::equal_to<>`.
+        // Performs comparisons with operator==, similar to C++14's `std::equal_to<>`.
         struct EqualTo {
             template<typename T, typename U>
             bool operator()(const T &a, const U &b) const {

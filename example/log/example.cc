@@ -1,6 +1,6 @@
 
 #include <iostream>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 
 void abel_log();
 void stdout_example();
@@ -88,9 +88,14 @@ void stdout_example() {
     console->info("This an info message with custom format");
 
     // Compile time log levels
-    // define SPDLOG_DEBUG_ON or SPDLOG_TRACE_ON
-    //ABEL_LOG_TRACE(console, "Enabled only #ifdef SPDLOG_TRACE_ON..{} ,{}", 1, 3.23);
-    //ABEL_LOG_DEBUG(console, "Enabled only #ifdef SPDLOG_DEBUG_ON.. {} ,{}", 1, 3.23);
+    // define LOG_DEBUG_ON or LOG_TRACE_ON
+    LOG_INFO(console, "this should display {} ,{}", 1, 3.23);
+    LOG_IF_INFO(console, false, "this should not diplay {} ,{}", 1, 3.23);
+    LOG_IF_INFO(console, true, "this should diplay LOG_IF_INFO {} ,{}", 1, 3.23);
+
+    for(int i=0; i < 200; i++) {
+        LOG_CALL_IF_EVERY_N(console, abel::level::info, true, 100,  "this should display twice {} ,{}", 1, 3.23);
+    }
 }
 
 #include <abel/log/sinks/basic_file_sink.h>
@@ -146,11 +151,10 @@ void multi_sink_example() {
 }
 
 void abel_log() {
-    abel::log_singleton::get_logger()->set_level(abel::level::trace);
-    ABEL_RAW_TRACE("this is trace");
-    ABEL_RAW_DEBUG("this is debug");
-    ABEL_RAW_INFO("this is info");
-    ABEL_RAW_WARN("this is warn");
-    ABEL_RAW_ERROR("this is error");
-    //ABEL_RAW_CHECK(false,"abc");
+    DLOG_TRACE("this is trace");
+    DLOG_DEBUG("this is debug");
+    DLOG_INFO("this is info");
+    DLOG_WARN("this is warn");
+    DLOG_ERROR("this is error");
+    DCHECK(true,"abc");
 }

@@ -7,7 +7,7 @@
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <abel/system/scoped_set_env.h>
 #include <abel/config/flag.h>
 #include <abel/strings/str_cat.h>
@@ -101,7 +101,7 @@ namespace {
             }
 
             if (res->empty()) {
-                ABEL_RAW_CRITICAL("Failed to make temporary directory for data files");
+                DLOG_CRITICAL("Failed to make temporary directory for data files");
             }
 
 #ifdef _WIN32

@@ -66,7 +66,7 @@ namespace abel {
             }
 
             void set_pattern_(const std::string &pattern) override {
-                set_formatter_(details::make_unique<abel::pattern_formatter>(pattern));
+                set_formatter_(abel::make_unique<abel::pattern_formatter>(pattern));
             }
 
             void set_formatter_(std::unique_ptr<abel::formatter> sink_formatter) override {

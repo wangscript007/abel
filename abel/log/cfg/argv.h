@@ -7,23 +7,23 @@
 #include <abel/log/details/registry.h>
 
 //
-// Init log levels using each argv entry that starts with "SPDLOG_LEVEL="
+// Init log levels using each argv entry that starts with "LOG_LEVEL="
 //
 // set all loggers to debug level:
-// example.exe "SPDLOG_LEVEL=debug"
+// example.exe "LOG_LEVEL=debug"
 
 // set logger1 to trace level
-// example.exe "SPDLOG_LEVEL=logger1=trace"
+// example.exe "LOG_LEVEL=logger1=trace"
 
 // turn off all logging except for logger1 and logger2:
-// example.exe "SPDLOG_LEVEL=off,logger1=debug,logger2=info"
+// example.exe "LOG_LEVEL=off,logger1=debug,logger2=info"
 
 namespace abel {
     namespace cfg {
 
-// search for SPDLOG_LEVEL= in the args and use it to init the levels
+        // search for LOG_LEVEL= in the args and use it to init the levels
         void load_argv_levels(int argc, const char **argv) {
-            const std::string spdlog_level_prefix = "SPDLOG_LEVEL=";
+            const std::string spdlog_level_prefix = "LOG_LEVEL=";
             for (int i = 1; i < argc; i++) {
                 std::string arg = argv[i];
                 if (arg.find(spdlog_level_prefix) == 0) {

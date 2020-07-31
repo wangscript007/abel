@@ -13,7 +13,7 @@ namespace abel {
 // When failing to open a file, retry several times(5) with a delay interval(10 ms).
 // Throw log_ex exception on errors.
 
-        class SPDLOG_API file_helper {
+        class ABEL_API file_helper {
         public:
             explicit file_helper() = default;
 

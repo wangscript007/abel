@@ -72,7 +72,7 @@ namespace abel {
                 }
 
                 if (err) {
-                    throw_spdlog_ex("Failed writing to systemd", errno);
+                    throw_log_ex("Failed writing to systemd", errno);
                 }
             }
 

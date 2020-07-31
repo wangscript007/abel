@@ -401,7 +401,7 @@ namespace abel {
         template<typename T>
         ABEL_FORCE_INLINE void flag_state<T>::restore() const {
             if (flag_->restore_state(*this)) {
-                ABEL_RAW_INFO("Restore saved value of {} to: {}", flag_->name(), flag_->current_value());
+                DLOG_INFO("Restore saved value of {} to: {}", flag_->name(), flag_->current_value());
             }
         }
 

@@ -8,4 +8,4 @@
 #include <abel/log/details/thread_pool_inl.h>
 
 template
-class SPDLOG_API abel::details::mpmc_blocking_queue<abel::details::async_msg>;
+class ABEL_API abel::details::mpmc_blocking_queue<abel::details::async_msg>;

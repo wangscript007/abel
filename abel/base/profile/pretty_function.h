@@ -15,7 +15,7 @@
 #elif defined(__GNUC__)
     #define ABEL_PRETTY_FUNCTION __PRETTY_FUNCTION__
 #else
-    #error "Unsupported compiler"
+    #define ABEL_PRETTY_FUNCTION static_cast<const char *>(__FUNCTION__)
 #endif
 
 #endif  // ABEL_BASE_PROFILE_PRETTY_FUNCTION_H_

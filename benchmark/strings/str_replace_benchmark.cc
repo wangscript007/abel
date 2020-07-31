@@ -6,7 +6,7 @@
 #include <string>
 
 #include <benchmark/benchmark.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 
 namespace {
 
@@ -85,7 +85,7 @@ namespace {
         std::string src = *big_string;
         for (auto _ : state) {
             std::string dest = abel::string_replace_all(src, {{"the", "box"}});
-            ABEL_RAW_CHECK(dest == *after_replacing_the,
+            DCHECK(dest == *after_replacing_the,
                            "not benchmarking intended behavior");
         }
     }
@@ -102,7 +102,7 @@ namespace {
                                                               {"dozen",  "brown"},
                                                               {"lazy",   "pack"},
                                                               {"liquor", "shakes"}});
-            ABEL_RAW_CHECK(dest == *after_replacing_many,
+            DCHECK(dest == *after_replacing_many,
                            "not benchmarking intended behavior");
         }
     }

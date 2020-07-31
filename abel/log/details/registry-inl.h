@@ -9,7 +9,7 @@
 #include <abel/log/logger.h>
 #include <abel/log/pattern_formatter.h>
 
-#ifndef SPDLOG_DISABLE_DEFAULT_LOGGER
+#ifndef LOG_DISABLE_DEFAULT_LOGGER
 // support for the default stdout color logger
 #ifdef _WIN32
 #include <abel/log/sinks/wincolor_sink.h>
@@ -18,7 +18,7 @@
 #include <abel/log/sinks/ansicolor_sink.h>
 
 #endif
-#endif // SPDLOG_DISABLE_DEFAULT_LOGGER
+#endif // LOG_DISABLE_DEFAULT_LOGGER
 
 #include <chrono>
 #include <functional>
@@ -29,10 +29,10 @@
 namespace abel {
     namespace details {
 
-        SPDLOG_INLINE registry::registry()
+        ABEL_FORCE_INLINE registry::registry()
                 : formatter_(new pattern_formatter()) {
 
-#ifndef SPDLOG_DISABLE_DEFAULT_LOGGER
+#ifndef LOG_DISABLE_DEFAULT_LOGGER
             // create default logger (ansicolor_stdout_sink_mt or wincolor_stdout_sink_mt in windows).
 #ifdef _WIN32
             auto color_sink = std::make_shared<sinks::wincolor_stdout_sink_mt>();
@@ -44,17 +44,17 @@ namespace abel {
             default_logger_ = std::make_shared<abel::logger>(default_logger_name, std::move(color_sink));
             loggers_[default_logger_name] = default_logger_;
 
-#endif // SPDLOG_DISABLE_DEFAULT_LOGGER
+#endif // LOG_DISABLE_DEFAULT_LOGGER
         }
 
-        SPDLOG_INLINE registry::~registry() = default;
+        ABEL_FORCE_INLINE registry::~registry() = default;
 
-        SPDLOG_INLINE void registry::register_logger(std::shared_ptr<logger> new_logger) {
+        ABEL_FORCE_INLINE void registry::register_logger(std::shared_ptr<logger> new_logger) {
             std::lock_guard<std::mutex> lock(logger_map_mutex_);
             register_logger_(std::move(new_logger));
         }
 
-        SPDLOG_INLINE void registry::initialize_logger(std::shared_ptr<logger> new_logger) {
+        ABEL_FORCE_INLINE void registry::initialize_logger(std::shared_ptr<logger> new_logger) {
             std::lock_guard<std::mutex> lock(logger_map_mutex_);
             new_logger->set_formatter(formatter_->clone());
 
@@ -74,13 +74,13 @@ namespace abel {
             }
         }
 
-        SPDLOG_INLINE std::shared_ptr<logger> registry::get(const std::string &logger_name) {
+        ABEL_FORCE_INLINE std::shared_ptr<logger> registry::get(const std::string &logger_name) {
             std::lock_guard<std::mutex> lock(logger_map_mutex_);
             auto found = loggers_.find(logger_name);
             return found == loggers_.end() ? nullptr : found->second;
         }
 
-        SPDLOG_INLINE std::shared_ptr<logger> registry::default_logger() {
+        ABEL_FORCE_INLINE std::shared_ptr<logger> registry::default_logger() {
             std::lock_guard<std::mutex> lock(logger_map_mutex_);
             return default_logger_;
         }
@@ -89,13 +89,13 @@ namespace abel {
 // To be used directly by the spdlog default api (e.g. abel::info)
 // This make the default API faster, but cannot be used concurrently with set_default_logger().
 // e.g do not call set_default_logger() from one thread while calling abel::info() from another.
-        SPDLOG_INLINE logger *registry::get_default_raw() {
+        ABEL_FORCE_INLINE logger *registry::get_default_raw() {
             return default_logger_.get();
         }
 
 // set default logger.
 // default logger is stored in default_logger_ (for faster retrieval) and in the loggers_ map.
-        SPDLOG_INLINE void registry::set_default_logger(std::shared_ptr<logger> new_default_logger) {
+        ABEL_FORCE_INLINE void registry::set_default_logger(std::shared_ptr<logger> new_default_logger) {
             std::lock_guard<std::mutex> lock(logger_map_mutex_);
             // remove previous default logger from the map
             if (default_logger_ != nullptr) {
@@ -107,18 +107,18 @@ namespace abel {
             default_logger_ = std::move(new_default_logger);
         }
 
-        SPDLOG_INLINE void registry::set_tp(std::shared_ptr<thread_pool> tp) {
+        ABEL_FORCE_INLINE void registry::set_tp(std::shared_ptr<thread_pool> tp) {
             std::lock_guard<std::recursive_mutex> lock(tp_mutex_);
             tp_ = std::move(tp);
         }
 
-        SPDLOG_INLINE std::shared_ptr<thread_pool> registry::get_tp() {
+        ABEL_FORCE_INLINE std::shared_ptr<thread_pool> registry::get_tp() {
             std::lock_guard<std::recursive_mutex> lock(tp_mutex_);
             return tp_;
         }
 
 // Set global formatter. Each sink in each logger will get a clone of this object
-        SPDLOG_INLINE void registry::set_formatter(std::unique_ptr<formatter> formatter) {
+        ABEL_FORCE_INLINE void registry::set_formatter(std::unique_ptr<formatter> formatter) {
             std::lock_guard<std::mutex> lock(logger_map_mutex_);
             formatter_ = std::move(formatter);
             for (auto &l : loggers_) {
@@ -126,7 +126,7 @@ namespace abel {
             }
         }
 
-        SPDLOG_INLINE void registry::enable_backtrace(size_t n_messages) {
+        ABEL_FORCE_INLINE void registry::enable_backtrace(size_t n_messages) {
             std::lock_guard<std::mutex> lock(logger_map_mutex_);
             backtrace_n_messages_ = n_messages;
 
@@ -135,7 +135,7 @@ namespace abel {
             }
         }
 
-        SPDLOG_INLINE void registry::disable_backtrace() {
+        ABEL_FORCE_INLINE void registry::disable_backtrace() {
             std::lock_guard<std::mutex> lock(logger_map_mutex_);
             backtrace_n_messages_ = 0;
             for (auto &l : loggers_) {
@@ -143,7 +143,7 @@ namespace abel {
             }
         }
 
-        SPDLOG_INLINE void registry::set_level(level::level_enum log_level) {
+        ABEL_FORCE_INLINE void registry::set_level(level::level_enum log_level) {
             std::lock_guard<std::mutex> lock(logger_map_mutex_);
             for (auto &l : loggers_) {
                 l.second->set_level(log_level);
@@ -151,7 +151,7 @@ namespace abel {
             levels_.set_default(log_level);
         }
 
-        SPDLOG_INLINE void registry::flush_on(level::level_enum log_level) {
+        ABEL_FORCE_INLINE void registry::flush_on(level::level_enum log_level) {
             std::lock_guard<std::mutex> lock(logger_map_mutex_);
             for (auto &l : loggers_) {
                 l.second->flush_on(log_level);
@@ -159,13 +159,13 @@ namespace abel {
             flush_level_ = log_level;
         }
 
-        SPDLOG_INLINE void registry::flush_every(std::chrono::seconds interval) {
+        ABEL_FORCE_INLINE void registry::flush_every(std::chrono::seconds interval) {
             std::lock_guard<std::mutex> lock(flusher_mutex_);
             auto clbk = [this]() { this->flush_all(); };
-            periodic_flusher_ = details::make_unique<periodic_worker>(clbk, interval);
+            periodic_flusher_ = abel::make_unique<periodic_worker>(clbk, interval);
         }
 
-        SPDLOG_INLINE void registry::set_error_handler(void (*handler)(const std::string &msg)) {
+        ABEL_FORCE_INLINE void registry::set_error_handler(void (*handler)(const std::string &msg)) {
             std::lock_guard<std::mutex> lock(logger_map_mutex_);
             for (auto &l : loggers_) {
                 l.second->set_error_handler(handler);
@@ -173,21 +173,21 @@ namespace abel {
             err_handler_ = handler;
         }
 
-        SPDLOG_INLINE void registry::apply_all(const std::function<void(const std::shared_ptr<logger>)> &fun) {
+        ABEL_FORCE_INLINE void registry::apply_all(const std::function<void(const std::shared_ptr<logger>)> &fun) {
             std::lock_guard<std::mutex> lock(logger_map_mutex_);
             for (auto &l : loggers_) {
                 fun(l.second);
             }
         }
 
-        SPDLOG_INLINE void registry::flush_all() {
+        ABEL_FORCE_INLINE void registry::flush_all() {
             std::lock_guard<std::mutex> lock(logger_map_mutex_);
             for (auto &l : loggers_) {
                 l.second->flush();
             }
         }
 
-        SPDLOG_INLINE void registry::drop(const std::string &logger_name) {
+        ABEL_FORCE_INLINE void registry::drop(const std::string &logger_name) {
             std::lock_guard<std::mutex> lock(logger_map_mutex_);
             loggers_.erase(logger_name);
             if (default_logger_ && default_logger_->name() == logger_name) {
@@ -195,14 +195,14 @@ namespace abel {
             }
         }
 
-        SPDLOG_INLINE void registry::drop_all() {
+        ABEL_FORCE_INLINE void registry::drop_all() {
             std::lock_guard<std::mutex> lock(logger_map_mutex_);
             loggers_.clear();
             default_logger_.reset();
         }
 
 // clean all resources and threads started by the registry
-        SPDLOG_INLINE void registry::shutdown() {
+        ABEL_FORCE_INLINE void registry::shutdown() {
             {
                 std::lock_guard<std::mutex> lock(flusher_mutex_);
                 periodic_flusher_.reset();
@@ -216,16 +216,16 @@ namespace abel {
             }
         }
 
-        SPDLOG_INLINE std::recursive_mutex &registry::tp_mutex() {
+        ABEL_FORCE_INLINE std::recursive_mutex &registry::tp_mutex() {
             return tp_mutex_;
         }
 
-        SPDLOG_INLINE void registry::set_automatic_registration(bool automatic_registration) {
+        ABEL_FORCE_INLINE void registry::set_automatic_registration(bool automatic_registration) {
             std::lock_guard<std::mutex> lock(logger_map_mutex_);
             automatic_registration_ = automatic_registration;
         }
 
-        SPDLOG_INLINE void registry::update_levels(cfg::log_levels levels) {
+        ABEL_FORCE_INLINE void registry::update_levels(cfg::log_levels levels) {
             std::lock_guard<std::mutex> lock(logger_map_mutex_);
             levels_ = std::move(levels);
             for (auto &l : loggers_) {
@@ -234,18 +234,18 @@ namespace abel {
             }
         }
 
-        SPDLOG_INLINE registry &registry::instance() {
+        ABEL_FORCE_INLINE registry &registry::instance() {
             static registry s_instance;
             return s_instance;
         }
 
-        SPDLOG_INLINE void registry::throw_if_exists_(const std::string &logger_name) {
+        ABEL_FORCE_INLINE void registry::throw_if_exists_(const std::string &logger_name) {
             if (loggers_.find(logger_name) != loggers_.end()) {
-                throw_spdlog_ex("logger with name '" + logger_name + "' already exists");
+                throw_log_ex("logger with name '" + logger_name + "' already exists");
             }
         }
 
-        SPDLOG_INLINE void registry::register_logger_(std::shared_ptr<logger> new_logger) {
+        ABEL_FORCE_INLINE void registry::register_logger_(std::shared_ptr<logger> new_logger) {
             auto logger_name = new_logger->name();
             throw_if_exists_(logger_name);
             loggers_[logger_name] = std::move(new_logger);

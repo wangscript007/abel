@@ -1,7 +1,7 @@
 //
 
 #include <cstdint>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 
 namespace abel {
 

@@ -7,7 +7,7 @@
 #include <vector>
 
 #include <benchmark/benchmark.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 
 namespace {
 
@@ -22,7 +22,7 @@ namespace {
             for (int i = 0; i < num_nodes; i++) {
                 int end = std::min(num_nodes, i + 5);
                 for (int j = i + 1; j < end; j++) {
-                    ABEL_RAW_CHECK(g.insert_edge(nodes[i], nodes[j]), "");
+                    DCHECK(g.insert_edge(nodes[i], nodes[j]), "");
                 }
             }
         }

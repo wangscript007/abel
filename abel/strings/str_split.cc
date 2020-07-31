@@ -11,7 +11,7 @@
 #include <limits>
 #include <memory>
 
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <abel/strings/ascii.h>
 
 namespace abel {
@@ -110,7 +110,7 @@ namespace abel {
 //  by_length
 //
     by_length::by_length(ptrdiff_t length) : _length(length) {
-        ABEL_RAW_CHECK(length > 0, "");
+        DCHECK(length > 0, "");
     }
 
     abel::string_view by_length::find(abel::string_view text,

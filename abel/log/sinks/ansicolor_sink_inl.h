@@ -11,9 +11,9 @@ namespace abel {
     namespace sinks {
 
         template<typename ConsoleMutex>
-        SPDLOG_INLINE ansicolor_sink<ConsoleMutex>::ansicolor_sink(FILE *target_file, color_mode mode)
+        ABEL_FORCE_INLINE ansicolor_sink<ConsoleMutex>::ansicolor_sink(FILE *target_file, color_mode mode)
                 : target_file_(target_file), mutex_(ConsoleMutex::mutex()),
-                  formatter_(details::make_unique<abel::pattern_formatter>()) {
+                  formatter_(abel::make_unique<abel::pattern_formatter>()) {
             set_color_mode(mode);
             colors_[level::trace] = to_string_(white);
             colors_[level::debug] = to_string_(cyan);
@@ -25,13 +25,13 @@ namespace abel {
         }
 
         template<typename ConsoleMutex>
-        SPDLOG_INLINE void ansicolor_sink<ConsoleMutex>::set_color(level::level_enum color_level, string_view_t color) {
+        ABEL_FORCE_INLINE void ansicolor_sink<ConsoleMutex>::set_color(level::level_enum color_level, string_view_t color) {
             std::lock_guard<mutex_t> lock(mutex_);
             colors_[color_level] = to_string_(color);
         }
 
         template<typename ConsoleMutex>
-        SPDLOG_INLINE void ansicolor_sink<ConsoleMutex>::log(const details::log_msg &msg) {
+        ABEL_FORCE_INLINE void ansicolor_sink<ConsoleMutex>::log(const details::log_msg &msg) {
             // Wrap the originally formatted message in color codes.
             // If color is not supported in the terminal, log as is instead.
             std::lock_guard<mutex_t> lock(mutex_);
@@ -56,31 +56,31 @@ namespace abel {
         }
 
         template<typename ConsoleMutex>
-        SPDLOG_INLINE void ansicolor_sink<ConsoleMutex>::flush() {
+        ABEL_FORCE_INLINE void ansicolor_sink<ConsoleMutex>::flush() {
             std::lock_guard<mutex_t> lock(mutex_);
             fflush(target_file_);
         }
 
         template<typename ConsoleMutex>
-        SPDLOG_INLINE void ansicolor_sink<ConsoleMutex>::set_pattern(const std::string &pattern) {
+        ABEL_FORCE_INLINE void ansicolor_sink<ConsoleMutex>::set_pattern(const std::string &pattern) {
             std::lock_guard<mutex_t> lock(mutex_);
             formatter_ = std::unique_ptr<abel::formatter>(new pattern_formatter(pattern));
         }
 
         template<typename ConsoleMutex>
-        SPDLOG_INLINE void
+        ABEL_FORCE_INLINE void
         ansicolor_sink<ConsoleMutex>::set_formatter(std::unique_ptr<abel::formatter> sink_formatter) {
             std::lock_guard<mutex_t> lock(mutex_);
             formatter_ = std::move(sink_formatter);
         }
 
         template<typename ConsoleMutex>
-        SPDLOG_INLINE bool ansicolor_sink<ConsoleMutex>::should_color() {
+        ABEL_FORCE_INLINE bool ansicolor_sink<ConsoleMutex>::should_color() {
             return should_do_colors_;
         }
 
         template<typename ConsoleMutex>
-        SPDLOG_INLINE void ansicolor_sink<ConsoleMutex>::set_color_mode(color_mode mode) {
+        ABEL_FORCE_INLINE void ansicolor_sink<ConsoleMutex>::set_color_mode(color_mode mode) {
             switch (mode) {
                 case color_mode::always:
                     should_do_colors_ = true;
@@ -95,29 +95,29 @@ namespace abel {
         }
 
         template<typename ConsoleMutex>
-        SPDLOG_INLINE void ansicolor_sink<ConsoleMutex>::print_ccode_(const string_view_t &color_code) {
+        ABEL_FORCE_INLINE void ansicolor_sink<ConsoleMutex>::print_ccode_(const string_view_t &color_code) {
             fwrite(color_code.data(), sizeof(char), color_code.size(), target_file_);
         }
 
         template<typename ConsoleMutex>
-        SPDLOG_INLINE void
+        ABEL_FORCE_INLINE void
         ansicolor_sink<ConsoleMutex>::print_range_(const memory_buf_t &formatted, size_t start, size_t end) {
             fwrite(formatted.data() + start, sizeof(char), end - start, target_file_);
         }
 
         template<typename ConsoleMutex>
-        SPDLOG_INLINE std::string ansicolor_sink<ConsoleMutex>::to_string_(const string_view_t &sv) {
+        ABEL_FORCE_INLINE std::string ansicolor_sink<ConsoleMutex>::to_string_(const string_view_t &sv) {
             return std::string(sv.data(), sv.size());
         }
 
 // ansicolor_stdout_sink
         template<typename ConsoleMutex>
-        SPDLOG_INLINE ansicolor_stdout_sink<ConsoleMutex>::ansicolor_stdout_sink(color_mode mode)
+        ABEL_FORCE_INLINE ansicolor_stdout_sink<ConsoleMutex>::ansicolor_stdout_sink(color_mode mode)
                 : ansicolor_sink<ConsoleMutex>(stdout, mode) {}
 
 // ansicolor_stderr_sink
         template<typename ConsoleMutex>
-        SPDLOG_INLINE ansicolor_stderr_sink<ConsoleMutex>::ansicolor_stderr_sink(color_mode mode)
+        ABEL_FORCE_INLINE ansicolor_stderr_sink<ConsoleMutex>::ansicolor_stderr_sink(color_mode mode)
                 : ansicolor_sink<ConsoleMutex>(stderr, mode) {}
 
     } // namespace sinks

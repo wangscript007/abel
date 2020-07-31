@@ -11,7 +11,7 @@
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <abel/debugging/stacktrace.h>
 #include <abel/debugging/symbolize.h>
 #include <abel/strings/str_cat.h>
@@ -49,10 +49,10 @@ namespace {
 
     void WriteToErrorFile(const char *msg) {
         if (msg != nullptr) {
-            ABEL_RAW_CHECK(fwrite(msg, strlen(msg), 1, error_file) == 1,
+            DCHECK(fwrite(msg, strlen(msg), 1, error_file) == 1,
                            "fwrite() failed");
         }
-        ABEL_RAW_CHECK(fflush(error_file) == 0, "fflush() failed");
+        DCHECK(fflush(error_file) == 0, "fflush() failed");
     }
 
     std::string GetTmpDir() {
@@ -73,7 +73,7 @@ namespace {
 // This function runs in a fork()ed process on most systems.
     void InstallHandlerWithWriteToFileAndRaise(const char *file, int signo) {
         error_file = fopen(file, "w");
-        ABEL_RAW_CHECK(error_file != nullptr, "Failed create error_file");
+        DCHECK(error_file != nullptr, "Failed create error_file");
         abel::failure_signal_handler_options options;
         options.writerfn = WriteToErrorFile;
         abel::install_failure_signal_handler(options);

@@ -28,7 +28,7 @@
 #include <ctime>
 
 #include <abel/base/profile.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <abel/system/sysinfo.h>
 #include <abel/debugging/internal/examine_stack.h>
 #include <abel/debugging/stacktrace.h>
@@ -137,17 +137,17 @@ namespace abel {
         sigstk.ss_sp = mmap(nullptr, sigstk.ss_size, PROT_READ | PROT_WRITE,
                             MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK, -1, 0);
         if (sigstk.ss_sp == MAP_FAILED) {
-            ABEL_RAW_CRITICAL("mmap() for alternate signal stack failed");
+            DLOG_CRITICAL("mmap() for alternate signal stack failed");
         }
 #else
         sigstk.ss_sp = malloc(sigstk.ss_size);
         if (sigstk.ss_sp == nullptr) {
-          ABEL_RAW_CRITICAL("malloc() for alternate signal stack failed");
+          DLOG_CRITICAL("malloc() for alternate signal stack failed");
         }
 #endif
 
         if (sigaltstack(&sigstk, nullptr) != 0) {
-            ABEL_RAW_CRITICAL("sigaltstack() failed with errno={}", errno);
+            DLOG_CRITICAL("sigaltstack() failed with errno={}", errno);
         }
         return true;
     }
@@ -181,7 +181,7 @@ namespace abel {
             act.sa_flags |= MaybeSetupAlternateStack();
         }
         act.sa_sigaction = handler;
-        ABEL_RAW_CHECK(sigaction(data->signo, &act, &data->previous_action) == 0,
+        DCHECK(sigaction(data->signo, &act, &data->previous_action) == 0,
                        "sigaction() failed");
     }
 
@@ -190,7 +190,7 @@ namespace abel {
     static void InstallOneFailureHandler(FailureSignalData* data,
                                          void (*handler)(int)) {
       data->previous_handler = signal(data->signo, handler);
-      ABEL_RAW_CHECK(data->previous_handler != SIG_ERR, "signal() failed");
+      DCHECK(data->previous_handler != SIG_ERR, "signal() failed");
     }
 
 #endif
@@ -318,7 +318,7 @@ namespace abel {
         if (!failed_tid.compare_exchange_strong(
                 previous_failed_tid, static_cast<intptr_t>(this_tid),
                 std::memory_order_acq_rel, std::memory_order_relaxed)) {
-            ABEL_RAW_ERROR(
+            DLOG_ERROR(
                     "signal {} raised at PC={:p} while already in AbelFailureSignalHandler()",
                     signo, abel::debugging_internal::GetProgramCounter(ucontext));
 

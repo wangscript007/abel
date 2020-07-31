@@ -14,7 +14,7 @@
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <testing/chi_square.h>
 #include <testing/distribution_test_util.h>
 #include <abel/random/engine/sequence_urbg.h>
@@ -81,7 +81,7 @@ namespace {
         };
         for (TypeParam alpha : kValues) {
             for (TypeParam beta : kValues) {
-                ABEL_RAW_INFO(fmt::sprintf("Smoke test for Beta(%a, %a)", alpha, beta));
+                DLOG_INFO(fmt::sprintf("Smoke test for Beta(%a, %a)", alpha, beta));
 
                 param_type param(alpha, beta);
                 abel::beta_distribution<TypeParam> before(alpha, beta);
@@ -318,7 +318,7 @@ namespace {
                 abel::random_internal::Near("z", z_mean, 0.0, max_err) &&
                 abel::random_internal::Near("z_variance", z_variance, 0.0, max_err);
         if (!pass) {
-            ABEL_RAW_INFO(
+            DLOG_INFO(
                     fmt::sprintf(
                             "Beta(%f, %f), "
                             "mean: sample %f, expect %f, which is %f stddevs away, "
@@ -387,12 +387,12 @@ namespace {
                 (abel::random_internal::chi_square_p_value(chi_square, dof) >= p);
         if (!pass) {
             for (size_t i = 0; i < cutoffs.size(); i++) {
-                ABEL_RAW_INFO(fmt::sprintf("cutoff[%d] = %f, actual count %d, expected %d",
+                DLOG_INFO(fmt::sprintf("cutoff[%d] = %f, actual count %d, expected %d",
                                            i, cutoffs[i], counts[i],
                                            static_cast<int>(expected[i])));
             }
 
-            ABEL_RAW_INFO(fmt::sprintf(
+            DLOG_INFO(fmt::sprintf(
                     "Beta(%f, %f) %s %f, p = %f", alpha_, beta_,
                     abel::random_internal::kChiSquared, chi_square,
                     abel::random_internal::chi_square_p_value(chi_square, dof)));

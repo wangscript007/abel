@@ -15,7 +15,7 @@
 
 namespace abel {
     namespace details {
-        class SPDLOG_API backtracer {
+        class ABEL_API backtracer {
             mutable std::mutex mutex_;
             std::atomic<bool> enabled_{false};
             circular_q<log_msg_buffer> messages_;
@@ -25,7 +25,7 @@ namespace abel {
 
             backtracer(const backtracer &other);
 
-            backtracer(backtracer &&other) SPDLOG_NOEXCEPT;
+            backtracer(backtracer &&other) ABEL_NOEXCEPT;
 
             backtracer &operator=(backtracer other);
 

@@ -25,7 +25,7 @@
 #include <utility>
 #include <vector>
 #include <abel/base/profile.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <abel/random/engine/randen_engine.h>
 
 // OS
@@ -362,7 +362,7 @@ namespace abel {
                         std::fill(p, p + value_count.second, value_count.first);
                         p += value_count.second;
                     }
-                    ABEL_RAW_CHECK(p == values + num_values, "Did not produce enough output");
+                    DCHECK(p == values + num_values, "Did not produce enough output");
                 }
 
 // @return i in [idx_begin, idx_begin + half_count) that minimizes
@@ -374,7 +374,7 @@ namespace abel {
                     size_t min_idx = 0;
 
                     for (size_t idx = idx_begin; idx < idx_begin + half_count; ++idx) {
-                        ABEL_RAW_CHECK(sorted[idx] <= sorted[idx + half_count], "Not sorted");
+                        DCHECK(sorted[idx] <= sorted[idx + half_count], "Not sorted");
                         const T range = sorted[idx + half_count] - sorted[idx];
                         if (range < min_range) {
                             min_range = range;
@@ -405,7 +405,7 @@ namespace abel {
                     if (half_count == 0) {
                         return x;
                     }
-                    ABEL_RAW_CHECK(half_count == 1, "Should stop at half_count=1");
+                    DCHECK(half_count == 1, "Should stop at half_count=1");
                     const T average = (x + sorted[idx_begin + 1] + 1) / 2;
                     return average;
                 }
@@ -425,7 +425,7 @@ namespace abel {
 // Returns the median value. Side effect: sorts "values".
                 template<typename T>
                 T Median(T *values, const size_t num_values) {
-                    ABEL_RAW_CHECK(num_values != 0, "Empty input");
+                    DCHECK(num_values != 0, "Empty input");
                     std::sort(values, values + num_values);
                     const size_t half = num_values / 2;
                     // Odd count: return middle
@@ -440,7 +440,7 @@ namespace abel {
                 template<typename T>
                 T MedianAbsoluteDeviation(const T *values, const size_t num_values,
                                           const T median) {
-                    ABEL_RAW_CHECK(num_values != 0, "Empty input");
+                    DCHECK(num_values != 0, "Empty input");
                     std::vector<T> abs_deviations;
                     abs_deviations.reserve(num_values);
                     for (size_t i = 0; i < num_values; ++i) {
@@ -516,7 +516,7 @@ namespace abel {
                         // For "few" (depends also on the variance) samples, Median is safer.
                         est = robust_statistics::Median(samples.data(), samples.size());
                     }
-                    ABEL_RAW_CHECK(est != 0, "Estimator returned zero duration");
+                    DCHECK(est != 0, "Estimator returned zero duration");
 
                     // Median absolute deviation (mad) is a robust measure of 'variability'.
                     const Ticks abs_mad = robust_statistics::MedianAbsoluteDeviation(
@@ -525,7 +525,7 @@ namespace abel {
 
                     if (*rel_mad <= max_rel_mad || abs_mad <= max_abs_mad) {
                         if (p.verbose) {
-                            ABEL_RAW_INFO("{} samples => {} (abs_mad={}, rel_mad={}%%)\n",
+                            DLOG_INFO("{} samples => {} (abs_mad={}, rel_mad={}%%)\n",
                                          samples.size(), est, abs_mad, *rel_mad * 100.0);
                         }
                         return est;
@@ -533,7 +533,7 @@ namespace abel {
                 }
 
                 if (p.verbose) {
-                    ABEL_RAW_WARN("rel_mad={}%% still exceeds {}%% after {} samples.\n",
+                    DLOG_WARN("rel_mad={}%% still exceeds {}%% after {} samples.\n",
                                  *rel_mad * 100.0, max_rel_mad * 100.0, samples.size());
                 }
                 return est;
@@ -563,7 +563,7 @@ namespace abel {
                     const uint64_t t1 = timer::Stop64();
                     const uint64_t elapsed = t1 - t0;
                     if (elapsed >= (1ULL << 30)) {
-                        ABEL_RAW_WARN("Measurement failed: need 64-bit timer for input={}\n",
+                        DLOG_WARN("Measurement failed: need 64-bit timer for input={}\n",
                                      static_cast<size_t>(input));
                         return 0;
                     }
@@ -581,7 +581,7 @@ namespace abel {
                 const size_t num_skip =
                         min_duration == 0 ? 0 : (max_skip + min_duration - 1) / min_duration;
                 if (p.verbose) {
-                    ABEL_RAW_INFO("res=%u max_skip={} min_dur={} num_skip={}\n",
+                    DLOG_INFO("res=%u max_skip={} min_dur={} num_skip={}\n",
                                  timer_resolution, max_skip, min_duration, num_skip);
                 }
                 return num_skip;
@@ -644,9 +644,9 @@ namespace abel {
                         (*subset)[idx_subset++] = next;
                     }
                 }
-                ABEL_RAW_CHECK(idx_subset == subset->size(), "idx_subset not at end");
-                ABEL_RAW_CHECK(idx_omit == omit.size(), "idx_omit not at end");
-                ABEL_RAW_CHECK(occurrence == count - 1, "occurrence not at end");
+                DCHECK(idx_subset == subset->size(), "idx_subset not at end");
+                DCHECK(idx_omit == omit.size(), "idx_omit not at end");
+                DCHECK(occurrence == count - 1, "occurrence not at end");
             }
 
 // Returns total ticks elapsed for all inputs.
@@ -689,31 +689,31 @@ namespace abel {
 #if defined(ABEL_OS_WIN)
             if (cpu < 0) {
               cpu = static_cast<int>(GetCurrentProcessorNumber());
-              ABEL_RAW_CHECK(cpu >= 0, "pin_thread_to_cpu detect failed");
+              DCHECK(cpu >= 0, "pin_thread_to_cpu detect failed");
               if (cpu >= 64) {
                 // NOTE: On wine, at least, GetCurrentProcessorNumber() sometimes returns
                 // a value > 64, which is out of range. When this happens, log a message
                 // and don't set a cpu affinity.
-                ABEL_RAW_ERROR("Invalid CPU number: {}", cpu);
+                DLOG_ERROR("Invalid CPU number: {}", cpu);
                 return;
               }
             } else if (cpu >= 64) {
               // User specified an explicit CPU affinity > the valid range.
-              ABEL_RAW_CRITICAL("Invalid CPU number: {}", cpu);
+              DLOG_CRITICAL("Invalid CPU number: {}", cpu);
             }
             const DWORD_PTR prev = SetThreadAffinityMask(GetCurrentThread(), 1ULL << cpu);
-            ABEL_RAW_CHECK(prev != 0, "SetAffinity failed");
+            DCHECK(prev != 0, "SetAffinity failed");
 #elif defined(ABEL_OS_LINUX) && !defined(ABEL_OS_ANDROID)
             if (cpu < 0) {
               cpu = sched_getcpu();
-              ABEL_RAW_CHECK(cpu >= 0, "pin_thread_to_cpu detect failed");
+              DCHECK(cpu >= 0, "pin_thread_to_cpu detect failed");
             }
             const pid_t pid = 0;  // current thread
             cpu_set_t set;
             CPU_ZERO(&set);
             CPU_SET(cpu, &set);
             const int err = sched_setaffinity(pid, sizeof(set), &set);
-            ABEL_RAW_CHECK(err == 0, "SetAffinity failed");
+            DCHECK(err == 0, "SetAffinity failed");
 #endif
         }
 
@@ -740,13 +740,13 @@ namespace abel {
             const Ticks overhead = Overhead(arg, &full, p);
             const Ticks overhead_skip = Overhead(arg, &subset, p);
             if (overhead < overhead_skip) {
-                ABEL_RAW_WARN("Measurement failed: overhead {} < {}\n", overhead,
+                DLOG_WARN("Measurement failed: overhead {} < {}\n", overhead,
                              overhead_skip);
                 return 0;
             }
 
             if (p.verbose) {
-                ABEL_RAW_INFO("#inputs=%5zu,%5zu overhead={},{}\n", full.size(),
+                DLOG_INFO("#inputs=%5zu,%5zu overhead={},{}\n", full.size(),
                              subset.size(), overhead, overhead_skip);
             }
 
@@ -758,7 +758,7 @@ namespace abel {
                 const Ticks total_skip = TotalDuration(func, arg, &subset, p, &max_rel_mad);
 
                 if (total < total_skip) {
-                    ABEL_RAW_WARN("Measurement failed: total {} < {}\n", total,
+                    DLOG_WARN("Measurement failed: total {} < {}\n", total,
                                  total_skip);
                     return 0;
                 }
@@ -774,7 +774,7 @@ namespace abel {
 
         size_t measure(const Func func, const void *arg, const FuncInput *inputs,
                        const size_t num_inputs, Result *results, const Params &p) {
-            ABEL_RAW_CHECK(num_inputs != 0, "No inputs");
+            DCHECK(num_inputs != 0, "No inputs");
 
             const InputVec unique = UniqueInputs(inputs, num_inputs);
             const size_t num_skip = NumSkip(func, arg, unique, p);  // never 0

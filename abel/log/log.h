@@ -4,8 +4,8 @@
 // spdlog main header file.
 // see example.cpp for usage example
 
-#ifndef SPDLOG_H
-#define SPDLOG_H
+#ifndef LOG_H
+#define LOG_H
 
 #pragma once
 
@@ -35,90 +35,90 @@ namespace abel {
         return default_factory::create<Sink>(std::move(logger_name), std::forward<SinkArgs>(sink_args)...);
     }
 
-// Initialize and register a logger,
-// formatter and flush level will be set according the global settings.
-//
-// Useful for initializing manually created loggers with the global settings.
-//
-// Example:
-//   auto mylogger = std::make_shared<abel::logger>("mylogger", ...);
-//   abel::initialize_logger(mylogger);
-    SPDLOG_API void initialize_logger(std::shared_ptr<logger> logger);
+    // Initialize and register a logger,
+    // formatter and flush level will be set according the global settings.
+    //
+    // Useful for initializing manually created loggers with the global settings.
+    //
+    // Example:
+    //   auto mylogger = std::make_shared<abel::logger>("mylogger", ...);
+    //   abel::initialize_logger(mylogger);
+    ABEL_API void initialize_logger(std::shared_ptr<logger> logger);
 
-// Return an existing logger or nullptr if a logger with such name doesn't
-// exist.
-// example: abel::get("my_logger")->info("hello {}", "world");
-    SPDLOG_API std::shared_ptr<logger> get(const std::string &name);
+    // Return an existing logger or nullptr if a logger with such name doesn't
+    // exist.
+    // example: abel::get("my_logger")->info("hello {}", "world");
+    ABEL_API std::shared_ptr<logger> get(const std::string &name);
 
-// Set global formatter. Each sink in each logger will get a clone of this object
-    SPDLOG_API void set_formatter(std::unique_ptr<abel::formatter> formatter);
+    // Set global formatter. Each sink in each logger will get a clone of this object
+    ABEL_API void set_formatter(std::unique_ptr<abel::formatter> formatter);
 
-// Set global format string.
-// example: abel::set_pattern("%Y-%m-%d %H:%M:%S.%e %l : %v");
-    SPDLOG_API void set_pattern(std::string pattern, pattern_time_type time_type = pattern_time_type::local);
+    // Set global format string.
+    // example: abel::set_pattern("%Y-%m-%d %H:%M:%S.%e %l : %v");
+    ABEL_API void set_pattern(std::string pattern, pattern_time_type time_type = pattern_time_type::local);
 
-// enable global backtrace support
-    SPDLOG_API void enable_backtrace(size_t n_messages);
+    // enable global backtrace support
+    ABEL_API void enable_backtrace(size_t n_messages);
 
-// disable global backtrace support
-    SPDLOG_API void disable_backtrace();
+    // disable global backtrace support
+    ABEL_API void disable_backtrace();
 
-// call dump backtrace on default logger
-    SPDLOG_API void dump_backtrace();
+    // call dump backtrace on default logger
+    ABEL_API void dump_backtrace();
 
-// Set global logging level
-    SPDLOG_API void set_level(level::level_enum log_level);
+    // Set global logging level
+    ABEL_API void set_level(level::level_enum log_level);
 
-// Set global flush level
-    SPDLOG_API void flush_on(level::level_enum log_level);
+    // Set global flush level
+    ABEL_API void flush_on(level::level_enum log_level);
 
-// Start/Restart a periodic flusher thread
-// Warning: Use only if all your loggers are thread safe!
-    SPDLOG_API void flush_every(std::chrono::seconds interval);
+    // Start/Restart a periodic flusher thread
+    // Warning: Use only if all your loggers are thread safe!
+    ABEL_API void flush_every(std::chrono::seconds interval);
 
-// Set global error handler
-    SPDLOG_API void set_error_handler(void (*handler)(const std::string &msg));
+    // Set global error handler
+    ABEL_API void set_error_handler(void (*handler)(const std::string &msg));
 
-// Register the given logger with the given name
-    SPDLOG_API void register_logger(std::shared_ptr<logger> logger);
+    // Register the given logger with the given name
+    ABEL_API void register_logger(std::shared_ptr<logger> logger);
 
-// Apply a user defined function on all registered loggers
-// Example:
-// abel::apply_all([&](std::shared_ptr<abel::logger> l) {l->flush();});
-    SPDLOG_API void apply_all(const std::function<void(std::shared_ptr<logger>)> &fun);
+    // Apply a user defined function on all registered loggers
+    // Example:
+    // abel::apply_all([&](std::shared_ptr<abel::logger> l) {l->flush();});
+    ABEL_API void apply_all(const std::function<void(std::shared_ptr<logger>)> &fun);
 
-// Drop the reference to the given logger
-    SPDLOG_API void drop(const std::string &name);
+    // Drop the reference to the given logger
+    ABEL_API void drop(const std::string &name);
 
-// Drop all references from the registry
-    SPDLOG_API void drop_all();
+    // Drop all references from the registry
+    ABEL_API void drop_all();
 
-// stop any running threads started by spdlog and clean registry loggers
-    SPDLOG_API void shutdown();
+    // stop any running threads started by spdlog and clean registry loggers
+    ABEL_API void shutdown();
 
-// Automatic registration of loggers when using abel::create() or abel::create_async
-    SPDLOG_API void set_automatic_registration(bool automatic_registration);
+    // Automatic registration of loggers when using abel::create() or abel::create_async
+    ABEL_API void set_automatic_registration(bool automatic_registration);
 
-// API for using default logger (stdout_color_mt),
-// e.g: abel::info("Message {}", 1);
-//
-// The default logger object can be accessed using the abel::default_logger():
-// For example, to add another sink to it:
-// abel::default_logger()->sinks()->push_back(some_sink);
-//
-// The default logger can replaced using abel::set_default_logger(new_logger).
-// For example, to replace it with a file logger.
-//
-// IMPORTANT:
-// The default API is thread safe (for _mt loggers), but:
-// set_default_logger() *should not* be used concurrently with the default API.
-// e.g do not call set_default_logger() from one thread while calling abel::info() from another.
+    // API for using default logger (stdout_color_mt),
+    // e.g: abel::info("Message {}", 1);
+    //
+    // The default logger object can be accessed using the abel::default_logger():
+    // For example, to add another sink to it:
+    // abel::default_logger()->sinks()->push_back(some_sink);
+    //
+    // The default logger can replaced using abel::set_default_logger(new_logger).
+    // For example, to replace it with a file logger.
+    //
+    // IMPORTANT:
+    // The default API is thread safe (for _mt loggers), but:
+    // set_default_logger() *should not* be used concurrently with the default API.
+    // e.g do not call set_default_logger() from one thread while calling abel::info() from another.
 
-    SPDLOG_API std::shared_ptr<abel::logger> default_logger();
+    ABEL_API std::shared_ptr<abel::logger> default_logger();
 
-    SPDLOG_API abel::logger *default_logger_raw();
+    ABEL_API abel::logger *default_logger_raw();
 
-    SPDLOG_API void set_default_logger(std::shared_ptr<abel::logger> default_logger);
+    ABEL_API void set_default_logger(std::shared_ptr<abel::logger> default_logger);
 
     template<typename FormatString, typename... Args>
     inline void log(source_loc source, level::level_enum lvl, const FormatString &fmt, const Args &... args) {
@@ -202,69 +202,6 @@ namespace abel {
 
 } // namespace abel
 
-//
-// enable/disable log calls at compile time according to global level.
-//
-// define SPDLOG_ACTIVE_LEVEL to one of those (before including spdlog.h):
-// SPDLOG_LEVEL_TRACE,
-// SPDLOG_LEVEL_DEBUG,
-// SPDLOG_LEVEL_INFO,
-// SPDLOG_LEVEL_WARN,
-// SPDLOG_LEVEL_ERROR,
-// SPDLOG_LEVEL_CRITICAL,
-// SPDLOG_LEVEL_OFF
-//
-
-#define SPDLOG_LOGGER_CALL(logger, level, ...) (logger)->log(abel::source_loc{__FILE__, __LINE__, SPDLOG_FUNCTION}, level, __VA_ARGS__)
-
-#if SPDLOG_ACTIVE_LEVEL <= SPDLOG_LEVEL_TRACE
-#define SPDLOG_LOGGER_TRACE(logger, ...) SPDLOG_LOGGER_CALL(logger, abel::level::trace, __VA_ARGS__)
-#define SPDLOG_TRACE(...) SPDLOG_LOGGER_TRACE(abel::default_logger_raw(), __VA_ARGS__)
-#else
-#define SPDLOG_LOGGER_TRACE(logger, ...) (void)0
-#define SPDLOG_TRACE(...) (void)0
-#endif
-
-#if SPDLOG_ACTIVE_LEVEL <= SPDLOG_LEVEL_DEBUG
-#define SPDLOG_LOGGER_DEBUG(logger, ...) SPDLOG_LOGGER_CALL(logger, abel::level::debug, __VA_ARGS__)
-#define SPDLOG_DEBUG(...) SPDLOG_LOGGER_DEBUG(abel::default_logger_raw(), __VA_ARGS__)
-#else
-#define SPDLOG_LOGGER_DEBUG(logger, ...) (void)0
-#define SPDLOG_DEBUG(...) (void)0
-#endif
-
-#if SPDLOG_ACTIVE_LEVEL <= SPDLOG_LEVEL_INFO
-#define SPDLOG_LOGGER_INFO(logger, ...) SPDLOG_LOGGER_CALL(logger, abel::level::info, __VA_ARGS__)
-#define SPDLOG_INFO(...) SPDLOG_LOGGER_INFO(abel::default_logger_raw(), __VA_ARGS__)
-#else
-#define SPDLOG_LOGGER_INFO(logger, ...) (void)0
-#define SPDLOG_INFO(...) (void)0
-#endif
-
-#if SPDLOG_ACTIVE_LEVEL <= SPDLOG_LEVEL_WARN
-#define SPDLOG_LOGGER_WARN(logger, ...) SPDLOG_LOGGER_CALL(logger, abel::level::warn, __VA_ARGS__)
-#define SPDLOG_WARN(...) SPDLOG_LOGGER_WARN(abel::default_logger_raw(), __VA_ARGS__)
-#else
-#define SPDLOG_LOGGER_WARN(logger, ...) (void)0
-#define SPDLOG_WARN(...) (void)0
-#endif
-
-#if SPDLOG_ACTIVE_LEVEL <= SPDLOG_LEVEL_ERROR
-#define SPDLOG_LOGGER_ERROR(logger, ...) SPDLOG_LOGGER_CALL(logger, abel::level::err, __VA_ARGS__)
-#define SPDLOG_ERROR(...) SPDLOG_LOGGER_ERROR(abel::default_logger_raw(), __VA_ARGS__)
-#else
-#define SPDLOG_LOGGER_ERROR(logger, ...) (void)0
-#define SPDLOG_ERROR(...) (void)0
-#endif
-
-#if SPDLOG_ACTIVE_LEVEL <= SPDLOG_LEVEL_CRITICAL
-#define SPDLOG_LOGGER_CRITICAL(logger, ...) SPDLOG_LOGGER_CALL(logger, abel::level::critical, __VA_ARGS__)
-#define SPDLOG_CRITICAL(...) SPDLOG_LOGGER_CRITICAL(abel::default_logger_raw(), __VA_ARGS__)
-#else
-#define SPDLOG_LOGGER_CRITICAL(logger, ...) (void)0
-#define SPDLOG_CRITICAL(...) (void)0
-#endif
-
 #include <abel/log/log_inl.h>
 
-#endif // SPDLOG_H
+#endif // LOG_H

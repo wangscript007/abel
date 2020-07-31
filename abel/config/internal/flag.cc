@@ -240,7 +240,7 @@ namespace abel {
             // visibile at the call site. `op` is the Flag's defined unmarshalling
             // operation. They must match for this operation to be well-defined.
             if (ABEL_UNLIKELY(dst_op != op_)) {
-                ABEL_RAW_ERROR("Flag '{}' is defined as one type and declared as another", name());
+                DLOG_ERROR("Flag '{}' is defined as one type and declared as another", name());
             }
             copy_construct(op_, cur_, dst);
         }
@@ -262,7 +262,7 @@ namespace abel {
             // visible at the call site. `op` is the Flag's defined marshalling operation.
             // They must match for this operation to be well-defined.
             if (ABEL_UNLIKELY(src_op != op_)) {
-                ABEL_RAW_ERROR("Flag '{}' is defined as one type and declared as another", name());
+                DLOG_ERROR("Flag '{}' is defined as one type and declared as another", name());
             }
 
             if (ShouldValidateFlagValue(op_)) {
@@ -270,7 +270,7 @@ namespace abel {
                 std::string ignored_error;
                 std::string src_as_str = unparse(marshalling_op_, src);
                 if (!parse(marshalling_op_, src_as_str, obj, &ignored_error)) {
-                    ABEL_RAW_ERROR("Attempt to set flag '{}' to invalid value {}", name(), src_as_str);
+                    DLOG_ERROR("Attempt to set flag '{}' to invalid value {}", name(), src_as_str);
                 }
                 remove(op_, obj);
             }
@@ -364,7 +364,7 @@ namespace abel {
             auto dst = make_init_value();
             std::string error;
             if (!flags_internal::parse(marshalling_op_, v, dst.get(), &error)) {
-                ABEL_RAW_CRITICAL("Flag {} (from {} ): std::string form of default value '{}' could not be parsed; error= {} ", name(), file_name(), v, error);
+                DLOG_CRITICAL("Flag {} (from {} ): std::string form of default value '{}' could not be parsed; error= {} ", name(), file_name(), v, error);
             }
 
             // We do not compare dst to def since parsing/unparsing may make

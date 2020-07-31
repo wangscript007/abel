@@ -7,7 +7,7 @@
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <abel/strings/str_cat.h>
 
 using abel::chars_format;
@@ -44,13 +44,13 @@ namespace {
             begin_subrange = static_cast<int>(open_bracket_pos);
             s.replace(open_bracket_pos, 1, "");
             std::string::size_type close_bracket_pos = s.find(']');
-            ABEL_RAW_CHECK(close_bracket_pos != abel::string_view::npos,
+            DCHECK(close_bracket_pos != abel::string_view::npos,
                            "Test input contains [ without matching ]");
             end_subrange = static_cast<int>(close_bracket_pos);
             s.replace(close_bracket_pos, 1, "");
         }
         const std::string::size_type expected_characters_matched = s.find('$');
-        ABEL_RAW_CHECK(expected_characters_matched != std::string::npos,
+        DCHECK(expected_characters_matched != std::string::npos,
                        "Input std::string must contain $");
         s.replace(expected_characters_matched, 1, "");
 

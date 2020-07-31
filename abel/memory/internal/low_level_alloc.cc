@@ -37,7 +37,7 @@
 #include <cstddef>
 #include <new>                   // for placement-new
 #include <abel/thread/dynamic_annotations.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <abel/thread/internal/spinlock.h>
 
 // MAP_ANONYMOUS
@@ -134,7 +134,7 @@ namespace abel {
                 level = static_cast<int>(max_fit);
             if (level > kMaxLevel - 1)
                 level = kMaxLevel - 1;
-            ABEL_RAW_CHECK(level >= 1, "block not big enough for even one level");
+            DCHECK(level >= 1, "block not big enough for even one level");
             return level;
         }
 
@@ -174,7 +174,7 @@ namespace abel {
         static void LLA_SkiplistDelete(alloc_list *head, alloc_list *e,
                                        alloc_list **prev) {
             alloc_list *found = lla_skip_list_search(head, e, prev);
-            ABEL_RAW_CHECK(e == found, "element not in freelist");
+            DCHECK(e == found, "element not in freelist");
             for (int i = 0; i != e->levels && prev[i]->next[i] == e; i++) {
                 prev[i]->next[i] = e->next[i];
             }
@@ -282,7 +282,7 @@ namespace abel {
                     arena_->mu.lock();
                 }
 
-                ~arena_lock() { ABEL_RAW_CHECK(left_, "haven't left arena region"); }
+                ~arena_lock() { DCHECK(left_, "haven't left arena region"); }
 
                 void Leave() ABEL_UNLOCK_FUNCTION() {
                     arena_->mu.unlock();
@@ -290,7 +290,7 @@ namespace abel {
                     if (mask_valid_) {
                         const int err = pthread_sigmask(SIG_SETMASK, &mask_, nullptr);
                         if (err != 0) {
-                            ABEL_RAW_CRITICAL("pthread_sigmask failed: {}", err);
+                            DLOG_CRITICAL("pthread_sigmask failed: {}", err);
                         }
                     }
 #endif
@@ -375,7 +375,7 @@ namespace abel {
 
 // L < arena->mu, L < arena->arena->mu
         bool low_level_alloc::delete_arena(arena *arena) {
-            ABEL_RAW_CHECK(
+            DCHECK(
                     arena != nullptr && arena != default_arena() && arena != UnhookedArena(),
                     "may not delete default arena");
             arena_lock section(arena);
@@ -387,19 +387,19 @@ namespace abel {
                 alloc_list *region = arena->freelist.next[0];
                 size_t size = region->header.size;
                 arena->freelist.next[0] = region->next[0];
-                ABEL_RAW_CHECK(
+                DCHECK(
                         region->header.magic == Magic(kMagicUnallocated, &region->header),
                         "bad magic number in DeleteArena()");
-                ABEL_RAW_CHECK(region->header.arena == arena,
+                DCHECK(region->header.arena == arena,
                                "bad arena pointer in DeleteArena()");
-                ABEL_RAW_CHECK(size % arena->pagesize == 0,
+                DCHECK(size % arena->pagesize == 0,
                                "empty arena has non-page-aligned block size");
-                ABEL_RAW_CHECK(reinterpret_cast<uintptr_t>(region) % arena->pagesize == 0,
+                DCHECK(reinterpret_cast<uintptr_t>(region) % arena->pagesize == 0,
                                "empty arena has non-page-aligned block");
                 int munmap_result;
 #ifdef _WIN32
                 munmap_result = VirtualFree(region, 0, MEM_RELEASE);
-                ABEL_RAW_CHECK(munmap_result != 0,
+                DCHECK(munmap_result != 0,
                                "low_level_alloc::DeleteArena: VitualFree failed");
 #else
 #ifndef ABEL_LOW_LEVEL_ALLOC_ASYNC_SIGNAL_SAFE_MISSING
@@ -412,7 +412,7 @@ namespace abel {
                 munmap_result = munmap(region, size);
 #endif  // ABEL_LOW_LEVEL_ALLOC_ASYNC_SIGNAL_SAFE_MISSING
                 if (munmap_result != 0) {
-                    ABEL_RAW_CRITICAL( "low_level_alloc::DeleteArena: munmap failed: {}",
+                    DLOG_CRITICAL( "low_level_alloc::DeleteArena: munmap failed: {}",
                                  errno);
                 }
 #endif  // _WIN32
@@ -429,7 +429,7 @@ namespace abel {
 // manages to push through a request that would cause arithmetic to fail.
         static ABEL_FORCE_INLINE uintptr_t checked_add(uintptr_t a, uintptr_t b) {
             uintptr_t sum = a + b;
-            ABEL_RAW_CHECK(sum >= a, "low_level_alloc arithmetic overflow");
+            DCHECK(sum >= a, "low_level_alloc arithmetic overflow");
             return sum;
         }
 
@@ -445,16 +445,16 @@ namespace abel {
         // are adjacent in memory (they should have been coalesced).
         // L >= arena->mu
         static alloc_list *Next(int i, alloc_list *prev, low_level_alloc::arena *arena) {
-            ABEL_RAW_CHECK(i < prev->levels, "too few levels in Next()");
+            DCHECK(i < prev->levels, "too few levels in Next()");
             alloc_list *next = prev->next[i];
             if (next != nullptr) {
-                ABEL_RAW_CHECK(
+                DCHECK(
                         next->header.magic == Magic(kMagicUnallocated, &next->header),
                         "bad magic number in Next()");
-                ABEL_RAW_CHECK(next->header.arena == arena, "bad arena pointer in Next()");
+                DCHECK(next->header.arena == arena, "bad arena pointer in Next()");
                 if (prev != &arena->freelist) {
-                    ABEL_RAW_CHECK(prev < next, "unordered freelist");
-                    ABEL_RAW_CHECK(reinterpret_cast<char *>(prev) + prev->header.size <
+                    DCHECK(prev < next, "unordered freelist");
+                    DCHECK(reinterpret_cast<char *>(prev) + prev->header.size <
                                    reinterpret_cast<char *>(next),
                                    "malformed freelist");
                 }
@@ -485,9 +485,9 @@ namespace abel {
         static void AddToFreelist(void *v, low_level_alloc::arena *arena) {
             alloc_list *f = reinterpret_cast<alloc_list *>(
                     reinterpret_cast<char *>(v) - sizeof(f->header));
-            ABEL_RAW_CHECK(f->header.magic == Magic(kMagicAllocated, &f->header),
+            DCHECK(f->header.magic == Magic(kMagicAllocated, &f->header),
                            "bad magic number in AddToFreelist()");
-            ABEL_RAW_CHECK(f->header.arena == arena,
+            DCHECK(f->header.arena == arena,
                            "bad arena pointer in AddToFreelist()");
             f->levels = lla_skip_list_levels(f->header.size, arena->min_size,
                                            &arena->random);
@@ -507,7 +507,7 @@ namespace abel {
                 low_level_alloc::arena *arena = f->header.arena;
                 arena_lock section(arena);
                 AddToFreelist(v, arena);
-                ABEL_RAW_CHECK(arena->allocation_count > 0, "nothing in arena to free");
+                DCHECK(arena->allocation_count > 0, "nothing in arena to free");
                 arena->allocation_count--;
                 section.Leave();
             }
@@ -546,7 +546,7 @@ namespace abel {
 #ifdef _WIN32
                     new_pages = VirtualAlloc(0, new_pages_size,
                                              MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
-                    ABEL_RAW_CHECK(new_pages != nullptr, "VirtualAlloc failed");
+                    DCHECK(new_pages != nullptr, "VirtualAlloc failed");
 #else
 #ifndef ABEL_LOW_LEVEL_ALLOC_ASYNC_SIGNAL_SAFE_MISSING
                     if ((arena->flags & low_level_alloc::kAsyncSignalSafe) != 0) {
@@ -562,7 +562,7 @@ namespace abel {
                                      MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 #endif  // ABEL_LOW_LEVEL_ALLOC_ASYNC_SIGNAL_SAFE_MISSING
                     if (new_pages == MAP_FAILED) {
-                        ABEL_RAW_CRITICAL("mmap error: {}", errno);
+                        DLOG_CRITICAL("mmap error: {}", errno);
                     }
 
 #endif  // _WIN32
@@ -588,7 +588,7 @@ namespace abel {
                     AddToFreelist(&n->levels, arena);
                 }
                 s->header.magic = Magic(kMagicAllocated, &s->header);
-                ABEL_RAW_CHECK(s->header.arena == arena, "");
+                DCHECK(s->header.arena == arena, "");
                 arena->allocation_count++;
                 section.Leave();
                 result = &s->levels;
@@ -603,7 +603,7 @@ namespace abel {
         }
 
         void *low_level_alloc::alloc_with_arena(size_t request, arena *arena) {
-            ABEL_RAW_CHECK(arena != nullptr, "must pass a valid arena");
+            DCHECK(arena != nullptr, "must pass a valid arena");
             void *result = do_alloc_with_arena(request, arena);
             return result;
         }

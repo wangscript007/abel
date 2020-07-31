@@ -33,7 +33,7 @@
 #include <abel/chrono/internal/cycle_clock.h>
 #include <abel/memory/hide_ptr.h>
 #include <abel/memory/internal/low_level_alloc.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <abel/thread/internal/spinlock.h>
 #include <abel/system/sysinfo.h>
 #include <abel/thread/internal/thread_identity.h>
@@ -409,7 +409,7 @@ namespace abel {
             for (int i = 0; i != n; i++) {
                 pos += snprintf(&buffer[pos], sizeof(buffer) - pos, " %p", pcs[i]);
             }
-            ABEL_RAW_INFO("{}{} {} {}", event_properties[ev].msg, obj,
+            DLOG_INFO("{}{} {} {}", event_properties[ev].msg, obj,
                          (e == nullptr ? "" : e->name), buffer);
         }
         const int flags = event_properties[ev].flags;
@@ -563,8 +563,8 @@ namespace abel {
 // We're in a fatal signal handler that hopes to use mutex and to get
 // lucky by not deadlocking.  We try to improve its chances of success
 // by effectively disabling some of the consistency checks.  This will
-// prevent certain ABEL_RAW_CHECK() statements from being triggered when
-// re-rentry is detected.  The ABEL_RAW_CHECK() statements are those in the
+// prevent certain DCHECK() statements from being triggered when
+// re-rentry is detected.  The DCHECK() statements are those in the
 // mutex code checking that the "waitp" field has not been reused.
     void mutex::internal_attempt_to_use_mutex_in_fatal_signal_handler() {
         // Fix the per-thread state only if it exists.
@@ -870,7 +870,7 @@ namespace abel {
         }
 
         per_thread_synch *s = waitp->thread;
-        ABEL_RAW_CHECK(
+        DCHECK(
                 s->waitp == nullptr ||    // normal case
                 s->waitp == waitp ||  // fer()---transfer from condition variable
                 s->suppress_fatal_errors,
@@ -897,7 +897,7 @@ namespace abel {
                 struct sched_param param;
                 const int err = pthread_getschedparam(pthread_self(), &policy, &param);
                 if (err != 0) {
-                    ABEL_RAW_ERROR("pthread_getschedparam failed: {}", err);
+                    DLOG_ERROR("pthread_getschedparam failed: {}", err);
                 } else {
                     s->priority = param.sched_priority;
                     s->next_priority_read_cycles =
@@ -949,7 +949,7 @@ namespace abel {
                 // is impossible; enqueue_after's predecessors might also
                 // incorrectly skip over s if we were to allow other
                 // insertion points.
-                ABEL_RAW_CHECK(
+                DCHECK(
                         enqueue_after->skip == nullptr || MuSameCondition(enqueue_after, s),
                         "mutex Enqueue failure");
 
@@ -1014,7 +1014,7 @@ namespace abel {
         bool skipped = false;
         do {
             if (w->wake) {                    // remove this element
-                ABEL_RAW_CHECK(pw->skip == nullptr, "bad skip in DequeueAllWakeable");
+                DCHECK(pw->skip == nullptr, "bad skip in DequeueAllWakeable");
                 // we're removing pw's successor so either pw->skip is zero or we should
                 // already have removed pw since if pw->skip!=null, pw has the same
                 // condition as w.
@@ -1123,7 +1123,7 @@ namespace abel {
                 s->waitp->cond = nullptr;  // condition no longer relevant for wakeups
             }
         }
-        ABEL_RAW_CHECK(s->waitp != nullptr || s->suppress_fatal_errors,
+        DCHECK(s->waitp != nullptr || s->suppress_fatal_errors,
                        "detected illegal recursion in mutex code");
         s->waitp = nullptr;
     }
@@ -1198,7 +1198,7 @@ namespace abel {
                 }
                 if (i == n) {  // mu missing means releasing unheld lock
                     SynchEvent *mu_events = GetSynchEvent(mu);
-                    ABEL_RAW_CRITICAL(
+                    DLOG_CRITICAL(
                             "thread releasing lock it does not hold: {:p} {}; ",
                             static_cast<void *>(mu),
                             mu_events == nullptr ? "" : mu_events->name);
@@ -1347,7 +1347,7 @@ namespace abel {
                 number_of_reported_deadlocks++;
                 // symbolize only 2 first deadlock report to avoid huge slowdowns.
                 bool symbolize = number_of_reported_deadlocks <= 2;
-                ABEL_RAW_ERROR("Potential mutex deadlock: {}",
+                DLOG_ERROR("Potential mutex deadlock: {}",
                              CurrentStackString(b->buf, sizeof(b->buf), symbolize));
                 int len = 0;
                 for (int j = 0; j != all_locks->n; j++) {
@@ -1357,9 +1357,9 @@ namespace abel {
                         len += static_cast<int>(strlen(&b->buf[len]));
                     }
                 }
-                ABEL_RAW_ERROR("Acquiring {}    Mutexes held: {}",
+                DLOG_ERROR("Acquiring {}    Mutexes held: {}",
                                static_cast<void *>(mu), b->buf);
-                ABEL_RAW_ERROR("Cycle: ");
+                DLOG_ERROR("Cycle: ");
                 int path_len = deadlock_graph->find_path(
                         mu_id, other_node_id, ABEL_ARRAYSIZE(b->path), b->path);
                 for (int j = 0; j != path_len; j++) {
@@ -1374,12 +1374,12 @@ namespace abel {
                     StackString(stack, depth, b->buf + strlen(b->buf),
                                 static_cast<int>(sizeof(b->buf) - strlen(b->buf)),
                                 symbolize);
-                    ABEL_RAW_ERROR("{}", b->buf);
+                    DLOG_ERROR("{}", b->buf);
                 }
                 if (synch_deadlock_detection.load(std::memory_order_acquire) ==
                     on_deadlock_cycle::kAbort) {
                     deadlock_graph_mu.unlock();  // avoid deadlock in fatal sighandler
-                    ABEL_RAW_CRITICAL("dying due to potential deadlock");
+                    DLOG_CRITICAL("dying due to potential deadlock");
                     return mu_id;
                 }
                 break;   // report at most one potential deadlock per acquisition
@@ -1423,7 +1423,7 @@ namespace abel {
             for (int i = 0; i != locks->n; i++) {
                 if (locks->locks[i].id == id) {
                     SynchEvent *mu_events = GetSynchEvent(this);
-                    ABEL_RAW_CRITICAL("thread should not hold mutex {:p} {}",
+                    DLOG_CRITICAL("thread should not hold mutex {:p} {}",
                                  static_cast<const void *>(this),
                                  (mu_events == nullptr ? "" : mu_events->name));
                 }
@@ -1539,7 +1539,7 @@ namespace abel {
                 this->assert_reader_held();
             }
         } else {              // normal case
-            ABEL_RAW_CHECK(this->await_common(cond, kernel_timeout::never()),
+            DCHECK(this->await_common(cond, kernel_timeout::never()),
                            "condition untrue on return from await");
         }
     }
@@ -1558,7 +1558,7 @@ namespace abel {
 
         kernel_timeout t{deadline};
         bool res = this->await_common(cond, t);
-        ABEL_RAW_CHECK(res || t.has_timeout(),
+        DCHECK(res || t.has_timeout(),
                        "condition untrue on return from await");
         return res;
     }
@@ -1673,7 +1673,7 @@ namespace abel {
         intptr_t v = mu_.load(std::memory_order_relaxed);
 
         if (kDebugMode && ((v & (kMuWriter | kMuReader)) != kMuWriter)) {
-            ABEL_RAW_CRITICAL("mutex unlocked when destroyed or not locked: v=0x{}",
+            DLOG_CRITICAL("mutex unlocked when destroyed or not locked: v=0x{}",
                               static_cast<unsigned>(v));
         }
 
@@ -1693,7 +1693,7 @@ namespace abel {
         if (kDebugMode && should_try_cas != (x < y)) {
             // We would usually use PRIdPTR here, but is not correctly implemented
             // within the android toolchain.
-            ABEL_RAW_CRITICAL("internal logic error {:p} {:p} {:p}\n",
+            DLOG_CRITICAL("internal logic error {:p} {:p} {:p}\n",
                               static_cast<long long>(v), static_cast<long long>(x),
                               static_cast<long long>(y));
         }
@@ -1740,27 +1740,27 @@ namespace abel {
         ABEL_TSAN_MUTEX_POST_UNLOCK(this, __tsan_mutex_read_lock);
     }
 
-// The zap_desig_waker bitmask is used to clear the designated waker flag in
-// the mutex if this thread has blocked, and therefore may be the designated
-// waker.
+    // The zap_desig_waker bitmask is used to clear the designated waker flag in
+    // the mutex if this thread has blocked, and therefore may be the designated
+    // waker.
     static const intptr_t zap_desig_waker[] = {
             ~static_cast<intptr_t>(0),  // not blocked
             ~static_cast<intptr_t>(
                     kMuDesig)  // blocked; turn off the designated waker bit
     };
 
-// The ignore_waiting_writers bitmask is used to ignore the existence
-// of waiting writers if a reader that has already blocked once
-// wakes up.
+    // The ignore_waiting_writers bitmask is used to ignore the existence
+    // of waiting writers if a reader that has already blocked once
+    // wakes up.
     static const intptr_t ignore_waiting_writers[] = {
             ~static_cast<intptr_t>(0),  // not blocked
             ~static_cast<intptr_t>(
                     kMuWrWait)  // blocked; pretend there are no waiting writers
     };
 
-// Internal version of lock_when().  See lock_slow_with_deadline()
+    // Internal version of lock_when().  See lock_slow_with_deadline()
     void mutex::lock_slow(mu_how how, const condition *cond, int flags) {
-        ABEL_RAW_CHECK(
+        DCHECK(
                 this->lock_slow_with_deadline(how, cond, kernel_timeout::never(), flags),
                 "condition untrue on return from lock_slow");
     }
@@ -1889,10 +1889,10 @@ namespace abel {
         static_assert(kMuWait << 3 == kMuWrWait, "must match");
         if (ABEL_LIKELY((w & (w << 3) & (kMuWriter | kMuWrWait)) == 0))
             return;
-        ABEL_RAW_CRITICAL_IF((v & (kMuWriter | kMuReader)) != (kMuWriter | kMuReader),
+        DLOG_IF_CRITICAL((v & (kMuWriter | kMuReader)) != (kMuWriter | kMuReader),
                              "%s: mutex corrupt: both reader and writer lock held: %p",
                              label, reinterpret_cast<void *>(v));
-        ABEL_RAW_CRITICAL_IF((v & (kMuWait | kMuWrWait)) != kMuWrWait,
+        DLOG_IF_CRITICAL((v & (kMuWait | kMuWrWait)) != kMuWrWait,
                              "%s: mutex corrupt: waiting writer with no waiters: %p",
                              label, reinterpret_cast<void *>(v));
         assert(false);
@@ -1905,7 +1905,7 @@ namespace abel {
             PostSynchEvent(this,
                            waitp->how == kExclusive ? SYNCH_EV_LOCK : SYNCH_EV_READERLOCK);
         }
-        ABEL_RAW_CHECK(
+        DCHECK(
                 waitp->thread->waitp == nullptr || waitp->thread->suppress_fatal_errors,
                 "detected illegal recursion into mutex code");
         for (;;) {
@@ -1934,7 +1934,7 @@ namespace abel {
                     per_thread_synch *new_h = Enqueue(nullptr, waitp, v, flags);
                     intptr_t nv = (v & zap_desig_waker[flags & kMuHasBlocked] & kMuLow) |
                                   kMuWait;
-                    ABEL_RAW_CHECK(new_h != nullptr, "Enqueue to empty list failed");
+                    DCHECK(new_h != nullptr, "Enqueue to empty list failed");
                     if (waitp->how == kExclusive && (v & kMuReader) != 0) {
                         nv |= kMuWrWait;
                     }
@@ -1979,7 +1979,7 @@ namespace abel {
                     per_thread_synch *h = GetPerThreadSynch(v);
                     per_thread_synch *new_h = Enqueue(h, waitp, v, flags);
                     intptr_t wr_wait = 0;
-                    ABEL_RAW_CHECK(new_h != nullptr, "Enqueue to list failed");
+                    DCHECK(new_h != nullptr, "Enqueue to list failed");
                     if (waitp->how == kExclusive && (v & kMuReader) != 0) {
                         wr_wait = kMuWrWait;      // give priority to a waiting writer
                     }
@@ -1997,12 +1997,12 @@ namespace abel {
                     c = 0;
                 }
             }
-            ABEL_RAW_CHECK(
+            DCHECK(
                     waitp->thread->waitp == nullptr || waitp->thread->suppress_fatal_errors,
                     "detected illegal recursion into mutex code");
             c = Delay(c, GENTLE);          // delay, then try again
         }
-        ABEL_RAW_CHECK(
+        DCHECK(
                 waitp->thread->waitp == nullptr || waitp->thread->suppress_fatal_errors,
                 "detected illegal recursion into mutex code");
         if ((v & kMuEvent) != 0) {
@@ -2038,7 +2038,7 @@ namespace abel {
         intptr_t wr_wait = 0;        // set to kMuWrWait if we wake a reader and a
         // later writer could have acquired the lock
         // (starvation avoidance)
-        ABEL_RAW_CHECK(waitp == nullptr || waitp->thread->waitp == nullptr ||
+        DCHECK(waitp == nullptr || waitp->thread->waitp == nullptr ||
                        waitp->thread->suppress_fatal_errors,
                        "detected illegal recursion into mutex code");
         // This loop finds threads wake_list to wakeup if any, and removes them from
@@ -2069,7 +2069,7 @@ namespace abel {
                 if ((v & kMuWait) == 0) {       // no one to wake
                     intptr_t nv;
                     bool do_enqueue = true;  // always Enqueue() the first time
-                    ABEL_RAW_CHECK(waitp != nullptr,
+                    DCHECK(waitp != nullptr,
                                    "unlock_slow is confused");  // about to sleep
                     do {    // must loop to release spinlock as reader count may change
                         v = mu_.load(std::memory_order_relaxed);
@@ -2114,7 +2114,7 @@ namespace abel {
                     intptr_t nv = v;       // normally just release spinlock
                     if (waitp != nullptr) {  // but waitp!=nullptr => must queue ourselves
                         per_thread_synch *new_h = Enqueue(h, waitp, v, kMuIsCond);
-                        ABEL_RAW_CHECK(new_h != nullptr,
+                        DCHECK(new_h != nullptr,
                                        "waiters disappeared during Enqueue()!");
                         nv &= kMuLow;
                         nv |= kMuWait | reinterpret_cast<intptr_t>(new_h);
@@ -2126,14 +2126,14 @@ namespace abel {
 
                 // Either we didn't search before, or we marked the queue
                 // as "maybe_unlocking" and no one else should have changed it.
-                ABEL_RAW_CHECK(old_h == nullptr || h->maybe_unlocking,
+                DCHECK(old_h == nullptr || h->maybe_unlocking,
                                "mutex queue changed beneath us");
 
                 // The lock is becoming free, and there's a waiter
                 if (old_h != nullptr &&
                     !old_h->may_skip) {                  // we used old_h as a terminator
                     old_h->may_skip = true;                // allow old_h to skip once more
-                    ABEL_RAW_CHECK(old_h->skip == nullptr, "illegal skip from head");
+                    DCHECK(old_h->skip == nullptr, "illegal skip from head");
                     if (h != old_h && MuSameCondition(old_h, old_h->next)) {
                         old_h->skip = old_h->next;  // old_h not head & can skip to successor
                     }
@@ -2197,7 +2197,7 @@ namespace abel {
 
                     h->may_skip = false;  // ensure we never skip past h in future searches
                     // even if other waiters are queued after it.
-                    ABEL_RAW_CHECK(h->skip == nullptr, "illegal skip from head");
+                    DCHECK(h->skip == nullptr, "illegal skip from head");
 
                     h->maybe_unlocking = true;  // we're about to scan the waiter list
                     // without the spinlock held.
@@ -2258,7 +2258,7 @@ namespace abel {
 
                     continue;  // restart for(;;)-loop to wakeup w or to find more waiters
                 }
-                ABEL_RAW_CHECK(pw->next == w, "pw not w's predecessor");
+                DCHECK(pw->next == w, "pw not w's predecessor");
                 // The first (and perhaps only) waiter we've chosen to wake is w, whose
                 // predecessor is pw.  If w is a reader, we must wake all the other
                 // waiters with wake==true as well.  We may also need to queue
@@ -2280,7 +2280,7 @@ namespace abel {
                     // cond_var
                 }
 
-                ABEL_RAW_CHECK(wake_list != kPerThreadSynchNull,
+                DCHECK(wake_list != kPerThreadSynchNull,
                                "unexpected empty wake list");
 
                 if (h != nullptr) {  // there are waiters left
@@ -2334,11 +2334,11 @@ namespace abel {
 // enqueue thread w on this mutex.
     void mutex::fer(per_thread_synch *w) {
         int c = 0;
-        ABEL_RAW_CHECK(w->waitp->cond == nullptr,
+        DCHECK(w->waitp->cond == nullptr,
                        "mutex::fer while waiting on condition");
-        ABEL_RAW_CHECK(!w->waitp->timeout.has_timeout(),
+        DCHECK(!w->waitp->timeout.has_timeout(),
                        "mutex::fer while in timed wait");
-        ABEL_RAW_CHECK(w->waitp->cv_word == nullptr,
+        DCHECK(w->waitp->cv_word == nullptr,
                        "mutex::fer with pending cond_var queueing");
         for (;;) {
             intptr_t v = mu_.load(std::memory_order_relaxed);
@@ -2359,7 +2359,7 @@ namespace abel {
                 if ((v & (kMuSpin | kMuWait)) == 0) {       // no waiters
                     // This thread tries to become the one and only waiter.
                     per_thread_synch *new_h = Enqueue(nullptr, w->waitp, v, kMuIsCond);
-                    ABEL_RAW_CHECK(new_h != nullptr,
+                    DCHECK(new_h != nullptr,
                                    "Enqueue failed");  // we must queue ourselves
                     if (mu_.compare_exchange_strong(
                             v, reinterpret_cast<intptr_t>(new_h) | (v & kMuLow) | kMuWait,
@@ -2370,7 +2370,7 @@ namespace abel {
                            mu_.compare_exchange_strong(v, v | kMuSpin | kMuWait)) {
                     per_thread_synch *h = GetPerThreadSynch(v);
                     per_thread_synch *new_h = Enqueue(h, w->waitp, v, kMuIsCond);
-                    ABEL_RAW_CHECK(new_h != nullptr,
+                    DCHECK(new_h != nullptr,
                                    "Enqueue failed");  // we must queue ourselves
                     do {
                         v = mu_.load(std::memory_order_relaxed);
@@ -2389,7 +2389,7 @@ namespace abel {
     void mutex::assert_held() const {
         if ((mu_.load(std::memory_order_relaxed) & kMuWriter) == 0) {
             SynchEvent *e = GetSynchEvent(this);
-            ABEL_RAW_CRITICAL("thread should hold write lock on mutex {} {}",
+            DLOG_CRITICAL("thread should hold write lock on mutex {} {}",
                               static_cast<const void *>(this),
                               (e == nullptr ? "" : e->name));
         }
@@ -2398,7 +2398,7 @@ namespace abel {
     void mutex::assert_reader_held() const {
         if ((mu_.load(std::memory_order_relaxed) & (kMuReader | kMuWriter)) == 0) {
             SynchEvent *e = GetSynchEvent(this);
-            ABEL_RAW_CRITICAL("thread should hold at least a read lock on mutex {} {}",
+            DLOG_CRITICAL("thread should hold at least a read lock on mutex {} {}",
                               static_cast<const void *>(this), (e == nullptr ? "" : e->name));
         }
     }
@@ -2495,7 +2495,7 @@ namespace abel {
             c = Delay(c, GENTLE);
             v = cv_word->load(std::memory_order_relaxed);
         }
-        ABEL_RAW_CHECK(waitp->thread->waitp == nullptr, "waiting when shouldn't be");
+        DCHECK(waitp->thread->waitp == nullptr, "waiting when shouldn't be");
         waitp->thread->waitp = waitp;      // prepare ourselves for waiting
         per_thread_synch *h = reinterpret_cast<per_thread_synch *>(v & ~kCvLow);
         if (h == nullptr) {  // add this thread to waiter list
@@ -2541,7 +2541,7 @@ namespace abel {
             }
         }
 
-        ABEL_RAW_CHECK(waitp.thread->waitp != nullptr, "not waiting when should be");
+        DCHECK(waitp.thread->waitp != nullptr, "not waiting when should be");
         waitp.thread->waitp = nullptr;  // cleanup
 
         // maybe trace this call
@@ -2667,7 +2667,7 @@ namespace abel {
     }
 
     void releasable_mutex_lock::Release() {
-        ABEL_RAW_CHECK(this->mu_ != nullptr,
+        DCHECK(this->mu_ != nullptr,
                        "releasable_mutex_lock::Release may only be called once");
         this->mu_->unlock();
         this->mu_ = nullptr;

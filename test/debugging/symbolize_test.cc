@@ -17,7 +17,7 @@
 #include <gtest/gtest.h>
 #include <abel/base/profile.h>
 #include <abel/math/bit_cast.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <abel/debugging/internal/stack_consumption.h>
 #include <abel/memory/memory.h>
 
@@ -111,14 +111,14 @@ static char try_symbolize_buffer[4096];
 // the result of abel::symbolize().
 
 static const char *TrySymbolizeWithLimit(void *pc, int limit) {
-    ABEL_RAW_CHECK(static_cast<size_t>(limit) <= sizeof(try_symbolize_buffer),
+    DCHECK(static_cast<size_t>(limit) <= sizeof(try_symbolize_buffer),
                    "try_symbolize_buffer is too small");
 
     // Use the heap to facilitate heap and buffer sanitizer tools.
     auto heap_buffer = abel::make_unique<char[]>(sizeof(try_symbolize_buffer));
     bool found = abel::symbolize(pc, heap_buffer.get(), limit);
     if (found) {
-        ABEL_RAW_CHECK(strnlen(heap_buffer.get(), static_cast<size_t>(limit)) < static_cast<size_t>(limit),
+        DCHECK(strnlen(heap_buffer.get(), static_cast<size_t>(limit)) < static_cast<size_t>(limit),
                        "abel::symbolize() did not properly terminate the string");
         strncpy(try_symbolize_buffer, heap_buffer.get(),
                 sizeof(try_symbolize_buffer) - 1);
@@ -284,8 +284,8 @@ static int FilterElfHeader(struct dl_phdr_info *info, size_t size, void *data) {
 TEST(symbolize, SymbolizeWithMultipleMaps) {
   // Force kPadding0 and kPadding1 to be linked in.
   if (volatile_bool) {
-    ABEL_RAW_INFO("{}", kPadding0);
-    ABEL_RAW_INFO("{}", kPadding1);
+    DLOG_INFO("{}", kPadding0);
+    DLOG_INFO("{}", kPadding1);
   }
 
   // Verify we can symbolize everything.
@@ -429,8 +429,8 @@ void ABEL_NO_INLINE TestWithPCInsideNonInlineFunction() {
     (defined(__i386__) || defined(__x86_64__))
   void *pc = non_inline_func();
   const char *symbol = TrySymbolize(pc);
-  ABEL_RAW_CHECK(symbol != nullptr, "TestWithPCInsideNonInlineFunction failed");
-  ABEL_RAW_CHECK(strcmp(symbol, "non_inline_func") == 0,
+  DCHECK(symbol != nullptr, "TestWithPCInsideNonInlineFunction failed");
+  DCHECK(strcmp(symbol, "non_inline_func") == 0,
                  "TestWithPCInsideNonInlineFunction failed");
   std::cout << "TestWithPCInsideNonInlineFunction passed" << std::endl;
 #endif
@@ -441,8 +441,8 @@ void ABEL_NO_INLINE TestWithPCInsideInlineFunction() {
     (defined(__i386__) || defined(__x86_64__))
   void *pc = inline_func();  // Must be inlined.
   const char *symbol = TrySymbolize(pc);
-  ABEL_RAW_CHECK(symbol != nullptr, "TestWithPCInsideInlineFunction failed");
-  ABEL_RAW_CHECK(strcmp(symbol, __FUNCTION__) == 0,
+  DCHECK(symbol != nullptr, "TestWithPCInsideInlineFunction failed");
+  DCHECK(strcmp(symbol, __FUNCTION__) == 0,
                  "TestWithPCInsideInlineFunction failed");
   std::cout << "TestWithPCInsideInlineFunction passed" << std::endl;
 #endif
@@ -454,8 +454,8 @@ void ABEL_NO_INLINE TestWithReturnAddress() {
 #if defined(ABEL_COMPILER_CLANG) || defined(ABEL_COMPILER_GNUC)
   void *return_address = __builtin_return_address(0);
   const char *symbol = TrySymbolize(return_address);
-  ABEL_RAW_CHECK(symbol != nullptr, "TestWithReturnAddress failed");
-  ABEL_RAW_CHECK(strcmp(symbol, "main") == 0, "TestWithReturnAddress failed");
+  DCHECK(symbol != nullptr, "TestWithReturnAddress failed");
+  DCHECK(strcmp(symbol, "main") == 0, "TestWithReturnAddress failed");
   std::cout << "TestWithReturnAddress passed" << std::endl;
 #endif
 }
@@ -514,7 +514,7 @@ int main(int argc, char **argv) {
 #if !defined(__EMSCRIPTEN__)
     // Make sure kHpageTextPadding is linked into the binary.
     if (volatile_bool) {
-        ABEL_RAW_INFO("{}", kHpageTextPadding);
+        DLOG_INFO("{}", kHpageTextPadding);
     }
 #endif  // !defined(__EMSCRIPTEN__)
 

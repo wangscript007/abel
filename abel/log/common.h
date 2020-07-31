@@ -5,6 +5,7 @@
 
 #include <abel/log/tweakme.h>
 #include <abel/log/details/null_mutex.h>
+#include <abel/base/profile.h>
 #include <atomic>
 #include <chrono>
 #include <initializer_list>
@@ -13,55 +14,7 @@
 #include <string>
 #include <type_traits>
 #include <functional>
-
-
-#define SPDLOG_API
-#define SPDLOG_INLINE inline
-
 #include <abel/log/fmt/fmt.h>
-
-// visual studio upto 2013 does not support noexcept nor constexpr
-#if defined(_MSC_VER) && (_MSC_VER < 1900)
-#define SPDLOG_NOEXCEPT _NOEXCEPT
-#define SPDLOG_CONSTEXPR
-#else
-#define SPDLOG_NOEXCEPT noexcept
-#define SPDLOG_CONSTEXPR constexpr
-#endif
-
-#if defined(__GNUC__) || defined(__clang__)
-#define SPDLOG_DEPRECATED __attribute__((deprecated))
-#elif defined(_MSC_VER)
-#define SPDLOG_DEPRECATED __declspec(deprecated)
-#else
-#define SPDLOG_DEPRECATED
-#endif
-
-// disable thread local on msvc 2013
-#ifndef SPDLOG_NO_TLS
-#if (defined(_MSC_VER) && (_MSC_VER < 1900)) || defined(__cplusplus_winrt)
-#define SPDLOG_NO_TLS 1
-#endif
-#endif
-
-#ifndef SPDLOG_FUNCTION
-#define SPDLOG_FUNCTION static_cast<const char *>(__FUNCTION__)
-#endif
-
-#ifdef SPDLOG_NO_EXCEPTIONS
-#define SPDLOG_TRY
-#define SPDLOG_THROW(ex)                                                                                                                   \
-    do                                                                                                                                     \
-    {                                                                                                                                      \
-        printf("spdlog fatal error: %s\n", ex.what());                                                                                     \
-        std::abort();                                                                                                                      \
-    } while (0)
-#define SPDLOG_CATCH_ALL()
-#else
-#define SPDLOG_TRY try
-#define SPDLOG_THROW(ex) throw(ex)
-#define SPDLOG_CATCH_ALL() catch (...)
-#endif
 
 namespace abel {
 
@@ -71,12 +24,12 @@ namespace abel {
         class sink;
     }
 
-#if defined(_WIN32) && defined(SPDLOG_WCHAR_FILENAMES)
+#if defined(_WIN32) && defined(LOG_WCHAR_FILENAMES)
     using filename_t = std::wstring;
-#define SPDLOG_FILENAME_T(s) L##s
+#define LOG_FILENAME_T(s) L##s
 #else
     using filename_t = std::string;
-#define SPDLOG_FILENAME_T(s) s
+#define LOG_FILENAME_T(s) s
 #endif
 
     using log_clock = std::chrono::system_clock;
@@ -87,9 +40,9 @@ namespace abel {
     using wstring_view_t = fmt::basic_string_view<wchar_t>;
     using memory_buf_t = fmt::basic_memory_buffer<char, 250>;
 
-#ifdef SPDLOG_WCHAR_TO_UTF8_SUPPORT
+#ifdef LOG_WCHAR_TO_UTF8_SUPPORT
 #ifndef _WIN32
-#error SPDLOG_WCHAR_TO_UTF8_SUPPORT only supported on windows
+#error LOG_WCHAR_TO_UTF8_SUPPORT only supported on windows
 #else
     template<typename T>
     struct is_convertible_to_wstring_view : std::is_convertible<T, wstring_view_t>
@@ -99,59 +52,55 @@ namespace abel {
     template<typename>
     struct is_convertible_to_wstring_view : std::false_type {
     };
-#endif // SPDLOG_WCHAR_TO_UTF8_SUPPORT
+#endif // LOG_WCHAR_TO_UTF8_SUPPORT
 
-#if defined(SPDLOG_NO_ATOMIC_LEVELS)
-    using level_t = details::null_atomic_int;
-#else
     using level_t = std::atomic<int>;
-#endif
 
-#define SPDLOG_LEVEL_TRACE 0
-#define SPDLOG_LEVEL_DEBUG 1
-#define SPDLOG_LEVEL_INFO 2
-#define SPDLOG_LEVEL_WARN 3
-#define SPDLOG_LEVEL_ERROR 4
-#define SPDLOG_LEVEL_CRITICAL 5
-#define SPDLOG_LEVEL_OFF 6
+#define LOG_LEVEL_TRACE 0
+#define LOG_LEVEL_DEBUG 1
+#define LOG_LEVEL_INFO 2
+#define LOG_LEVEL_WARN 3
+#define LOG_LEVEL_ERROR 4
+#define LOG_LEVEL_CRITICAL 5
+#define LOG_LEVEL_OFF 6
 
-#if !defined(SPDLOG_ACTIVE_LEVEL)
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
+#if !defined(LOG_ACTIVE_LEVEL)
+#define LOG_ACTIVE_LEVEL LOG_LEVEL_INFO
 #endif
 
 // Log level enum
     namespace level {
         enum level_enum {
-            trace = SPDLOG_LEVEL_TRACE,
-            debug = SPDLOG_LEVEL_DEBUG,
-            info = SPDLOG_LEVEL_INFO,
-            warn = SPDLOG_LEVEL_WARN,
-            err = SPDLOG_LEVEL_ERROR,
-            critical = SPDLOG_LEVEL_CRITICAL,
-            off = SPDLOG_LEVEL_OFF,
+            trace = LOG_LEVEL_TRACE,
+            debug = LOG_LEVEL_DEBUG,
+            info = LOG_LEVEL_INFO,
+            warn = LOG_LEVEL_WARN,
+            err = LOG_LEVEL_ERROR,
+            critical = LOG_LEVEL_CRITICAL,
+            off = LOG_LEVEL_OFF,
             n_levels
         };
 
-#if !defined(SPDLOG_LEVEL_NAMES)
-#define SPDLOG_LEVEL_NAMES                                                                                                                 \
+#if !defined(LOG_LEVEL_NAMES)
+#define LOG_LEVEL_NAMES                                                                                                                 \
     {                                                                                                                                      \
         "trace", "debug", "info", "warning", "error", "critical", "off"                                                                    \
     }
 #endif
 
-#if !defined(SPDLOG_SHORT_LEVEL_NAMES)
+#if !defined(LOG_SHORT_LEVEL_NAMES)
 
-#define SPDLOG_SHORT_LEVEL_NAMES                                                                                                           \
+#define LOG_SHORT_LEVEL_NAMES                                                                                                           \
     {                                                                                                                                      \
         "T", "D", "I", "W", "E", "C", "O"                                                                                                  \
     }
 #endif
 
-        SPDLOG_API string_view_t &to_string_view(abel::level::level_enum l) SPDLOG_NOEXCEPT;
+        ABEL_API string_view_t &to_string_view(abel::level::level_enum l) ABEL_NOEXCEPT;
 
-        SPDLOG_API const char *to_short_c_str(abel::level::level_enum l) SPDLOG_NOEXCEPT;
+        ABEL_API const char *to_short_c_str(abel::level::level_enum l) ABEL_NOEXCEPT;
 
-        SPDLOG_API abel::level::level_enum from_str(const std::string &name) SPDLOG_NOEXCEPT;
+        ABEL_API abel::level::level_enum from_str(const std::string &name) ABEL_NOEXCEPT;
 
         using level_hasher = std::hash<int>;
     } // namespace level
@@ -177,29 +126,29 @@ namespace abel {
 //
 // Log exception
 //
-    class SPDLOG_API log_ex : public std::exception {
+    class ABEL_API log_ex : public std::exception {
     public:
         explicit log_ex(std::string msg);
 
         log_ex(const std::string &msg, int last_errno);
 
-        const char *what() const SPDLOG_NOEXCEPT override;
+        const char *what() const ABEL_NOEXCEPT override;
 
     private:
         std::string msg_;
     };
 
-    SPDLOG_API ABEL_NORETURN void throw_spdlog_ex(const std::string &msg, int last_errno);
+    ABEL_API ABEL_NORETURN void throw_log_ex(const std::string &msg, int last_errno);
 
-    SPDLOG_API ABEL_NORETURN void throw_spdlog_ex(std::string msg);
+    ABEL_API ABEL_NORETURN void throw_log_ex(std::string msg);
 
     struct source_loc {
-        SPDLOG_CONSTEXPR source_loc() = default;
+        ABEL_CONSTEXPR source_loc() = default;
 
-        SPDLOG_CONSTEXPR source_loc(const char *filename_in, int line_in, const char *funcname_in)
+        ABEL_CONSTEXPR source_loc(const char *filename_in, int line_in, const char *funcname_in)
                 : filename{filename_in}, line{line_in}, funcname{funcname_in} {}
 
-        SPDLOG_CONSTEXPR bool empty() const SPDLOG_NOEXCEPT {
+        ABEL_CONSTEXPR bool empty() const ABEL_NOEXCEPT {
             return line == 0;
         }
 
@@ -208,20 +157,6 @@ namespace abel {
         const char *funcname{nullptr};
     };
 
-    namespace details {
-// make_unique support for pre c++14
-
-#if __cplusplus >= 201402L // C++14 and beyond
-        using std::make_unique;
-#else
-        template<typename T, typename... Args>
-        std::unique_ptr<T> make_unique(Args &&... args)
-        {
-            static_assert(!std::is_array<T>::value, "arrays not supported");
-            return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-        }
-#endif
-    } // namespace details
 } // namespace abel
 
 #include <abel/log/common_inl.h>

@@ -29,7 +29,7 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <abel/strings/internal/str_split_internal.h>
 #include <abel/strings/string_view.h>
 #include <abel/strings/strip.h>

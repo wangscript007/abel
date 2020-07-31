@@ -7,7 +7,7 @@
 #include <random>
 
 #include <benchmark/benchmark.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <testing/escaping_test_common.h>
 
 namespace {
@@ -44,7 +44,7 @@ namespace {
         // them.
         std::string round_trip;
         abel::web_safe_base64_unescape(escaped, &round_trip);
-        ABEL_RAW_CHECK(round_trip == raw, "");
+        DCHECK(round_trip == raw, "");
     }
 
     BENCHMARK(BM_WebSafeBase64Escape_string);

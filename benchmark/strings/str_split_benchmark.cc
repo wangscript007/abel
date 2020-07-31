@@ -9,7 +9,7 @@
 #include <vector>
 
 #include <benchmark/benchmark.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <abel/strings/string_view.h>
 
 namespace {
@@ -162,7 +162,7 @@ namespace {
                                         delimiter);
             v += pieces.size();
         }
-        ABEL_RAW_CHECK(v == state.iterations(), "");
+        DCHECK(v == state.iterations(), "");
     }
 
     BENCHMARK_TEMPLATE(BM_SplitStringWithOneChar, OneCharLiteral
@@ -179,7 +179,7 @@ namespace {
                     "The quick brown fox jumps over the lazy dog", delimiter);
             v += std::distance(splitter.begin(), splitter.end());
         }
-        ABEL_RAW_CHECK(v == state.iterations(), "");
+        DCHECK(v == state.iterations(), "");
     }
 
     BENCHMARK_TEMPLATE(BM_SplitStringWithOneCharNoVector, OneCharLiteral

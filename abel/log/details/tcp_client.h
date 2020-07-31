@@ -60,7 +60,7 @@ namespace abel {
                 auto rv = ::getaddrinfo(host.c_str(), port_str.c_str(), &hints, &addrinfo_result);
                 if (rv != 0) {
                     auto msg = fmt::format("::getaddrinfo failed: {}", gai_strerror(rv));
-                    throw_spdlog_ex(msg);
+                    throw_log_ex(msg);
                 }
 
                 // Try each address until we successfully connect(2).
@@ -83,7 +83,7 @@ namespace abel {
                 }
                 ::freeaddrinfo(addrinfo_result);
                 if (socket_ == -1) {
-                    throw_spdlog_ex("::connect failed", last_errno);
+                    throw_log_ex("::connect failed", last_errno);
                 }
 
                 // set TCP_NODELAY
@@ -113,7 +113,7 @@ namespace abel {
                     auto write_result = ::send(socket_, data + bytes_sent, n_bytes - bytes_sent, send_flags);
                     if (write_result < 0) {
                         close();
-                        throw_spdlog_ex("write(2) failed", errno);
+                        throw_log_ex("write(2) failed", errno);
                     }
 
                     if (write_result == 0) // (probably should not happen but in any case..)

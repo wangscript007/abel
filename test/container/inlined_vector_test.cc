@@ -16,7 +16,7 @@
 #include <gtest/gtest.h>
 #include <abel/base/profile.h>
 #include <testing/exception_testing.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <abel/container/internal/counting_allocator.h>
 #include <testing/test_instance_tracker.h>
 #include <testing/hash_testing.h>
@@ -89,13 +89,13 @@ namespace {
         }
 
         void Ref() const {
-            ABEL_RAW_CHECK(count_ != nullptr, "");
+            DCHECK(count_ != nullptr, "");
             ++(*count_);
         }
 
         void Unref() const {
             --(*count_);
-            ABEL_RAW_CHECK(*count_ >= 0, "");
+            DCHECK(*count_ >= 0, "");
         }
 
         int value_;

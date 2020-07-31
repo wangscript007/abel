@@ -7,7 +7,7 @@
 #include <vector>
 
 #include <benchmark/benchmark.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <abel/random/distributions.h>
 #include <abel/random/random.h>
 #include <abel/strings/numbers.h>
@@ -35,7 +35,7 @@ namespace {
 // Creates an integer that would be printed as `num_digits` repeated 7s in the
 // given `base`. `base` must be greater than or equal to 8.
     int64_t RepeatedSevens(int num_digits, int base) {
-        ABEL_RAW_CHECK(base >= 8, "");
+        DCHECK(base >= 8, "");
         int64_t num = 7;
         while (--num_digits) num = base * num + 7;
         return num;
@@ -50,7 +50,7 @@ namespace {
             benchmark::DoNotOptimize(
                     abel::numbers_internal::safe_strto32_base(str, &value, base));
         }
-        ABEL_RAW_CHECK(value == RepeatedSevens(digits, base), "");
+        DCHECK(value == RepeatedSevens(digits, base), "");
     }
 
     BENCHMARK(BM_safe_strto32_string)
@@ -78,7 +78,7 @@ namespace {
             benchmark::DoNotOptimize(
                     abel::numbers_internal::safe_strto64_base(str, &value, base));
         }
-        ABEL_RAW_CHECK(value == RepeatedSevens(digits, base), "");
+        DCHECK(value == RepeatedSevens(digits, base), "");
     }
 
     BENCHMARK(BM_safe_strto64_string)
@@ -107,7 +107,7 @@ namespace {
             benchmark::DoNotOptimize(
                     abel::numbers_internal::safe_strtou32_base(str, &value, base));
         }
-        ABEL_RAW_CHECK(value == RepeatedSevens(digits, base), "");
+        DCHECK(value == RepeatedSevens(digits, base), "");
     }
 
     BENCHMARK(BM_safe_strtou32_string)
@@ -135,7 +135,7 @@ namespace {
             benchmark::DoNotOptimize(
                     abel::numbers_internal::safe_strtou64_base(str, &value, base));
         }
-        ABEL_RAW_CHECK(value == static_cast<uint64_t>(RepeatedSevens(digits, base)), "");
+        DCHECK(value == static_cast<uint64_t>(RepeatedSevens(digits, base)), "");
     }
 
     BENCHMARK(BM_safe_strtou64_string)

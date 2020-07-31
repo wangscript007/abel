@@ -17,14 +17,14 @@
 namespace abel {
     namespace details {
 
-        SPDLOG_INLINE file_helper::~file_helper() {
+        ABEL_FORCE_INLINE file_helper::~file_helper() {
             close();
         }
 
-        SPDLOG_INLINE void file_helper::open(const filename_t &fname, bool truncate) {
+        ABEL_FORCE_INLINE void file_helper::open(const filename_t &fname, bool truncate) {
             close();
             filename_ = fname;
-            auto *mode = truncate ? SPDLOG_FILENAME_T("wb") : SPDLOG_FILENAME_T("ab");
+            auto *mode = truncate ? LOG_FILENAME_T("wb") : LOG_FILENAME_T("ab");
 
             for (int tries = 0; tries < open_tries_; ++tries) {
                 // create containing folder if not exists already.
@@ -36,43 +36,43 @@ namespace abel {
                 details::os::sleep_for_millis(open_interval_);
             }
 
-            throw_spdlog_ex("Failed opening file " + os::filename_to_str(filename_) + " for writing", errno);
+            throw_log_ex("Failed opening file " + os::filename_to_str(filename_) + " for writing", errno);
         }
 
-        SPDLOG_INLINE void file_helper::reopen(bool truncate) {
+        ABEL_FORCE_INLINE void file_helper::reopen(bool truncate) {
             if (filename_.empty()) {
-                throw_spdlog_ex("Failed re opening file - was not opened before");
+                throw_log_ex("Failed re opening file - was not opened before");
             }
             this->open(filename_, truncate);
         }
 
-        SPDLOG_INLINE void file_helper::flush() {
+        ABEL_FORCE_INLINE void file_helper::flush() {
             std::fflush(fd_);
         }
 
-        SPDLOG_INLINE void file_helper::close() {
+        ABEL_FORCE_INLINE void file_helper::close() {
             if (fd_ != nullptr) {
                 std::fclose(fd_);
                 fd_ = nullptr;
             }
         }
 
-        SPDLOG_INLINE void file_helper::write(const memory_buf_t &buf) {
+        ABEL_FORCE_INLINE void file_helper::write(const memory_buf_t &buf) {
             size_t msg_size = buf.size();
             auto data = buf.data();
             if (std::fwrite(data, 1, msg_size, fd_) != msg_size) {
-                throw_spdlog_ex("Failed writing to file " + os::filename_to_str(filename_), errno);
+                throw_log_ex("Failed writing to file " + os::filename_to_str(filename_), errno);
             }
         }
 
-        SPDLOG_INLINE size_t file_helper::size() const {
+        ABEL_FORCE_INLINE size_t file_helper::size() const {
             if (fd_ == nullptr) {
-                throw_spdlog_ex("Cannot use size() on closed file " + os::filename_to_str(filename_));
+                throw_log_ex("Cannot use size() on closed file " + os::filename_to_str(filename_));
             }
             return os::filesize(fd_);
         }
 
-        SPDLOG_INLINE const filename_t &file_helper::filename() const {
+        ABEL_FORCE_INLINE const filename_t &file_helper::filename() const {
             return filename_;
         }
 
@@ -89,7 +89,7 @@ namespace abel {
 // ".mylog" => (".mylog". "")
 // "my_folder/.mylog" => ("my_folder/.mylog", "")
 // "my_folder/.mylog.txt" => ("my_folder/.mylog", ".txt")
-        SPDLOG_INLINE std::tuple<filename_t, filename_t> file_helper::split_by_extension(const filename_t &fname) {
+        ABEL_FORCE_INLINE std::tuple<filename_t, filename_t> file_helper::split_by_extension(const filename_t &fname) {
             auto ext_index = fname.rfind('.');
 
             // no valid extension found - return whole path and empty string as

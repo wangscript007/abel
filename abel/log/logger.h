@@ -18,14 +18,14 @@
 #include <abel/log/details/log_msg.h>
 #include <abel/log/details/backtracer.h>
 
-#ifdef SPDLOG_WCHAR_TO_UTF8_SUPPORT
+#ifdef LOG_WCHAR_TO_UTF8_SUPPORT
 #include <abel/log/details/os.h>
 #endif
 
 #include <vector>
 
-#ifndef SPDLOG_NO_EXCEPTIONS
-#define SPDLOG_LOGGER_CATCH()                                                                                                              \
+#ifndef LOG_NO_EXCEPTIONS
+#define LOG_LOGGER_CATCH()                                                                                                              \
     catch (const std::exception &ex)                                                                                                       \
     {                                                                                                                                      \
         err_handler_(ex.what());                                                                                                           \
@@ -35,12 +35,12 @@
         err_handler_("Unknown exception in logger");                                                                                       \
     }
 #else
-#define SPDLOG_LOGGER_CATCH()
+#define LOG_LOGGER_CATCH()
 #endif
 
 namespace abel {
 
-    class SPDLOG_API logger {
+    class ABEL_API logger {
     public:
         // Empty logger
         explicit logger(std::string name)
@@ -63,11 +63,11 @@ namespace abel {
 
         logger(const logger &other);
 
-        logger(logger &&other) SPDLOG_NOEXCEPT;
+        logger(logger &&other) ABEL_NOEXCEPT;
 
-        logger &operator=(logger other) SPDLOG_NOEXCEPT;
+        logger &operator=(logger other) ABEL_NOEXCEPT;
 
-        void swap(abel::logger &other) SPDLOG_NOEXCEPT;
+        void swap(abel::logger &other) ABEL_NOEXCEPT;
 
         // FormatString is a type derived from fmt::compile_string
         template<typename FormatString, typename std::enable_if<fmt::is_compile_string<FormatString>::value, int>::type = 0, typename... Args>
@@ -193,9 +193,9 @@ namespace abel {
             log(level::critical, msg);
         }
 
-#ifdef SPDLOG_WCHAR_TO_UTF8_SUPPORT
+#ifdef LOG_WCHAR_TO_UTF8_SUPPORT
 #ifndef _WIN32
-#error SPDLOG_WCHAR_TO_UTF8_SUPPORT only supported on windows
+#error LOG_WCHAR_TO_UTF8_SUPPORT only supported on windows
 #else
 
         template<typename... Args>
@@ -207,7 +207,7 @@ namespace abel {
             {
                 return;
             }
-            SPDLOG_TRY
+            ABEL_TRY
             {
                 // format to wmemory_buffer and convert to utf8
                 fmt::wmemory_buffer wbuf;
@@ -218,7 +218,7 @@ namespace abel {
                 details::log_msg log_msg(loc, name_, lvl, string_view_t(buf.data(), buf.size()));
                 log_it_(log_msg, log_enabled, traceback_enabled);
             }
-            SPDLOG_LOGGER_CATCH()
+            LOG_LOGGER_CATCH()
         }
 
         // T can be statically converted to wstring_view
@@ -232,17 +232,17 @@ namespace abel {
                 return;
             }
 
-            SPDLOG_TRY
+            ABEL_TRY
             {
                 memory_buf_t buf;
                 details::os::wstr_to_utf8buf(msg, buf);
                 details::log_msg log_msg(loc, name_, lvl, string_view_t(buf.data(), buf.size()));
                 log_it_(log_msg, log_enabled, traceback_enabled);
             }
-            SPDLOG_LOGGER_CATCH()
+            LOG_LOGGER_CATCH()
         }
 #endif // _WIN32
-#endif // SPDLOG_WCHAR_TO_UTF8_SUPPORT
+#endif // LOG_WCHAR_TO_UTF8_SUPPORT
 
         // return true logging is enabled for the given level.
         bool should_log(level::level_enum msg_level) const {
@@ -308,13 +308,13 @@ namespace abel {
             if (!log_enabled && !traceback_enabled) {
                 return;
             }
-            SPDLOG_TRY {
+            ABEL_TRY {
                 memory_buf_t buf;
                 fmt::format_to(buf, fmt, args...);
                 details::log_msg log_msg(loc, name_, lvl, string_view_t(buf.data(), buf.size()));
                 log_it_(log_msg, log_enabled, traceback_enabled);
             }
-            SPDLOG_LOGGER_CATCH()
+            LOG_LOGGER_CATCH()
         }
 
         // log the given message (if the given log level is high enough),

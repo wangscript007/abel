@@ -18,7 +18,7 @@
 #include <algorithm>
 #include <cstring>
 
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 
 namespace abel {
 
@@ -37,10 +37,10 @@ namespace abel {
         SymSetOptions(SYMOPT_DEFERRED_LOADS | SYMOPT_UNDNAME);
         if (!SymInitialize(process, nullptr, true)) {
             // GetLastError() returns a Win32 DWORD, but we assign to
-            // unsigned long long to simplify the ABEL_RAW_LOG case below.  The uniform
+            // unsigned long long to simplify the DLOG case below.  The uniform
             // initialization guarantees this is not a narrowing conversion.
             const unsigned long long error{GetLastError()};  // NOLINT(runtime/int)
-            ABEL_RAW_CRITICAL("SymInitialize() failed: {}", error);
+            DLOG_CRITICAL("SymInitialize() failed: {}", error);
         }
     }
 

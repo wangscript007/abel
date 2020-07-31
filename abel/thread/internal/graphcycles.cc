@@ -27,7 +27,7 @@
 #include <algorithm>
 #include <array>
 #include <abel/memory/hide_ptr.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <abel/thread/internal/spinlock.h>
 
 // Do not use STL.   This module does not use standard memory allocation.
@@ -386,18 +386,18 @@ namespace abel {
                 Node *nx = r->nodes_[x];
                 void *ptr = unhide_ptr<void>(nx->masked_ptr);
                 if (ptr != nullptr && static_cast<uint32_t>(r->ptrmap_.Find(ptr)) != x) {
-                    ABEL_RAW_CRITICAL("Did not find live node in hash table {} {}", x, ptr);
+                    DLOG_CRITICAL("Did not find live node in hash table {} {}", x, ptr);
                 }
                 if (nx->visited) {
-                    ABEL_RAW_CRITICAL("Did not clear visited marker on node {}", x);
+                    DLOG_CRITICAL("Did not clear visited marker on node {}", x);
                 }
                 if (!ranks.insert(nx->rank)) {
-                    ABEL_RAW_CRITICAL("Duplicate occurrence of rank %d", nx->rank);
+                    DLOG_CRITICAL("Duplicate occurrence of rank %d", nx->rank);
                 }
                 HASH_FOR_EACH(y, nx->out) {
                     Node *ny = r->nodes_[y];
                     if (nx->rank >= ny->rank) {
-                        ABEL_RAW_CRITICAL("Edge {}->{} has bad rank assignment {}->{}", x, y,
+                        DLOG_CRITICAL("Edge {}->{} has bad rank assignment {}->{}", x, y,
                                      nx->rank, ny->rank);
                     }
                 }

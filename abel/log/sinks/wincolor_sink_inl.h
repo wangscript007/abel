@@ -10,9 +10,9 @@ namespace abel {
     namespace sinks {
 
         template<typename ConsoleMutex>
-        SPDLOG_INLINE wincolor_sink<ConsoleMutex>::wincolor_sink(HANDLE out_handle, color_mode mode)
+        ABEL_FORCE_INLINE wincolor_sink<ConsoleMutex>::wincolor_sink(HANDLE out_handle, color_mode mode)
                 : out_handle_(out_handle), mutex_(ConsoleMutex::mutex()),
-                  formatter_(details::make_unique<abel::pattern_formatter>()) {
+                  formatter_(abel::make_unique<abel::pattern_formatter>()) {
             // check if out_handle is points to the actual console.
             // ::GetConsoleMode() should return 0 if it is redirected or not valid console handle.
             DWORD console_mode;
@@ -29,19 +29,19 @@ namespace abel {
         }
 
         template<typename ConsoleMutex>
-        SPDLOG_INLINE wincolor_sink<ConsoleMutex>::~wincolor_sink() {
+        ABEL_FORCE_INLINE wincolor_sink<ConsoleMutex>::~wincolor_sink() {
             this->flush();
         }
 
 // change the color for the given level
         template<typename ConsoleMutex>
-        void SPDLOG_INLINE wincolor_sink<ConsoleMutex>::set_color(level::level_enum level, WORD color) {
+        void ABEL_FORCE_INLINE wincolor_sink<ConsoleMutex>::set_color(level::level_enum level, WORD color) {
             std::lock_guard<mutex_t> lock(mutex_);
             colors_[level] = color;
         }
 
         template<typename ConsoleMutex>
-        void SPDLOG_INLINE wincolor_sink<ConsoleMutex>::log(const details::log_msg &msg) {
+        void ABEL_FORCE_INLINE wincolor_sink<ConsoleMutex>::log(const details::log_msg &msg) {
             std::lock_guard<mutex_t> lock(mutex_);
             msg.color_range_start = 0;
             msg.color_range_end = 0;
@@ -68,24 +68,24 @@ namespace abel {
         }
 
         template<typename ConsoleMutex>
-        void SPDLOG_INLINE wincolor_sink<ConsoleMutex>::flush() {
+        void ABEL_FORCE_INLINE wincolor_sink<ConsoleMutex>::flush() {
             // windows console always flushed?
         }
 
         template<typename ConsoleMutex>
-        void SPDLOG_INLINE wincolor_sink<ConsoleMutex>::set_pattern(const std::string &pattern) {
+        void ABEL_FORCE_INLINE wincolor_sink<ConsoleMutex>::set_pattern(const std::string &pattern) {
             std::lock_guard<mutex_t> lock(mutex_);
             formatter_ = std::unique_ptr<abel::formatter>(new pattern_formatter(pattern));
         }
 
         template<typename ConsoleMutex>
-        void SPDLOG_INLINE wincolor_sink<ConsoleMutex>::set_formatter(std::unique_ptr<abel::formatter> sink_formatter) {
+        void ABEL_FORCE_INLINE wincolor_sink<ConsoleMutex>::set_formatter(std::unique_ptr<abel::formatter> sink_formatter) {
             std::lock_guard<mutex_t> lock(mutex_);
             formatter_ = std::move(sink_formatter);
         }
 
         template<typename ConsoleMutex>
-        void SPDLOG_INLINE wincolor_sink<ConsoleMutex>::set_color_mode(color_mode mode) {
+        void ABEL_FORCE_INLINE wincolor_sink<ConsoleMutex>::set_color_mode(color_mode mode) {
             switch (mode) {
                 case color_mode::always:
                 case color_mode::automatic:
@@ -101,7 +101,7 @@ namespace abel {
 
 // set foreground color and return the orig console attributes (for resetting later)
         template<typename ConsoleMutex>
-        WORD SPDLOG_INLINE wincolor_sink<ConsoleMutex>::set_foreground_color_(WORD attribs) {
+        WORD ABEL_FORCE_INLINE wincolor_sink<ConsoleMutex>::set_foreground_color_(WORD attribs) {
             CONSOLE_SCREEN_BUFFER_INFO orig_buffer_info;
             ::GetConsoleScreenBufferInfo(out_handle_, &orig_buffer_info);
             WORD back_color = orig_buffer_info.wAttributes;
@@ -115,14 +115,14 @@ namespace abel {
 
 // print a range of formatted message to console
         template<typename ConsoleMutex>
-        void SPDLOG_INLINE
+        void ABEL_FORCE_INLINE
         wincolor_sink<ConsoleMutex>::print_range_(const memory_buf_t &formatted, size_t start, size_t end) {
             auto size = static_cast<DWORD>(end - start);
             ::WriteConsoleA(out_handle_, formatted.data() + start, size, nullptr, nullptr);
         }
 
         template<typename ConsoleMutex>
-        void SPDLOG_INLINE wincolor_sink<ConsoleMutex>::write_to_file_(const memory_buf_t &formatted) {
+        void ABEL_FORCE_INLINE wincolor_sink<ConsoleMutex>::write_to_file_(const memory_buf_t &formatted) {
             if (out_handle_ == nullptr) // no console and no file redirect
             {
                 return;
@@ -139,7 +139,7 @@ namespace abel {
                         ::WriteFile(out_handle_, formatted.data() + total_written, size - total_written, &bytes_written,
                                     nullptr) != 0;
                 if (!ok || bytes_written == 0) {
-                    throw_spdlog_ex("wincolor_sink: write_to_file_ failed. GetLastError(): " +
+                    throw_log_ex("wincolor_sink: write_to_file_ failed. GetLastError(): " +
                                     std::to_string(::GetLastError()));
                 }
                 total_written += bytes_written;
@@ -148,12 +148,12 @@ namespace abel {
 
         // wincolor_stdout_sink
         template<typename ConsoleMutex>
-        SPDLOG_INLINE wincolor_stdout_sink<ConsoleMutex>::wincolor_stdout_sink(color_mode mode)
+        ABEL_FORCE_INLINE wincolor_stdout_sink<ConsoleMutex>::wincolor_stdout_sink(color_mode mode)
                 : wincolor_sink<ConsoleMutex>(::GetStdHandle(STD_OUTPUT_HANDLE), mode) {}
 
         // wincolor_stderr_sink
         template<typename ConsoleMutex>
-        SPDLOG_INLINE wincolor_stderr_sink<ConsoleMutex>::wincolor_stderr_sink(color_mode mode)
+        ABEL_FORCE_INLINE wincolor_stderr_sink<ConsoleMutex>::wincolor_stderr_sink(color_mode mode)
                 : wincolor_sink<ConsoleMutex>(::GetStdHandle(STD_ERROR_HANDLE), mode) {}
 
     } // namespace sinks

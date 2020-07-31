@@ -1692,6 +1692,9 @@ inline void CBBaseUnused(T const volatile & x) { (void)x; }
 #endif
 #endif
 
+#ifndef ABEL_API
+#define ABEL_API
+#endif
 
 // ------------------------------------------------------------------------
 // ABEL_OVERRIDE

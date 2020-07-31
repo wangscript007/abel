@@ -1,7 +1,7 @@
 //
 
 #include <abel/thread/blocking_counter.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 
 namespace abel {
 
@@ -15,7 +15,7 @@ namespace abel {
         mutex_lock l(&lock_);
         count_--;
         if (count_ < 0) {
-            ABEL_RAW_CRITICAL(
+            DLOG_CRITICAL(
                     "blocking_counter::decrement_count() called too many times.  count={}",
                     count_);
         }
@@ -24,11 +24,11 @@ namespace abel {
 
     void blocking_counter::wait() {
         mutex_lock l(&this->lock_);
-        ABEL_RAW_CHECK(count_ >= 0, "blocking_counter underflow");
+        DCHECK(count_ >= 0, "blocking_counter underflow");
 
         // only one thread may call wait(). To support more than one thread,
         // implement a counter num_to_exit, like in the barrier class.
-        ABEL_RAW_CHECK(num_waiting_ == 0, "multiple threads called wait()");
+        DCHECK(num_waiting_ == 0, "multiple threads called wait()");
         num_waiting_++;
 
         this->lock_.await(condition(IsZero, &this->count_));

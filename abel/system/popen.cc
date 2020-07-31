@@ -19,7 +19,7 @@
 
 #include <abel/config/flag.h>
 #include <abel/base/profile.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <fcntl.h>                      // open
 #include <stdio.h>                      // snprintf
 #include <sys/types.h>
@@ -69,7 +69,7 @@ namespace abel {
     int read_command_output_through_clone(std::ostream& os, const char* cmd) {
         int pipe_fd[2];
         if (pipe(pipe_fd) != 0) {
-            ABEL_RAW_ERROR("Fail to pipe");
+            DLOG_ERROR("Fail to pipe");
             return -1;
         }
         int saved_errno = 0;
@@ -82,7 +82,7 @@ namespace abel {
         char* child_stack = NULL;
         char* child_stack_mem = (char*)malloc(CHILD_STACK_SIZE);
         if (!child_stack_mem) {
-            ABEL_RAW_ERROR("Fail to alloc stack for the child process");
+            DLOG_ERROR("Fail to alloc stack for the child process");
             rc = -1;
             goto END;
         }
@@ -91,7 +91,7 @@ namespace abel {
         cpid = clone(launch_child_process, child_stack,
                      __WCLONE | CLONE_VM | SIGCHLD | CLONE_UNTRACED, &args);
         if (cpid < 0) {
-            ABEL_RAW_ERROR("Fail to clone child process");
+            DLOG_ERROR("Fail to clone child process");
             rc = -1;
             goto END;
         }
@@ -106,7 +106,7 @@ namespace abel {
             } else if (nr == 0) {
                 break;
             } else if (errno != EINTR) {
-                ABEL_RAW_ERROR("Encountered error while reading for the pipe");
+                DLOG_ERROR("Encountered error while reading for the pipe");
                 break;
             }
         }
@@ -180,7 +180,7 @@ namespace abel {
                 if (feof(pipe)) {
                     break;
                 } else if (ferror(pipe)) {
-                    ABEL_RAW_ERROR("Encountered error while reading for the pipe");
+                    DLOG_ERROR("Encountered error while reading for the pipe");
                     break;
                 }
                 // retry;
@@ -218,12 +218,12 @@ namespace abel {
 #if defined(ABEL_PLATFORM_LINUX)
         abel::scoped_fd fd(open("/proc/self/cmdline", O_RDONLY));
     if (fd < 0) {
-        ABEL_RAW_ERROR( "Fail to open /proc/self/cmdline");
+        DLOG_ERROR( "Fail to open /proc/self/cmdline");
         return -1;
     }
     ssize_t nr = read(fd, buf, len);
     if (nr <= 0) {
-        ABEL_RAW_ERROR("Fail to read /proc/self/cmdline");
+        DLOG_ERROR("Fail to read /proc/self/cmdline");
         return -1;
     }
 #elif defined(ABEL_PLATFORM_APPLE)
@@ -232,7 +232,7 @@ namespace abel {
         char cmdbuf[32];
         snprintf(cmdbuf, sizeof(cmdbuf), "ps -p %ld -o command=", (long) pid);
         if (abel::read_command_output(oss, cmdbuf) != 0) {
-            ABEL_RAW_ERROR("Fail to read cmdline");
+            DLOG_ERROR("Fail to read cmdline");
             return -1;
         }
         const std::string &result = oss.str();
@@ -260,7 +260,7 @@ namespace abel {
                 }
             }
             if ((size_t) nr == len) {
-                ABEL_RAW_ERROR("buf is not big enough");
+                DLOG_ERROR("buf is not big enough");
                 return -1;
             }
             return nr;

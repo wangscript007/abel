@@ -50,11 +50,13 @@
 #ifdef ABEL_HAVE_EXCEPTIONS
     #define ABEL_TRY try
     #define ABEL_CATCH(...) catch(__VA_ARGS__)
+    #define ABEL_CATCH_ALL() catch(...)
     #define ABEL_RETHROW throw
     #define ABEL_THROW(expr) throw (expr)
 #else
     #define ABEL_TRY ABEL_CONSTEXPR_IF (true)
     #define ABEL_CATCH(...) else ABEL_CONSTEXPR_IF (false)
+    #define ABEL_CATCH_ALL() else ABEL_CONSTEXPR_IF (false)
     #define ABEL_RETHROW do {} while (false)
     #define ABEL_THROW(expr) ABEL_ASSERT(expr)
 #endif

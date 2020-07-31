@@ -9,7 +9,7 @@
 namespace abel {
 
     namespace sinks {
-        class SPDLOG_API sink {
+        class ABEL_API sink {
         public:
             virtual ~sink() = default;
 

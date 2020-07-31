@@ -13,7 +13,7 @@
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <abel/base/profile.h>
 #include <abel/container/flat_hash_map.h>
 #include <testing/chi_square.h>
@@ -123,7 +123,7 @@ namespace {
                 if (sample < sample_min) sample_min = sample;
             }
 
-            ABEL_RAW_INFO(abel::string_cat("Range {", param.mean(), "}: ",
+            DLOG_INFO(abel::string_cat("Range {", param.mean(), "}: ",
                                                      +sample_min, ", ", +sample_max));
 
             // Validate stream serialization.
@@ -182,9 +182,9 @@ namespace {
         }
 
         void LogCDF() {
-            ABEL_RAW_INFO(abel::string_cat("CDF (mean = ", mean_, ")"));
+            DLOG_INFO(abel::string_cat("CDF (mean = ", mean_, ")"));
             for (const auto c : cdf_) {
-                ABEL_RAW_INFO(abel::string_cat(c.index, ": pmf=", c.pmf, " cdf=", c.cdf));
+                DLOG_INFO(abel::string_cat(c.index, ": pmf=", c.pmf, " cdf=", c.cdf));
             }
         }
 
@@ -276,7 +276,7 @@ namespace {
         const bool pass = abel::random_internal::Near("z", z, 0.0, max_err);
 
         if (!pass) {
-            ABEL_RAW_INFO(fmt::sprintf("p=%f max_err=%f\n"
+            DLOG_INFO(fmt::sprintf("p=%f max_err=%f\n"
                                        " mean=%f vs. %f\n"
                                        " stddev=%f vs. %f\n"
                                        " skewness=%f vs. %f\n"
@@ -426,13 +426,13 @@ namespace {
         if (chi_square > threshold) {
             LogCDF();
 
-            ABEL_RAW_INFO(abel::string_cat("VALUES  buckets=", counts.size(),
+            DLOG_INFO(abel::string_cat("VALUES  buckets=", counts.size(),
                                                      "  samples=", kSamples));
             for (size_t i = 0; i < counts.size(); i++) {
-                ABEL_RAW_INFO(abel::string_cat(cutoffs_[i], ": ", counts[i], " vs. E=", e[i]));
+                DLOG_INFO(abel::string_cat(cutoffs_[i], ": ", counts[i], " vs. E=", e[i]));
             }
 
-            ABEL_RAW_INFO(abel::string_cat(kChiSquared, "(data, dof=", dof, ") = ", chi_square, " (",
+            DLOG_INFO(abel::string_cat(kChiSquared, "(data, dof=", dof, ") = ", chi_square, " (",
                                      p, ")\n", " vs.\n", kChiSquared, " @ 0.98 = ", threshold));
         }
         return p;

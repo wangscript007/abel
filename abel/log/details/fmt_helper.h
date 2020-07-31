@@ -12,7 +12,7 @@ namespace abel {
     namespace details {
         namespace fmt_helper {
 
-            inline abel::string_view_t to_string_view(const memory_buf_t &buf) SPDLOG_NOEXCEPT {
+            inline abel::string_view_t to_string_view(const memory_buf_t &buf) ABEL_NOEXCEPT {
                 return abel::string_view_t{buf.data(), buf.size()};
             }
 

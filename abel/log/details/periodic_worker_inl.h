@@ -7,7 +7,7 @@
 namespace abel {
     namespace details {
 
-        SPDLOG_INLINE periodic_worker::periodic_worker(const std::function<void()> &callback_fun,
+        ABEL_FORCE_INLINE periodic_worker::periodic_worker(const std::function<void()> &callback_fun,
                                                        std::chrono::seconds interval) {
             active_ = (interval > std::chrono::seconds::zero());
             if (!active_) {
@@ -26,7 +26,7 @@ namespace abel {
         }
 
 // stop the worker thread and join it
-        SPDLOG_INLINE periodic_worker::~periodic_worker() {
+        ABEL_FORCE_INLINE periodic_worker::~periodic_worker() {
             if (worker_thread_.joinable()) {
                 {
                     std::lock_guard<std::mutex> lock(mutex_);

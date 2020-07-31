@@ -5,7 +5,7 @@
 #include <vector>
 
 #include <benchmark/benchmark.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <abel/base/profile.h>
 #include <abel/container/inlined_vector.h>
 #include <abel/strings/str_cat.h>
@@ -75,7 +75,7 @@ namespace {
                 return i;
             }
         }
-        ABEL_RAW_CRITICAL("Failed to find a std::string larger than the short std::string optimization");
+        DLOG_CRITICAL("Failed to find a std::string larger than the short std::string optimization");
         return -1;
     }
 

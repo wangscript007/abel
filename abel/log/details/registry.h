@@ -25,7 +25,7 @@ namespace abel {
 
         class periodic_worker;
 
-        class SPDLOG_API registry {
+        class ABEL_API registry {
         public:
             registry(const registry &) = delete;
 

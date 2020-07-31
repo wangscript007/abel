@@ -17,8 +17,8 @@
 #include <string>
 #include <thread>
 
-#if !defined(SPDLOG_ANDROID_RETRIES)
-#define SPDLOG_ANDROID_RETRIES 2
+#if !defined(LOG_ANDROID_RETRIES)
+#define LOG_ANDROID_RETRIES 2
 #endif
 
 namespace abel {
@@ -55,7 +55,7 @@ protected:
         // See system/core/liblog/logger_write.c for explanation of return value
         int ret = __android_log_write(priority, tag_.c_str(), msg_output);
         int retry_count = 0;
-        while ((ret == -11 /*EAGAIN*/) && (retry_count < SPDLOG_ANDROID_RETRIES))
+        while ((ret == -11 /*EAGAIN*/) && (retry_count < LOG_ANDROID_RETRIES))
         {
             details::os::sleep_for_millis(5);
             ret = __android_log_write(priority, tag_.c_str(), msg_output);
@@ -64,7 +64,7 @@ protected:
 
         if (ret < 0)
         {
-            throw_spdlog_ex("__android_log_write() failed", ret);
+            throw_log_ex("__android_log_write() failed", ret);
         }
     }
 

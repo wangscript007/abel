@@ -75,7 +75,7 @@ namespace abel {
                     : async_msg{nullptr, the_type} {}
         };
 
-        class SPDLOG_API thread_pool {
+        class ABEL_API thread_pool {
         public:
             using item_type = async_msg;
             using q_type = details::mpmc_blocking_queue<item_type>;

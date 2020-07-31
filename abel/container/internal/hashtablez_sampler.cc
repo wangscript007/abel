@@ -231,7 +231,7 @@ namespace abel {
             if (rate > 0) {
                 g_hashtablez_sample_parameter.store(rate, std::memory_order_release);
             } else {
-                ABEL_RAW_ERROR("Invalid hashtablez sample rate: {}",
+                DLOG_ERROR("Invalid hashtablez sample rate: {}",
                                static_cast<long long>(rate));  // NOLINT(runtime/int)
             }
         }
@@ -240,7 +240,7 @@ namespace abel {
             if (max > 0) {
                 g_hashtablez_max_samples.store(max, std::memory_order_release);
             } else {
-                ABEL_RAW_ERROR("Invalid hashtablez max samples: {}",
+                DLOG_ERROR("Invalid hashtablez max samples: {}",
                                static_cast<long long>(max));  // NOLINT(runtime/int)
             }
         }

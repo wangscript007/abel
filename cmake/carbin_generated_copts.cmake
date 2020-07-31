@@ -48,6 +48,8 @@ list(APPEND CARBIN_CLANG_CL_FLAGS
     "-Wno-sign-conversion"
     "-Wno-unused-template"
     "-Wno-unused-member-function"
+    "-Wno-signed-enum-bitfield"
+    "-Wno-missing-prototypes"
     "-Wstring-conversion"
     "/DNOMINMAX"
     "/DWIN32_LEAN_AND_MEAN"
@@ -74,6 +76,8 @@ list(APPEND CARBIN_CLANG_CL_TEST_FLAGS
     "-Wno-used-but-marked-unused"
     "-Wno-zero-as-null-pointer-constant"
     "-Wno-gnu-zero-variadic-macro-arguments"
+    "-Wno-signed-enum-bitfield"
+    "-Wno-missing-prototypes"
     "-Wno-undef"
 )
 
@@ -153,6 +157,8 @@ list(APPEND CARBIN_LLVM_FLAGS
     "-Wno-sign-conversion"
     "-Wno-unused-template"
     "-Wno-unused-member-function"
+    "-Wno-signed-enum-bitfield"
+    "-Wno-missing-prototypes"
     "-Wstring-conversion"
 
 )
@@ -175,6 +181,7 @@ list(APPEND CARBIN_LLVM_TEST_FLAGS
     "-Wno-used-but-marked-unused"
     "-Wno-zero-as-null-pointer-constant"
     "-Wno-gnu-zero-variadic-macro-arguments"
+    "-Wno-signed-enum-bitfield"
     "-Wno-undef"
 )
 

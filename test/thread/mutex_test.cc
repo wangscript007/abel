@@ -18,7 +18,7 @@
 
 #include <gtest/gtest.h>
 #include <abel/base/profile.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <abel/system/sysinfo.h>
 #include <abel/memory/memory.h>
 #include <abel/thread/internal/thread_pool.h>
@@ -73,7 +73,7 @@ namespace {
 
     static void CheckSumG0G1(void *v) {
         TestContext *cxt = static_cast<TestContext *>(v);
-        ABEL_RAW_CHECK(cxt->g0 == -cxt->g1, "Error in CheckSumG0G1");
+        DCHECK(cxt->g0 == -cxt->g1, "Error in CheckSumG0G1");
         SetInvariantChecked(true);
     }
 
@@ -118,7 +118,7 @@ namespace {
         } else {
             for (int i = 0; i != cxt->iterations; i++) {
                 abel::reader_mutex_lock l(&cxt->mu);
-                ABEL_RAW_CHECK(cxt->g0 == -cxt->g1, "Error in TestRW");
+                DCHECK(cxt->g0 == -cxt->g1, "Error in TestRW");
                 cxt->mu.assert_reader_held();
             }
         }
@@ -144,7 +144,7 @@ namespace {
         cxt->mu.assert_held();
         while (cxt->g0 < cxt->iterations) {
             cxt->mu.await(abel::condition(&mc, &MyContext::MyTurn));
-            ABEL_RAW_CHECK(mc.MyTurn(), "Error in TestAwait");
+            DCHECK(mc.MyTurn(), "Error in TestAwait");
             cxt->mu.assert_held();
             if (cxt->g0 < cxt->iterations) {
                 int a = cxt->g0 + 1;
@@ -172,7 +172,7 @@ namespace {
     }
 
     static void TestSignal(TestContext *cxt, int c) {
-        ABEL_RAW_CHECK(cxt->threads == 2, "TestSignal should use 2 threads");
+        DCHECK(cxt->threads == 2, "TestSignal should use 2 threads");
         int target = c;
         abel::mutex_lock l(&cxt->mu);
         cxt->mu.assert_held();
@@ -209,8 +209,8 @@ namespace {
     static bool G0GE2(TestContext *cxt) { return cxt->g0 >= 2; }
 
     static void TestTime(TestContext *cxt, int c, bool use_cv) {
-        ABEL_RAW_CHECK(cxt->iterations == 1, "TestTime should only use 1 iteration");
-        ABEL_RAW_CHECK(cxt->threads > 2, "TestTime should use more than 2 threads");
+        DCHECK(cxt->iterations == 1, "TestTime should only use 1 iteration");
+        DCHECK(cxt->threads > 2, "TestTime should use more than 2 threads");
         const bool kFalse = false;
         abel::condition false_cond(&kFalse);
         abel::condition g0ge2(G0GE2, cxt);
@@ -221,24 +221,24 @@ namespace {
             if (use_cv) {
                 cxt->cv.wait_with_timeout(&cxt->mu,  abel::duration::seconds(1));
             } else {
-                ABEL_RAW_CHECK(!cxt->mu.await_with_timeout(false_cond,  abel::duration::seconds(1)),
+                DCHECK(!cxt->mu.await_with_timeout(false_cond,  abel::duration::seconds(1)),
                                "TestTime failed");
             }
             abel::duration elapsed = abel::now() - start;
-            ABEL_RAW_CHECK(
+            DCHECK(
                      abel::duration::seconds(0.9) <= elapsed && elapsed <=  abel::duration::seconds(2.0),
                     "TestTime failed");
-            ABEL_RAW_CHECK(cxt->g0 == 1, "TestTime failed");
+            DCHECK(cxt->g0 == 1, "TestTime failed");
 
             start = abel::now();
             if (use_cv) {
                 cxt->cv.wait_with_timeout(&cxt->mu,  abel::duration::seconds(1));
             } else {
-                ABEL_RAW_CHECK(!cxt->mu.await_with_timeout(false_cond,  abel::duration::seconds(1)),
+                DCHECK(!cxt->mu.await_with_timeout(false_cond,  abel::duration::seconds(1)),
                                "TestTime failed");
             }
             elapsed = abel::now() - start;
-            ABEL_RAW_CHECK(
+            DCHECK(
                      abel::duration::seconds(0.9) <= elapsed && elapsed <=  abel::duration::seconds(2.0),
                     "TestTime failed");
             cxt->g0++;
@@ -250,24 +250,24 @@ namespace {
             if (use_cv) {
                 cxt->cv.wait_with_timeout(&cxt->mu,  abel::duration::seconds(4));
             } else {
-                ABEL_RAW_CHECK(!cxt->mu.await_with_timeout(false_cond,  abel::duration::seconds(4)),
+                DCHECK(!cxt->mu.await_with_timeout(false_cond,  abel::duration::seconds(4)),
                                "TestTime failed");
             }
             elapsed = abel::now() - start;
-            ABEL_RAW_CHECK(
+            DCHECK(
                      abel::duration::seconds(3.9) <= elapsed && elapsed <=  abel::duration::seconds(6.0),
                     "TestTime failed");
-            ABEL_RAW_CHECK(cxt->g0 >= 3, "TestTime failed");
+            DCHECK(cxt->g0 >= 3, "TestTime failed");
 
             start = abel::now();
             if (use_cv) {
                 cxt->cv.wait_with_timeout(&cxt->mu,  abel::duration::seconds(1));
             } else {
-                ABEL_RAW_CHECK(!cxt->mu.await_with_timeout(false_cond,  abel::duration::seconds(1)),
+                DCHECK(!cxt->mu.await_with_timeout(false_cond,  abel::duration::seconds(1)),
                                "TestTime failed");
             }
             elapsed = abel::now() - start;
-            ABEL_RAW_CHECK(
+            DCHECK(
                      abel::duration::seconds(0.9) <= elapsed && elapsed <=  abel::duration::seconds(2.0),
                     "TestTime failed");
             if (use_cv) {
@@ -278,13 +278,13 @@ namespace {
             if (use_cv) {
                 cxt->cv.wait_with_timeout(&cxt->mu,  abel::duration::seconds(1));
             } else {
-                ABEL_RAW_CHECK(!cxt->mu.await_with_timeout(false_cond,  abel::duration::seconds(1)),
+                DCHECK(!cxt->mu.await_with_timeout(false_cond,  abel::duration::seconds(1)),
                                "TestTime failed");
             }
             elapsed = abel::now() - start;
-            ABEL_RAW_CHECK( abel::duration::seconds(0.9) <= elapsed &&
+            DCHECK( abel::duration::seconds(0.9) <= elapsed &&
                            elapsed <=  abel::duration::seconds(2.0), "TestTime failed");
-            ABEL_RAW_CHECK(cxt->g0 == cxt->threads, "TestTime failed");
+            DCHECK(cxt->g0 == cxt->threads, "TestTime failed");
 
         } else if (c == 1) {
             abel::mutex_lock l(&cxt->mu);
@@ -292,12 +292,12 @@ namespace {
             if (use_cv) {
                 cxt->cv.wait_with_timeout(&cxt->mu,  abel::duration::milliseconds(500));
             } else {
-                ABEL_RAW_CHECK(
+                DCHECK(
                         !cxt->mu.await_with_timeout(false_cond,  abel::duration::milliseconds(500)),
                         "TestTime failed");
             }
             const abel::duration elapsed = abel::now() - start;
-            ABEL_RAW_CHECK(
+            DCHECK(
                      abel::duration::seconds(0.4) <= elapsed && elapsed <=  abel::duration::seconds(0.9),
                     "TestTime failed");
             cxt->g0++;
@@ -308,7 +308,7 @@ namespace {
                     cxt->cv.wait_with_timeout(&cxt->mu,  abel::duration::seconds(100));
                 }
             } else {
-                ABEL_RAW_CHECK(cxt->mu.await_with_timeout(g0ge2,  abel::duration::seconds(100)),
+                DCHECK(cxt->mu.await_with_timeout(g0ge2,  abel::duration::seconds(100)),
                                "TestTime failed");
             }
             cxt->g0++;
@@ -387,7 +387,7 @@ namespace {
         TestContext cxt;
         cxt.mu.enable_invariant_debugging(invariant, &cxt);
         int ret = RunTestCommon(&cxt, test, threads, iterations, operations);
-        ABEL_RAW_CHECK(GetInvariantChecked(), "Invariant not checked");
+        DCHECK(GetInvariantChecked(), "Invariant not checked");
         abel::enable_mutex_invariant_debugging(false);  // Restore.
         return ret;
     }
@@ -944,7 +944,7 @@ namespace {
                                         abel::duration::milliseconds(100));
             x->mu1.unlock();
         }
-        ABEL_RAW_CHECK(x->value < 4, "should not be invoked a fourth time");
+        DCHECK(x->value < 4, "should not be invoked a fourth time");
 
         // We arrange for the condition to return true on only the 2nd and 3rd calls.
         return x->value == 2 || x->value == 3;
@@ -1178,7 +1178,7 @@ namespace {
         // different clock than abel::now(), but these cases should be handled by the
         // the retry mechanism in each TimeoutTest.
         if (actual_delay < expected_delay) {
-            ABEL_RAW_WARN(
+            DLOG_WARN(
                          "Actual delay {} was too short, expected {} (difference {})",
                          actual_delay.format_duration().c_str(),
                          expected_delay.format_duration().c_str(),
@@ -1193,7 +1193,7 @@ namespace {
                                    ?  abel::duration::milliseconds(10)
                                    : TimeoutTestAllowedSchedulingDelay();
         if (actual_delay > expected_delay + tolerance) {
-            ABEL_RAW_WARN(
+            DLOG_WARN(
                          "Actual delay {} was too long, expected {} (difference {})",
                          actual_delay.format_duration().c_str(),
                          expected_delay.format_duration().c_str(),
@@ -1383,13 +1383,13 @@ namespace {
 
     TEST_P(TimeoutTest, await) {
         const TimeoutTestParam params = GetParam();
-        ABEL_RAW_INFO("Params: {}", FormatString(params).c_str());
+        DLOG_INFO("Params: {}", FormatString(params).c_str());
 
         // Because this test asserts bounds on scheduling delays it is flaky.  To
         // compensate it loops forever until it passes.  Failures express as test
         // timeouts, in which case the test log can be used to diagnose the issue.
         for (int attempt = 1;; ++attempt) {
-            ABEL_RAW_INFO("Attempt {}", attempt);
+            DLOG_INFO("Attempt {}", attempt);
 
             abel::mutex mu;
             bool value = false;  // condition value (under mu)
@@ -1417,13 +1417,13 @@ namespace {
 
     TEST_P(TimeoutTest, lock_when) {
         const TimeoutTestParam params = GetParam();
-        ABEL_RAW_INFO("Params: {}", FormatString(params).c_str());
+        DLOG_INFO("Params: {}", FormatString(params).c_str());
 
         // Because this test asserts bounds on scheduling delays it is flaky.  To
         // compensate it loops forever until it passes.  Failures express as test
         // timeouts, in which case the test log can be used to diagnose the issue.
         for (int attempt = 1;; ++attempt) {
-            ABEL_RAW_INFO("Attempt {}", attempt);
+            DLOG_INFO("Attempt {}", attempt);
 
             abel::mutex mu;
             bool value = false;  // condition value (under mu)
@@ -1452,13 +1452,13 @@ namespace {
 
     TEST_P(TimeoutTest, reader_lock_when) {
         const TimeoutTestParam params = GetParam();
-        ABEL_RAW_INFO("Params: {}", FormatString(params).c_str());
+        DLOG_INFO("Params: {}", FormatString(params).c_str());
 
         // Because this test asserts bounds on scheduling delays it is flaky.  To
         // compensate it loops forever until it passes.  Failures express as test
         // timeouts, in which case the test log can be used to diagnose the issue.
         for (int attempt = 0;; ++attempt) {
-            ABEL_RAW_INFO("Attempt {}", attempt);
+            DLOG_INFO("Attempt {}", attempt);
 
             abel::mutex mu;
             bool value = false;  // condition value (under mu)
@@ -1488,13 +1488,13 @@ namespace {
 
     TEST_P(TimeoutTest, wait) {
         const TimeoutTestParam params = GetParam();
-        ABEL_RAW_INFO("Params: {}", FormatString(params).c_str());
+        DLOG_INFO("Params: {}", FormatString(params).c_str());
 
         // Because this test asserts bounds on scheduling delays it is flaky.  To
         // compensate it loops forever until it passes.  Failures express as test
         // timeouts, in which case the test log can be used to diagnose the issue.
         for (int attempt = 0;; ++attempt) {
-            ABEL_RAW_INFO("Attempt {}", attempt);
+            DLOG_INFO("Attempt {}", attempt);
 
             abel::mutex mu;
             bool value = false;  // condition value (under mu)

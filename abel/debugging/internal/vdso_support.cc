@@ -18,7 +18,7 @@
 #endif
 
 #include <abel/thread/dynamic_annotations.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <abel/base/profile.h>
 
 #ifndef AT_SYSINFO_EHDR
@@ -109,7 +109,7 @@ const void *VDSOSupport::Init() {
 }
 
 const void *VDSOSupport::SetBase(const void *base) {
-  ABEL_RAW_CHECK(base != debugging_internal::ElfMemImage::kInvalidBase,
+  DCHECK(base != debugging_internal::ElfMemImage::kInvalidBase,
                  "internal error");
   const void *old_base = vdso_base_.load(std::memory_order_relaxed);
   vdso_base_.store(base, std::memory_order_relaxed);
@@ -149,7 +149,7 @@ long VDSOSupport::InitAndGetCPU(unsigned *cpu,  // NOLINT(runtime/int)
                                 void *x, void *y) {
   Init();
   GetCpuFn fn = getcpu_fn_.load(std::memory_order_relaxed);
-  ABEL_RAW_CHECK(fn != &InitAndGetCPU, "Init() did not set getcpu_fn_");
+  DCHECK(fn != &InitAndGetCPU, "Init() did not set getcpu_fn_");
   return (*fn)(cpu, x, y);
 }
 

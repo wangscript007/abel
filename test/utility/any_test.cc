@@ -9,7 +9,7 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <gtest/gtest.h>
 #include <abel/base/profile.h>
 #include <testing/exception_testing.h>
@@ -710,7 +710,7 @@ namespace {
 #ifdef ABEL_HAVE_EXCEPTIONS
             throw BadCopy();
 #else
-            ABEL_RAW_CABEL_RAW_CRITICAL("Bad copy");
+            DLOG_CRITICAL("Bad copy");
 #endif
         }
     };

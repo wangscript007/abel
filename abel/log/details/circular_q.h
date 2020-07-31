@@ -33,11 +33,11 @@ namespace abel {
 
             // move cannot be default,
             // since we need to reset head_, tail_, etc to zero in the moved object
-            circular_q(circular_q &&other) SPDLOG_NOEXCEPT {
+            circular_q(circular_q &&other) ABEL_NOEXCEPT {
                 copy_moveable(std::move(other));
             }
 
-            circular_q &operator=(circular_q &&other) SPDLOG_NOEXCEPT {
+            circular_q &operator=(circular_q &&other) ABEL_NOEXCEPT {
                 copy_moveable(std::move(other));
                 return *this;
             }
@@ -106,7 +106,7 @@ namespace abel {
 
         private:
             // copy from other&& and reset it to disabled state
-            void copy_moveable(circular_q &&other) SPDLOG_NOEXCEPT {
+            void copy_moveable(circular_q &&other) ABEL_NOEXCEPT {
                 max_items_ = other.max_items_;
                 head_ = other.head_;
                 tail_ = other.tail_;

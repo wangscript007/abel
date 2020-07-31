@@ -11,7 +11,7 @@
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <abel/utility/span.h>
 
 namespace abel {
@@ -23,7 +23,7 @@ namespace abel {
             using ::testing::ElementsAre;
 
             size_t Distance(const void *from, const void *to) {
-                ABEL_RAW_CHECK(from <= to, "Distance must be non-negative");
+                DCHECK(from <= to, "Distance must be non-negative");
                 return static_cast<const char *>(to) - static_cast<const char *>(from);
             }
 

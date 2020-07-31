@@ -28,7 +28,7 @@
 #include <share.h>
 #endif
 
-#if defined(SPDLOG_WCHAR_TO_UTF8_SUPPORT) || defined(SPDLOG_WCHAR_FILENAMES)
+#if defined(LOG_WCHAR_TO_UTF8_SUPPORT) || defined(LOG_WCHAR_FILENAMES)
 #include <limits>
 #endif
 
@@ -65,9 +65,9 @@ namespace abel {
     namespace details {
         namespace os {
 
-            SPDLOG_INLINE abel::log_clock::time_point now() SPDLOG_NOEXCEPT {
+            ABEL_FORCE_INLINE abel::log_clock::time_point now() ABEL_NOEXCEPT {
 
-#if defined __linux__ && defined SPDLOG_CLOCK_COARSE
+#if defined __linux__ && defined LOG_CLOCK_COARSE
                 timespec ts;
                 ::clock_gettime(CLOCK_REALTIME_COARSE, &ts);
                 return std::chrono::time_point<log_clock, typename log_clock::duration>(
@@ -78,7 +78,7 @@ namespace abel {
 #endif
             }
 
-            SPDLOG_INLINE std::tm localtime(const std::time_t &time_tt) SPDLOG_NOEXCEPT {
+            ABEL_FORCE_INLINE std::tm localtime(const std::time_t &time_tt) ABEL_NOEXCEPT {
 
 #ifdef _WIN32
                 std::tm tm;
@@ -90,12 +90,12 @@ namespace abel {
                 return tm;
             }
 
-            SPDLOG_INLINE std::tm localtime() SPDLOG_NOEXCEPT {
+            ABEL_FORCE_INLINE std::tm localtime() ABEL_NOEXCEPT {
                 std::time_t now_t = ::time(nullptr);
                 return localtime(now_t);
             }
 
-            SPDLOG_INLINE std::tm gmtime(const std::time_t &time_tt) SPDLOG_NOEXCEPT {
+            ABEL_FORCE_INLINE std::tm gmtime(const std::time_t &time_tt) ABEL_NOEXCEPT {
 
 #ifdef _WIN32
                 std::tm tm;
@@ -107,20 +107,20 @@ namespace abel {
                 return tm;
             }
 
-            SPDLOG_INLINE std::tm gmtime() SPDLOG_NOEXCEPT {
+            ABEL_FORCE_INLINE std::tm gmtime() ABEL_NOEXCEPT {
                 std::time_t now_t = ::time(nullptr);
                 return gmtime(now_t);
             }
 
 // fopen_s on non windows for writing
-            SPDLOG_INLINE bool fopen_s(FILE **fp, const filename_t &filename, const filename_t &mode) {
+            ABEL_FORCE_INLINE bool fopen_s(FILE **fp, const filename_t &filename, const filename_t &mode) {
 #ifdef _WIN32
-#ifdef SPDLOG_WCHAR_FILENAMES
+#ifdef LOG_WCHAR_FILENAMES
                 *fp = ::_wfsopen((filename.c_str()), mode.c_str(), _SH_DENYNO);
 #else
                 *fp = ::_fsopen((filename.c_str()), mode.c_str(), _SH_DENYNO);
 #endif
-#if defined(SPDLOG_PREVENT_CHILD_FD)
+#if defined(LOG_PREVENT_CHILD_FD)
                 if (*fp != nullptr)
                 {
                     auto file_handle = reinterpret_cast<HANDLE>(_get_osfhandle(::_fileno(*fp)));
@@ -132,8 +132,8 @@ namespace abel {
                 }
 #endif
 #else // unix
-#if defined(SPDLOG_PREVENT_CHILD_FD)
-                const int mode_flag = mode == SPDLOG_FILENAME_T("ab") ? O_APPEND : O_TRUNC;
+#if defined(LOG_PREVENT_CHILD_FD)
+                const int mode_flag = mode == LOG_FILENAME_T("ab") ? O_APPEND : O_TRUNC;
                 const int fd = ::open((filename.c_str()), O_CREAT | O_WRONLY | O_CLOEXEC | mode_flag, mode_t(0644));
                 if (fd == -1)
                 {
@@ -152,20 +152,20 @@ namespace abel {
                 return *fp == nullptr;
             }
 
-            SPDLOG_INLINE int remove(const filename_t &filename) SPDLOG_NOEXCEPT {
-#if defined(_WIN32) && defined(SPDLOG_WCHAR_FILENAMES)
+            ABEL_FORCE_INLINE int remove(const filename_t &filename) ABEL_NOEXCEPT {
+#if defined(_WIN32) && defined(LOG_WCHAR_FILENAMES)
                 return ::_wremove(filename.c_str());
 #else
                 return std::remove(filename.c_str());
 #endif
             }
 
-            SPDLOG_INLINE int remove_if_exists(const filename_t &filename) SPDLOG_NOEXCEPT {
+            ABEL_FORCE_INLINE int remove_if_exists(const filename_t &filename) ABEL_NOEXCEPT {
                 return path_exists(filename) ? remove(filename) : 0;
             }
 
-            SPDLOG_INLINE int rename(const filename_t &filename1, const filename_t &filename2) SPDLOG_NOEXCEPT {
-#if defined(_WIN32) && defined(SPDLOG_WCHAR_FILENAMES)
+            ABEL_FORCE_INLINE int rename(const filename_t &filename1, const filename_t &filename2) ABEL_NOEXCEPT {
+#if defined(_WIN32) && defined(LOG_WCHAR_FILENAMES)
                 return ::_wrename(filename1.c_str(), filename2.c_str());
 #else
                 return std::rename(filename1.c_str(), filename2.c_str());
@@ -173,9 +173,9 @@ namespace abel {
             }
 
 // Return true if path exists (file or directory)
-            SPDLOG_INLINE bool path_exists(const filename_t &filename) SPDLOG_NOEXCEPT {
+            ABEL_FORCE_INLINE bool path_exists(const filename_t &filename) ABEL_NOEXCEPT {
 #ifdef _WIN32
-#ifdef SPDLOG_WCHAR_FILENAMES
+#ifdef LOG_WCHAR_FILENAMES
                 auto attribs = ::GetFileAttributesW(filename.c_str());
 #else
                 auto attribs = ::GetFileAttributesA(filename.c_str());
@@ -188,9 +188,9 @@ namespace abel {
             }
 
 // Return file size according to open FILE* object
-            SPDLOG_INLINE size_t filesize(FILE *f) {
+            ABEL_FORCE_INLINE size_t filesize(FILE *f) {
                 if (f == nullptr) {
-                    throw_spdlog_ex("Failed getting file size. fd is null");
+                    throw_log_ex("Failed getting file size. fd is null");
                 }
 #if defined(_WIN32) && !defined(__CYGWIN__)
                 int fd = ::_fileno(f);
@@ -230,12 +230,12 @@ namespace abel {
                 }
 #endif
 #endif
-                throw_spdlog_ex("Failed getting file size from fd", errno);
+                throw_log_ex("Failed getting file size from fd", errno);
                 return 0; // will not be reached.
             }
 
 // Return utc offset in minutes or throw log_ex on failure
-            SPDLOG_INLINE int utc_minutes_offset(const std::tm &tm) {
+            ABEL_FORCE_INLINE int utc_minutes_offset(const std::tm &tm) {
 
 #ifdef _WIN32
 #if _WIN32_WINNT < _WIN32_WINNT_WS08
@@ -246,7 +246,7 @@ namespace abel {
                 auto rv = ::GetDynamicTimeZoneInformation(&tzinfo);
 #endif
                 if (rv == TIME_ZONE_ID_INVALID)
-                    throw_spdlog_ex("Failed getting timezone info. ", errno);
+                    throw_log_ex("Failed getting timezone info. ", errno);
 
                 int offset = -tzinfo.Bias;
                 if (tm.tm_isdst)
@@ -300,7 +300,7 @@ namespace abel {
 // Return current thread id as size_t
 // It exists because the std::this_thread::get_id() is much slower(especially
 // under VS 2013)
-            SPDLOG_INLINE size_t _thread_id() SPDLOG_NOEXCEPT {
+            ABEL_FORCE_INLINE size_t _thread_id() ABEL_NOEXCEPT {
 #ifdef _WIN32
                 return static_cast<size_t>(::GetCurrentThreadId());
 #elif defined(__linux__)
@@ -325,19 +325,15 @@ namespace abel {
 #endif
             }
 
-// Return current thread id as size_t (from thread local storage)
-            SPDLOG_INLINE size_t thread_id() SPDLOG_NOEXCEPT {
-#if defined(SPDLOG_NO_TLS)
-                return _thread_id();
-#else // cache thread id in tls
+            // Return current thread id as size_t (from thread local storage)
+            ABEL_FORCE_INLINE size_t thread_id() ABEL_NOEXCEPT {
                 static thread_local const size_t tid = _thread_id();
                 return tid;
-#endif
             }
 
 // This is avoid msvc issue in sleep_for that happens if the clock changes.
 // See https://github.com/gabime/spdlog/issues/609
-            SPDLOG_INLINE void sleep_for_millis(int milliseconds) SPDLOG_NOEXCEPT {
+            ABEL_FORCE_INLINE void sleep_for_millis(int milliseconds) ABEL_NOEXCEPT {
 #if defined(_WIN32)
                 ::Sleep(milliseconds);
 #else
@@ -345,9 +341,9 @@ namespace abel {
 #endif
             }
 
-// wchar support for windows file names (SPDLOG_WCHAR_FILENAMES must be defined)
-#if defined(_WIN32) && defined(SPDLOG_WCHAR_FILENAMES)
-            SPDLOG_INLINE std::string filename_to_str(const filename_t &filename)
+// wchar support for windows file names (LOG_WCHAR_FILENAMES must be defined)
+#if defined(_WIN32) && defined(LOG_WCHAR_FILENAMES)
+            ABEL_FORCE_INLINE std::string filename_to_str(const filename_t &filename)
             {
                 memory_buf_t buf;
                 wstr_to_utf8buf(filename, buf);
@@ -355,13 +351,13 @@ namespace abel {
             }
 #else
 
-            SPDLOG_INLINE std::string filename_to_str(const filename_t &filename) {
+            ABEL_FORCE_INLINE std::string filename_to_str(const filename_t &filename) {
                 return filename;
             }
 
 #endif
 
-            SPDLOG_INLINE int pid() SPDLOG_NOEXCEPT {
+            ABEL_FORCE_INLINE int pid() ABEL_NOEXCEPT {
 
 #ifdef _WIN32
                 return static_cast<int>(::GetCurrentProcessId());
@@ -372,7 +368,7 @@ namespace abel {
 
 // Determine if the terminal supports colors
 // Based on: https://github.com/agauniyal/rang/
-            SPDLOG_INLINE bool is_color_terminal() SPDLOG_NOEXCEPT {
+            ABEL_FORCE_INLINE bool is_color_terminal() ABEL_NOEXCEPT {
 #ifdef _WIN32
                 return true;
 #else
@@ -393,7 +389,7 @@ namespace abel {
 
 // Determine if the terminal attached
 // Source: https://github.com/agauniyal/rang/
-            SPDLOG_INLINE bool in_terminal(FILE *file) SPDLOG_NOEXCEPT {
+            ABEL_FORCE_INLINE bool in_terminal(FILE *file) ABEL_NOEXCEPT {
 
 #ifdef _WIN32
                 return ::_isatty(_fileno(file)) != 0;
@@ -402,12 +398,12 @@ namespace abel {
 #endif
             }
 
-#if (defined(SPDLOG_WCHAR_TO_UTF8_SUPPORT) || defined(SPDLOG_WCHAR_FILENAMES)) && defined(_WIN32)
-            SPDLOG_INLINE void wstr_to_utf8buf(wstring_view_t wstr, memory_buf_t &target)
+#if (defined(LOG_WCHAR_TO_UTF8_SUPPORT) || defined(LOG_WCHAR_FILENAMES)) && defined(_WIN32)
+            ABEL_FORCE_INLINE void wstr_to_utf8buf(wstring_view_t wstr, memory_buf_t &target)
             {
                 if (wstr.size() > static_cast<size_t>((std::numeric_limits<int>::max)()))
                 {
-                    throw_spdlog_ex("UTF-16 string is too big to be converted to UTF-8");
+                    throw_log_ex("UTF-16 string is too big to be converted to UTF-8");
                 }
 
                 int wstr_size = static_cast<int>(wstr.size());
@@ -435,14 +431,14 @@ namespace abel {
                     }
                 }
 
-                throw_spdlog_ex(fmt::format("WideCharToMultiByte failed. Last error: {}", ::GetLastError()));
+                throw_log_ex(fmt::format("WideCharToMultiByte failed. Last error: {}", ::GetLastError()));
             }
-#endif // (defined(SPDLOG_WCHAR_TO_UTF8_SUPPORT) || defined(SPDLOG_WCHAR_FILENAMES)) && defined(_WIN32)
+#endif // (defined(LOG_WCHAR_TO_UTF8_SUPPORT) || defined(LOG_WCHAR_FILENAMES)) && defined(_WIN32)
 
 // return true on success
-            static SPDLOG_INLINE bool mkdir_(const filename_t &path) {
+            static ABEL_FORCE_INLINE bool mkdir_(const filename_t &path) {
 #ifdef _WIN32
-#ifdef SPDLOG_WCHAR_FILENAMES
+#ifdef LOG_WCHAR_FILENAMES
                 return ::_wmkdir(path.c_str()) == 0;
 #else
                 return ::_mkdir(path.c_str()) == 0;
@@ -454,7 +450,7 @@ namespace abel {
 
 // create the given directory - and all directories leading to it
 // return true on success or if the directory already exists
-            SPDLOG_INLINE bool create_dir(filename_t path) {
+            ABEL_FORCE_INLINE bool create_dir(filename_t path) {
                 if (path_exists(path)) {
                     return true;
                 }
@@ -492,7 +488,7 @@ namespace abel {
 // "abc/" => "abc"
 // "abc" => ""
 // "abc///" => "abc//"
-            SPDLOG_INLINE filename_t dir_name(filename_t path) {
+            ABEL_FORCE_INLINE filename_t dir_name(filename_t path) {
 #ifdef _WIN32
                 // support forward slash in windows
                 std::replace(path.begin(), path.end(), '/', folder_sep);
@@ -501,7 +497,7 @@ namespace abel {
                 return pos != filename_t::npos ? path.substr(0, pos) : filename_t{};
             }
 
-            std::string SPDLOG_INLINE getenv(const char *field) {
+            std::string ABEL_FORCE_INLINE getenv(const char *field) {
 
 #if defined(_MSC_VER)
 #if defined(__cplusplus_winrt)

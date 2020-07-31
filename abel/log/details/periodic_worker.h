@@ -18,7 +18,7 @@
 namespace abel {
     namespace details {
 
-        class SPDLOG_API periodic_worker {
+        class ABEL_API periodic_worker {
         public:
             periodic_worker(const std::function<void()> &callback_fun, std::chrono::seconds interval);
 

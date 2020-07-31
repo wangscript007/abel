@@ -14,7 +14,7 @@
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <testing/chi_square.h>
 #include <testing/distribution_test_util.h>
 #include <abel/random/engine/sequence_urbg.h>
@@ -178,7 +178,7 @@ namespace {
             abel::string_append(&msg, kChiSquared, " p-value ", p_value, "\n");
             abel::string_append(&msg, "High ", kChiSquared, " value: ", chi_square, " > ",
                                 kThreshold);
-            ABEL_RAW_INFO("{}", msg.c_str());
+            DLOG_INFO("{}", msg.c_str());
             FAIL() << msg;
         }
     }

@@ -9,7 +9,7 @@
 #include <vector>
 
 #include <gtest/gtest.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <abel/base/profile.h>
 
 namespace abel {
@@ -54,51 +54,51 @@ namespace abel {
         }
 
         static void PrintEdges(Edges *edges) {
-            ABEL_RAW_INFO("EDGES ({})", edges->size());
+            DLOG_INFO("EDGES ({})", edges->size());
             for (const auto &edge : *edges) {
                 int a = edge.from;
                 int b = edge.to;
-                ABEL_RAW_INFO("{} {}", a, b);
+                DLOG_INFO("{} {}", a, b);
             }
-            ABEL_RAW_INFO("---");
+            DLOG_INFO("---");
         }
 
         static void PrintGCEdges(Nodes *nodes, const IdMap &id, graph_cycles *gc) {
-            ABEL_RAW_INFO("GC EDGES");
+            DLOG_INFO("GC EDGES");
             for (int a : *nodes) {
                 for (int b : *nodes) {
                     if (gc->has_edge(Get(id, a), Get(id, b))) {
-                        ABEL_RAW_INFO("{} {}", a, b);
+                        DLOG_INFO("{} {}", a, b);
                     }
                 }
             }
-            ABEL_RAW_INFO("---");
+            DLOG_INFO("---");
         }
 
         static void PrintTransitiveClosure(Nodes *nodes, Edges *edges) {
-            ABEL_RAW_INFO("Transitive closure");
+            DLOG_INFO("Transitive closure");
             for (int a : *nodes) {
                 for (int b : *nodes) {
                     std::unordered_set<int> seen;
                     if (is_reachable(edges, a, b, &seen)) {
-                        ABEL_RAW_INFO("{} {}", a, b);
+                        DLOG_INFO("{} {}", a, b);
                     }
                 }
             }
-            ABEL_RAW_INFO("---");
+            DLOG_INFO("---");
         }
 
         static void PrintGCTransitiveClosure(Nodes *nodes, const IdMap &id,
                                              graph_cycles *gc) {
-            ABEL_RAW_INFO("GC Transitive closure");
+            DLOG_INFO("GC Transitive closure");
             for (int a : *nodes) {
                 for (int b : *nodes) {
                     if (gc->is_reachable(Get(id, a), Get(id, b))) {
-                        ABEL_RAW_INFO("{} {}", a, b);
+                        DLOG_INFO("{} {}", a, b);
                     }
                 }
             }
-            ABEL_RAW_INFO("---");
+            DLOG_INFO("---");
         }
 
         static void CheckTransitiveClosure(Nodes *nodes, Edges *edges, const IdMap &id,
@@ -114,7 +114,7 @@ namespace abel {
                         PrintGCEdges(nodes, id, gc);
                         PrintTransitiveClosure(nodes, edges);
                         PrintGCTransitiveClosure(nodes, id, gc);
-                        ABEL_RAW_CRITICAL("gc_reachable %s reachable {} a {} b {}",
+                        DLOG_CRITICAL("gc_reachable %s reachable {} a {} b {}",
                                      gc_reachable ? "true" : "false",
                                      reachable ? "true" : "false", a, b);
                     }
@@ -131,7 +131,7 @@ namespace abel {
                 if (!gc->has_edge(Get(id, a), Get(id, b))) {
                     PrintEdges(edges);
                     PrintGCEdges(nodes, id, gc);
-                    ABEL_RAW_CRITICAL("!gc->has_edge({}, {})", a, b);
+                    DLOG_CRITICAL("!gc->has_edge({}, {})", a, b);
                 }
             }
             for (const auto &a : *nodes) {
@@ -144,13 +144,13 @@ namespace abel {
             if (count != edges->size()) {
                 PrintEdges(edges);
                 PrintGCEdges(nodes, id, gc);
-                ABEL_RAW_CRITICAL("edges->size() {}  count {}", edges->size(), count);
+                DLOG_CRITICAL("edges->size() {}  count {}", edges->size(), count);
             }
         }
 
         static void check_invariants(const graph_cycles &gc) {
             if (ABEL_UNLIKELY(!gc.check_invariants()))
-                ABEL_RAW_CRITICAL("check_invariants");
+                DLOG_CRITICAL("check_invariants");
         }
 
 // Returns the index of a randomly chosen node in *nodes.
@@ -298,7 +298,7 @@ namespace abel {
                         break;
 
                     default:
-                        ABEL_RAW_CRITICAL("op {}", op);
+                        DLOG_CRITICAL("op {}", op);
                 }
 
                 // Very rarely, test graph expansion by adding then removing many nodes.

@@ -42,7 +42,7 @@
 #include <vector>
 
 #include <abel/functional/call_once.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <abel/thread/internal/spinlock.h>
 #include <abel/chrono/internal/unscaled_cycle_clock.h>
 

@@ -6,7 +6,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <fnmatch.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 
 namespace abel {
 
@@ -143,7 +143,7 @@ namespace abel {
                 // Print the stat() error message unless it was ENOENT and we're
                 // following symlinks.
                 if (!(errno == ENOENT && !show_links)) {
-                    ABEL_RAW_ERROR("Couldn't stat {}", (source / (dent->d_name)).generic_string());
+                    DLOG_ERROR("Couldn't stat {}", (source / (dent->d_name)).generic_string());
                 }
                 memset(&info.stat_, 0, sizeof(info.stat_));
             }

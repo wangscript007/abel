@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstring>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <abel/chrono/internal/zone_info_source.h>
 
 namespace abel {
@@ -12,7 +12,7 @@ namespace abel {
 
         abel::time_zone load_time_zone(const std::string &name) {
             abel::time_zone tz;
-            ABEL_RAW_CHECK(load_time_zone(name, &tz), name.c_str());
+            DCHECK(load_time_zone(name, &tz), name.c_str());
             return tz;
         }
 
@@ -97,7 +97,7 @@ std::unique_ptr<abel::chrono_internal::zone_info_source> TestFactory(
                     new TestZoneInfoSource(zoneinfo.data, zoneinfo.length));
         }
     }
-    ABEL_RAW_CRITICAL("Unexpected time zone \"{}\" in test", name.c_str());
+    DLOG_CRITICAL("Unexpected time zone \"{}\" in test", name.c_str());
     return nullptr;
 }
 

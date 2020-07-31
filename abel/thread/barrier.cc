@@ -2,7 +2,7 @@
 
 #include <abel/thread/barrier.h>
 
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <abel/thread/mutex.h>
 
 namespace abel {
@@ -18,7 +18,7 @@ namespace abel {
 
         this->num_to_block_--;
         if (this->num_to_block_ < 0) {
-            ABEL_RAW_CRITICAL(
+            DLOG_CRITICAL(
                     "block() called too many times.  num_to_block_={} out of total={}",
                     this->num_to_block_, this->num_to_exit_);
         }
@@ -27,7 +27,7 @@ namespace abel {
 
         // Determine which thread can safely delete this barrier object
         this->num_to_exit_--;
-        ABEL_RAW_CHECK(this->num_to_exit_ >= 0, "barrier underflow");
+        DCHECK(this->num_to_exit_ >= 0, "barrier underflow");
 
         // If num_to_exit_ == 0 then all other threads in the barrier have
         // exited the wait() and have released the mutex so this thread is

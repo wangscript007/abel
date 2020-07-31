@@ -57,7 +57,7 @@
 #include <abel/math/bit_cast.h>
 #include <abel/thread/dynamic_annotations.h>
 #include <abel/memory/internal/low_level_alloc.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <abel/thread/internal/spinlock.h>
 #include <abel/base/profile.h>
 #include <abel/debugging/internal/demangle.h>
@@ -284,7 +284,7 @@ namespace abel {
                     int len = strlen(s);
                     char *dst = static_cast<char *>(
                             memory_internal::low_level_alloc::alloc_with_arena(len + 1, SigSafeArena()));
-                    ABEL_RAW_CHECK(dst != nullptr, "out of memory");
+                    DCHECK(dst != nullptr, "out of memory");
                     memcpy(dst, s, len + 1);
                     return dst;
                 }
@@ -411,7 +411,7 @@ namespace abel {
                 ssize_t len;
                 NO_INTR(len = read(fd, buf0 + num_bytes, count - num_bytes));
                 if (len < 0) {  // There was an error other than EINTR.
-                    ABEL_RAW_WARN("read failed: errno={}", errno);
+                    DLOG_WARN("read failed: errno={}", errno);
                     return -1;
                 }
                 if (len == 0) {  // Reached EOF.
@@ -430,7 +430,7 @@ namespace abel {
                                       const off_t offset) {
             off_t off = lseek(fd, offset, SEEK_SET);
             if (off == (off_t) -1) {
-                ABEL_RAW_WARN("lseek({}, {}, SEEK_SET) failed: errno={}", fd,
+                DLOG_WARN("lseek({}, {}, SEEK_SET) failed: errno={}", fd,
                               static_cast<uintmax_t>(offset), errno);
                 return -1;
             }
@@ -489,7 +489,7 @@ namespace abel {
         const off_t offset = sh_offset + i * sizeof(buf[0]);
         const ssize_t len = ReadFromOffset(fd, buf, num_bytes_to_read, offset);
         if (len % sizeof(buf[0]) != 0) {
-    ABEL_RAW_WARN(
+    DLOG_WARN(
         "Reading {} bytes from offset {} returned %zd which is not a "
         "multiple of {}.",
         num_bytes_to_read, static_cast
@@ -585,7 +585,7 @@ bool GetSectionHeaderByName(int fd, const char *name, size_t name_len,
 * out) {
 char header_name[kMaxSectionNameLen];
 if (sizeof(header_name) < name_len) {
-ABEL_RAW_WARN(
+DLOG_WARN(
         "Section name '{}' is too long ({}); "
         "section will not be found (even if present).",
         name, name_len);
@@ -822,13 +822,13 @@ const size_t off = strtab->sh_offset + best_match.st_name;
 const ssize_t n_read = ReadFromOffset(fd, out, out_size, off);
 if (n_read <= 0) {
 // This should never happen.
-ABEL_RAW_WARN(
+DLOG_WARN(
 "Unable to read from fd %d at offset {}: n_read = {}", fd,
 off, n_read);
 return
 SYMBOL_NOT_FOUND;
 }
-ABEL_RAW_CHECK(n_read <= out_size, "ReadFromOffset read too much data.");
+DCHECK(n_read <= out_size, "ReadFromOffset read too much data.");
 
 // strtab->sh_offset points into .strtab-like section that contains
 // NUL-terminated strings: '\0foo\0barbaz\0...".
@@ -1063,7 +1063,7 @@ static ABEL_NO_INLINE bool ReadAddrMap(
     NO_INTR(maps_fd = open(maps_path, O_RDONLY));
     FileDescriptor wrapped_maps_fd(maps_fd);
     if (wrapped_maps_fd.get() < 0) {
-        ABEL_RAW_WARN("{}: errno={}", maps_path, errno);
+        DLOG_WARN("{}: errno={}", maps_path, errno);
         return false;
     }
 
@@ -1090,7 +1090,7 @@ static ABEL_NO_INLINE bool ReadAddrMap(
         // Read start address.
         cursor = GetHex(cursor, eol, &start_address);
         if (cursor == eol || *cursor != '-') {
-            ABEL_RAW_WARN("Corrupt /proc/self/maps line: {}", line);
+            DLOG_WARN("Corrupt /proc/self/maps line: {}", line);
             return false;
         }
         ++cursor;  // Skip '-'.
@@ -1099,7 +1099,7 @@ static ABEL_NO_INLINE bool ReadAddrMap(
         const void *end_address;
         cursor = GetHex(cursor, eol, &end_address);
         if (cursor == eol || *cursor != ' ') {
-            ABEL_RAW_WARN("Corrupt /proc/self/maps line: {}", line);
+            DLOG_WARN("Corrupt /proc/self/maps line: {}", line);
             return false;
         }
         ++cursor;  // Skip ' '.
@@ -1111,7 +1111,7 @@ static ABEL_NO_INLINE bool ReadAddrMap(
         }
         // We expect at least four letters for flags (ex. "r-xp").
         if (cursor == eol || cursor < flags_start + 4) {
-            ABEL_RAW_WARN("Corrupt /proc/self/maps: {}", line);
+            DLOG_WARN("Corrupt /proc/self/maps: {}", line);
             return false;
         }
 
@@ -1218,7 +1218,7 @@ bool Symbolizer::RegisterObjFile(const char *filename,
     if (addr_map_size != 0) {
         ObjFile *old = impl->addr_map_.At(addr_map_size - 1);
         if (old->end_addr > end_addr) {
-            ABEL_RAW_ERROR(
+            DLOG_ERROR(
                          "Unsorted addr map entry: 0x{:p}: {} <-> 0x{:p}: {}",
                          reinterpret_cast<uintptr_t>(end_addr), filename,
                          reinterpret_cast<uintptr_t>(old->end_addr), old->filename);
@@ -1227,7 +1227,7 @@ bool Symbolizer::RegisterObjFile(const char *filename,
             // The same entry appears twice. This sometimes happens for [vdso].
             if (old->start_addr != start_addr ||
                 strcmp(old->filename, filename) != 0) {
-                ABEL_RAW_ERROR(
+                DLOG_ERROR(
                              "Duplicate addr 0x{:p} : {} <-> 0x{:p}: {}",
                              reinterpret_cast<uintptr_t>(end_addr), filename,
                              reinterpret_cast<uintptr_t>(old->end_addr), old->filename);
@@ -1314,7 +1314,7 @@ const char *Symbolizer::InsertSymbolInCache(const void *const pc,
     }
 
     AgeSymbols(line);
-    ABEL_RAW_CHECK(oldest_index >= 0, "Corrupt cache");
+    DCHECK(oldest_index >= 0, "Corrupt cache");
     memory_internal::low_level_alloc::free(line->name[oldest_index]);
     line->pc[oldest_index] = pc;
     line->name[oldest_index] = CopyString(name);
@@ -1366,19 +1366,19 @@ static bool MaybeInitializeObjFile(ObjFile *obj) {
         }
 
         if (obj->fd < 0) {
-            ABEL_RAW_WARN("{}: open failed: errno={}", obj->filename, errno);
+            DLOG_WARN("{}: open failed: errno={}", obj->filename, errno);
             return false;
         }
         obj->elf_type = FileGetElfType(obj->fd);
         if (obj->elf_type < 0) {
-            ABEL_RAW_WARN("{}: wrong elf type: {}", obj->filename,
+            DLOG_WARN("{}: wrong elf type: {}", obj->filename,
                          obj->elf_type);
             return false;
         }
 
         if (!ReadFromOffsetExact(obj->fd, &obj->elf_header, sizeof(obj->elf_header),
                                  0)) {
-            ABEL_RAW_WARN("{}: failed to read elf header", obj->filename);
+            DLOG_WARN("{}: failed to read elf header", obj->filename);
             return false;
         }
     }
@@ -1430,7 +1430,7 @@ const char *Symbolizer::GetSymbol(const void *const pc) {
           if (vdso.LookupSymbolByAddress(pc, &symbol_info)) {
             // All VDSO symbols are known to be short.
             size_t len = strlen(symbol_info.name);
-            ABEL_RAW_CHECK(len + 1 < sizeof(symbol_buf_),
+            DCHECK(len + 1 < sizeof(symbol_buf_),
                            "VDSO symbol unexpectedly long");
             memcpy(symbol_buf_, symbol_info.name, len + 1);
           }
@@ -1523,7 +1523,7 @@ bool RegisterFileMappingHint(const void *start, const void *end, uint64_t offset
         int len = strlen(filename);
         char *dst = static_cast<char *>(
                 memory_internal::low_level_alloc::alloc_with_arena(len + 1, SigSafeArena()));
-        ABEL_RAW_CHECK(dst != nullptr, "out of memory");
+        DCHECK(dst != nullptr, "out of memory");
         memcpy(dst, filename, len + 1);
 
         auto &hint = g_file_mapping_hints[g_num_file_mapping_hints++];

@@ -11,7 +11,7 @@ namespace abel {
 // Extend log_msg with internal buffer to store its payload.
 // This is needed since log_msg holds string_views that points to stack data.
 
-        class SPDLOG_API log_msg_buffer : public log_msg {
+        class ABEL_API log_msg_buffer : public log_msg {
             memory_buf_t buffer;
 
             void update_string_views();
@@ -23,11 +23,11 @@ namespace abel {
 
             log_msg_buffer(const log_msg_buffer &other);
 
-            log_msg_buffer(log_msg_buffer &&other) SPDLOG_NOEXCEPT;
+            log_msg_buffer(log_msg_buffer &&other) ABEL_NOEXCEPT;
 
             log_msg_buffer &operator=(const log_msg_buffer &other);
 
-            log_msg_buffer &operator=(log_msg_buffer &&other) SPDLOG_NOEXCEPT;
+            log_msg_buffer &operator=(log_msg_buffer &&other) ABEL_NOEXCEPT;
         };
 
     } // namespace details

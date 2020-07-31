@@ -13,7 +13,7 @@
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <abel/log/abel_logging.h>
+#include <abel/log/logging.h>
 #include <abel/base/profile.h>
 #include <testing/chi_square.h>
 #include <testing/distribution_test_util.h>
@@ -99,7 +99,7 @@ namespace {
                         EXPECT_LE(sample, before.max()) << before;
                     }
                     if (!std::is_same<TypeParam, long double>::value) {
-                        ABEL_RAW_INFO(fmt::sprintf("Range{%f, %f}: %f, %f", mean, stddev,
+                        DLOG_INFO(fmt::sprintf("Range{%f, %f}: %f, %f", mean, stddev,
                                                    sample_min, sample_max));
                     }
 
@@ -246,7 +246,7 @@ namespace {
                 (std::pow(m.skewness, 2.0) + std::pow(m.kurtosis - 3.0, 2.0) / 4.0);
 
         if (!pass || jb > 9.21) {
-            ABEL_RAW_INFO(fmt::sprintf("p=%f max_err=%f\n"
+            DLOG_INFO(fmt::sprintf("p=%f max_err=%f\n"
                                        " mean=%f vs. %f\n"
                                        " stddev=%f vs. %f\n"
                                        " skewness=%f vs. %f\n"
@@ -303,10 +303,10 @@ namespace {
         // Log if the chi_square value is above the threshold.
         if (chi_square > threshold) {
             for (size_t i = 0; i < cutoffs.size(); i++) {
-                ABEL_RAW_INFO(fmt::sprintf("%d : (%f) = %d", i, cutoffs[i], counts[i]));
+                DLOG_INFO(fmt::sprintf("%d : (%f) = %d", i, cutoffs[i], counts[i]));
             }
 
-            ABEL_RAW_INFO(abel::string_cat("mean=", mean(), " stddev=", stddev(), "\n",   //
+            DLOG_INFO(abel::string_cat("mean=", mean(), " stddev=", stddev(), "\n",   //
                                            " expected ", expected, "\n",                  //
                                            kChiSquared, " ", chi_square, " (", p, ")\n",  //
                                            kChiSquared, " @ 0.98 = ", threshold));
