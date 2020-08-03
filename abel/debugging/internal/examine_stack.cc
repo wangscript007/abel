@@ -34,7 +34,7 @@ namespace abel {
 #elif defined(__arm__)
               return reinterpret_cast<void*>(context->uc_mcontext.arm_pc);
 #elif defined(__i386__)
-              if (14 < ABEL_ARRAYSIZE(context->uc_mcontext.gregs))
+              if (14 < ABEL_ARRAY_SIZE(context->uc_mcontext.gregs))
                 return reinterpret_cast<void*>(context->uc_mcontext.gregs[14]);
 #elif defined(__mips__)
               return reinterpret_cast<void*>(context->uc_mcontext.pc);
@@ -47,7 +47,7 @@ namespace abel {
 #elif defined(__s390__) && defined(__s390x__)
               return reinterpret_cast<void*>(context->uc_mcontext.psw.addr);
 #elif defined(__x86_64__)
-              if (16 < ABEL_ARRAYSIZE(context->uc_mcontext.gregs))
+              if (16 < ABEL_ARRAY_SIZE(context->uc_mcontext.gregs))
                 return reinterpret_cast<void*>(context->uc_mcontext.gregs[16]);
 #else
 #error "Undefined Architecture."

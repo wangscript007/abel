@@ -63,7 +63,7 @@ namespace {
         EXPECT_EQ(container_.size(), abel::c_distance(container_));
         EXPECT_EQ(sequence_.size(), abel::c_distance(sequence_));
         EXPECT_EQ(vector_.size(), abel::c_distance(vector_));
-        EXPECT_EQ(ABEL_ARRAYSIZE(array_), abel::c_distance(array_));
+        EXPECT_EQ(ABEL_ARRAY_SIZE(array_), abel::c_distance(array_));
 
         // Works with a temporary argument.
         EXPECT_EQ(vector_.size(), abel::c_distance(std::vector<int>(vector_)));

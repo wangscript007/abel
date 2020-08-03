@@ -243,7 +243,7 @@ namespace abel {
                                                const substitute_internal::Arg &a0) {
         const abel::string_view args[] = {a0.piece()};
         substitute_internal::SubstituteAndAppendArray(output, format, args,
-                                                      ABEL_ARRAYSIZE(args));
+                                                      ABEL_ARRAY_SIZE(args));
     }
 
     ABEL_FORCE_INLINE void SubstituteAndAppend(std::string *output, abel::string_view format,
@@ -251,7 +251,7 @@ namespace abel {
                                                const substitute_internal::Arg &a1) {
         const abel::string_view args[] = {a0.piece(), a1.piece()};
         substitute_internal::SubstituteAndAppendArray(output, format, args,
-                                                      ABEL_ARRAYSIZE(args));
+                                                      ABEL_ARRAY_SIZE(args));
     }
 
     ABEL_FORCE_INLINE void SubstituteAndAppend(std::string *output, abel::string_view format,
@@ -260,7 +260,7 @@ namespace abel {
                                                const substitute_internal::Arg &a2) {
         const abel::string_view args[] = {a0.piece(), a1.piece(), a2.piece()};
         substitute_internal::SubstituteAndAppendArray(output, format, args,
-                                                      ABEL_ARRAYSIZE(args));
+                                                      ABEL_ARRAY_SIZE(args));
     }
 
     ABEL_FORCE_INLINE void SubstituteAndAppend(std::string *output, abel::string_view format,
@@ -271,7 +271,7 @@ namespace abel {
         const abel::string_view args[] = {a0.piece(), a1.piece(), a2.piece(),
                                           a3.piece()};
         substitute_internal::SubstituteAndAppendArray(output, format, args,
-                                                      ABEL_ARRAYSIZE(args));
+                                                      ABEL_ARRAY_SIZE(args));
     }
 
     ABEL_FORCE_INLINE void SubstituteAndAppend(std::string *output, abel::string_view format,
@@ -283,7 +283,7 @@ namespace abel {
         const abel::string_view args[] = {a0.piece(), a1.piece(), a2.piece(),
                                           a3.piece(), a4.piece()};
         substitute_internal::SubstituteAndAppendArray(output, format, args,
-                                                      ABEL_ARRAYSIZE(args));
+                                                      ABEL_ARRAY_SIZE(args));
     }
 
     ABEL_FORCE_INLINE void SubstituteAndAppend(std::string *output, abel::string_view format,
@@ -296,7 +296,7 @@ namespace abel {
         const abel::string_view args[] = {a0.piece(), a1.piece(), a2.piece(),
                                           a3.piece(), a4.piece(), a5.piece()};
         substitute_internal::SubstituteAndAppendArray(output, format, args,
-                                                      ABEL_ARRAYSIZE(args));
+                                                      ABEL_ARRAY_SIZE(args));
     }
 
     ABEL_FORCE_INLINE void SubstituteAndAppend(std::string *output, abel::string_view format,
@@ -311,7 +311,7 @@ namespace abel {
                                           a3.piece(), a4.piece(), a5.piece(),
                                           a6.piece()};
         substitute_internal::SubstituteAndAppendArray(output, format, args,
-                                                      ABEL_ARRAYSIZE(args));
+                                                      ABEL_ARRAY_SIZE(args));
     }
 
     ABEL_FORCE_INLINE void SubstituteAndAppend(
@@ -324,7 +324,7 @@ namespace abel {
                                           a3.piece(), a4.piece(), a5.piece(),
                                           a6.piece(), a7.piece()};
         substitute_internal::SubstituteAndAppendArray(output, format, args,
-                                                      ABEL_ARRAYSIZE(args));
+                                                      ABEL_ARRAY_SIZE(args));
     }
 
     ABEL_FORCE_INLINE void SubstituteAndAppend(
@@ -338,7 +338,7 @@ namespace abel {
                                           a3.piece(), a4.piece(), a5.piece(),
                                           a6.piece(), a7.piece(), a8.piece()};
         substitute_internal::SubstituteAndAppendArray(output, format, args,
-                                                      ABEL_ARRAYSIZE(args));
+                                                      ABEL_ARRAY_SIZE(args));
     }
 
     ABEL_FORCE_INLINE void SubstituteAndAppend(
@@ -352,7 +352,7 @@ namespace abel {
                 a0.piece(), a1.piece(), a2.piece(), a3.piece(), a4.piece(),
                 a5.piece(), a6.piece(), a7.piece(), a8.piece(), a9.piece()};
         substitute_internal::SubstituteAndAppendArray(output, format, args,
-                                                      ABEL_ARRAYSIZE(args));
+                                                      ABEL_ARRAY_SIZE(args));
     }
 
 #if defined(ABEL_BAD_CALL_IF)

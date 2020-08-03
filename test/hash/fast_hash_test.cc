@@ -77,4 +77,4 @@ namespace {
         EXPECT_EQ(2794219650u, abel::fast_hash(str, strlen("hello world")));
     }
 
-}  // namespace butil
+}  //namespace

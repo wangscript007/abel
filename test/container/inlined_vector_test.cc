@@ -1561,7 +1561,7 @@ namespace {
         MyAlloc alloc(&allocated);
         { AllocVec ABEL_ATTRIBUTE_UNUSED v; }
         { AllocVec ABEL_ATTRIBUTE_UNUSED v(alloc); }
-        { AllocVec ABEL_ATTRIBUTE_UNUSED v(ia, ia + ABEL_ARRAYSIZE(ia), alloc); }
+        { AllocVec ABEL_ATTRIBUTE_UNUSED v(ia, ia + ABEL_ARRAY_SIZE(ia), alloc); }
         { AllocVec ABEL_ATTRIBUTE_UNUSED v({1, 2, 3}, alloc); }
 
         AllocVec v2;
@@ -1581,7 +1581,7 @@ namespace {
         }
         EXPECT_THAT(allocated, 0);
         {
-            AllocVec ABEL_ATTRIBUTE_UNUSED v(ia, ia + ABEL_ARRAYSIZE(ia), alloc);
+            AllocVec ABEL_ATTRIBUTE_UNUSED v(ia, ia + ABEL_ARRAY_SIZE(ia), alloc);
             EXPECT_THAT(allocated, v.size() * sizeof(int));
         }
         EXPECT_THAT(allocated, 0);
@@ -1640,8 +1640,8 @@ namespace {
             const int ia2[] = {0, 1, 2, 3, 4, 5, 6, 7, 8};
             MyAlloc a1(&allocated1);
             MyAlloc a2(&allocated2);
-            AllocVec v1(ia1, ia1 + ABEL_ARRAYSIZE(ia1), a1);
-            AllocVec v2(ia2, ia2 + ABEL_ARRAYSIZE(ia2), a2);
+            AllocVec v1(ia1, ia1 + ABEL_ARRAY_SIZE(ia1), a1);
+            AllocVec v2(ia2, ia2 + ABEL_ARRAY_SIZE(ia2), a2);
             EXPECT_LT(v1.capacity(), v2.capacity());
             EXPECT_THAT(allocated1, v1.capacity() * sizeof(int));
             EXPECT_THAT(allocated2, v2.capacity() * sizeof(int));
@@ -1665,8 +1665,8 @@ namespace {
             const int ia2[] = {0, 1, 2, 3};
             MyAlloc a1(&allocated1);
             MyAlloc a2(&allocated2);
-            AllocVec v1(ia1, ia1 + ABEL_ARRAYSIZE(ia1), a1);
-            AllocVec v2(ia2, ia2 + ABEL_ARRAYSIZE(ia2), a2);
+            AllocVec v1(ia1, ia1 + ABEL_ARRAY_SIZE(ia1), a1);
+            AllocVec v2(ia2, ia2 + ABEL_ARRAY_SIZE(ia2), a2);
             EXPECT_THAT(allocated1, v1.capacity() * sizeof(int));
             EXPECT_THAT(allocated2, 0);
             v1.swap(v2);

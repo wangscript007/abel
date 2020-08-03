@@ -63,13 +63,13 @@ namespace {
             static size_t idx = 0;
             for (; begin != end; begin++) {
                 *begin = kSeedData[idx++];
-                if (idx >= ABEL_ARRAYSIZE(kSeedData)) {
+                if (idx >= ABEL_ARRAY_SIZE(kSeedData)) {
                     idx = 0;
                 }
             }
         }
 
-        size_t size() const { return ABEL_ARRAYSIZE(kSeedData); }
+        size_t size() const { return ABEL_ARRAY_SIZE(kSeedData); }
 
         template<typename OutIterator>
         void param(OutIterator out) const {

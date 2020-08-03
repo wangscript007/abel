@@ -382,7 +382,7 @@ namespace {
                 /**/};
 
         //    0.90      0.95     0.975      0.99     0.999
-        for (size_t i = 0; i < ABEL_ARRAYSIZE(data); i++) {
+        for (size_t i = 0; i < ABEL_ARRAY_SIZE(data); i++) {
             const double E = 0.0001;
             EXPECT_NEAR(chi_square_p_value(data[i][0], i + 1), 0.10, E)
                                 << i << " " << data[i][0];

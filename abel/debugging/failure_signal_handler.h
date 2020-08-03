@@ -36,10 +36,10 @@
 namespace abel {
 
 
-// failure_signal_handler_options
-//
-// Struct for holding `abel::install_failure_signal_handler()` configuration
-// options.
+    // failure_signal_handler_options
+    //
+    // Struct for holding `abel::install_failure_signal_handler()` configuration
+    // options.
     struct failure_signal_handler_options {
         // If true, try to symbolize the stacktrace emitted on failure, provided that
         // you have initialized a symbolizer for that purpose. (See symbolize.h for
@@ -87,15 +87,15 @@ namespace abel {
         void (*writerfn)(const char *) = nullptr;
     };
 
-// install_failure_signal_handler()
-//
-// Installs a signal handler for the common failure signals `SIGSEGV`, `SIGILL`,
-// `SIGFPE`, `SIGABRT`, `SIGTERM`, `SIGBUG`, and `SIGTRAP` (provided they exist
-// on the given platform). The failure signal handler dumps program failure data
-// useful for debugging in an unspecified format to stderr. This data may
-// include the program counter, a stacktrace, and register information on some
-// systems; do not rely on an exact format for the output, as it is subject to
-// change.
+    // install_failure_signal_handler()
+    //
+    // Installs a signal handler for the common failure signals `SIGSEGV`, `SIGILL`,
+    // `SIGFPE`, `SIGABRT`, `SIGTERM`, `SIGBUG`, and `SIGTRAP` (provided they exist
+    // on the given platform). The failure signal handler dumps program failure data
+    // useful for debugging in an unspecified format to stderr. This data may
+    // include the program counter, a stacktrace, and register information on some
+    // systems; do not rely on an exact format for the output, as it is subject to
+    // change.
     void install_failure_signal_handler(const failure_signal_handler_options &options);
 
     namespace debugging_internal {

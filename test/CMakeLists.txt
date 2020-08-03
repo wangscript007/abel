@@ -12,6 +12,7 @@ list(APPEND TEST_LINKS ${ABEL_DYLINKS})
 
 add_subdirectory(filesystem)
 add_subdirectory(atomic)
+add_subdirectory(fiber)
 add_subdirectory(base)
 add_subdirectory(chrono)
 add_subdirectory(config)

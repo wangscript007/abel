@@ -230,22 +230,22 @@ namespace abel {
         writerfn(buf);
     }
 
-// `void*` might not be big enough to store `void(*)(const char*)`.
+    // `void*` might not be big enough to store `void(*)(const char*)`.
     struct WriterFnStruct {
         void (*writerfn)(const char *);
     };
 
-// Many of the abel::debugging_internal::Dump* functions in
-// examine_stack.h take a writer function pointer that has a void* arg
-// for historical reasons. failure_signal_handler_writer only takes a
-// data pointer. This function converts between these types.
+    // Many of the abel::debugging_internal::Dump* functions in
+    // examine_stack.h take a writer function pointer that has a void* arg
+    // for historical reasons. failure_signal_handler_writer only takes a
+    // data pointer. This function converts between these types.
     static void WriterFnWrapper(const char *data, void *arg) {
         static_cast<WriterFnStruct *>(arg)->writerfn(data);
     }
 
-// Convenient wrapper around DumpPCAndFrameSizesAndStackTrace() for signal
-// handlers. "noinline" so that get_stack_frames() skips the top-most stack
-// frame for this function.
+    // Convenient wrapper around DumpPCAndFrameSizesAndStackTrace() for signal
+    // handlers. "noinline" so that get_stack_frames() skips the top-most stack
+    // frame for this function.
     ABEL_NO_INLINE static void WriteStackTrace(
             void *ucontext, bool symbolize_stacktrace,
             void (*writerfn)(const char *, void *), void *writerfn_arg) {
@@ -262,9 +262,9 @@ namespace abel {
                 depth, min_dropped_frames, symbolize_stacktrace, writerfn, writerfn_arg);
     }
 
-// Called by AbelFailureSignalHandler() to write the failure info. It is
-// called once with writerfn set to WriteToStderr() and then possibly
-// with writerfn set to the user provided function.
+    // Called by AbelFailureSignalHandler() to write the failure info. It is
+    // called once with writerfn set to WriteToStderr() and then possibly
+    // with writerfn set to the user provided function.
     static void WriteFailureInfo(int signo, void *ucontext,
                                  void (*writerfn)(const char *)) {
         WriterFnStruct writerfn_struct{writerfn};
@@ -273,9 +273,9 @@ namespace abel {
                         &writerfn_struct);
     }
 
-// abel::sleep_for() can't be used here since abel_internal_sleep_for()
-// may be overridden to do something that isn't async-signal-safe on
-// some platforms.
+    // abel::sleep_for() can't be used here since abel_internal_sleep_for()
+    // may be overridden to do something that isn't async-signal-safe on
+    // some platforms.
     static void PortableSleepForSeconds(int seconds) {
 #ifdef _WIN32
         Sleep(seconds * 1000);
@@ -289,19 +289,19 @@ namespace abel {
 
 #ifdef ABEL_HAVE_ALARM
 
-// AbelFailureSignalHandler() installs this as a signal handler for
-// SIGALRM, then sets an alarm to be delivered to the program after a
-// set amount of time. If AbelFailureSignalHandler() hangs for more than
-// the alarm timeout, ImmediateAbortSignalHandler() will abort the
-// program.
+    // AbelFailureSignalHandler() installs this as a signal handler for
+    // SIGALRM, then sets an alarm to be delivered to the program after a
+    // set amount of time. If AbelFailureSignalHandler() hangs for more than
+    // the alarm timeout, ImmediateAbortSignalHandler() will abort the
+    // program.
     static void ImmediateAbortSignalHandler(int) {
         RaiseToDefaultHandler(SIGABRT);
     }
 
 #endif
 
-// abel::get_tid() returns pid_t on most platforms, but
-// returns abel::base_internal::pid_t on Windows.
+    // abel::get_tid() returns pid_t on most platforms, but
+    // returns abel::base_internal::pid_t on Windows.
     using GetTidType = decltype(abel::get_tid());
     ABEL_CONST_INIT static std::atomic<GetTidType> failed_tid(0);
 

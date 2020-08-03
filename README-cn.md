@@ -77,7 +77,7 @@ abel目前使用cmake作为构建系统。
     
 ### 编译步骤
 
-    > git clone git@v.src.corp.qihoo.net:cloudldd/abel.git
+    > 
     > cd abel
     > make build [Debug|Release]
 
@@ -90,7 +90,7 @@ abel目前使用cmake作为构建系统。
 redhat 系列支持rpm包格式会生成tgz以及rpm两种格式安装包，如abel-1.0.3-el6-x86_64-debug.rpm
 位于 build/package目录下
 
-    > git clone git@v.src.corp.qihoo.net:cloudldd/abel.git
+    > git clone https://github.com/gottingen/abel.git
     > cd abel
     > make package
     > ls build/package

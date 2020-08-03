@@ -683,7 +683,7 @@ namespace abel {
             if (n == nullptr || n->priority >= priority) {
                 return;
             }
-            n->nstack = (*get_stack_trace)(n->stack, ABEL_ARRAYSIZE(n->stack));
+            n->nstack = (*get_stack_trace)(n->stack, ABEL_ARRAY_SIZE(n->stack));
             n->priority = priority;
         }
 

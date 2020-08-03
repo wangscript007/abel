@@ -38,7 +38,7 @@ namespace abel {
 
             // Returns true if and only if a character exists in both maps.
             bool IntersectsWith(const Charmap &c) const {
-                for (size_t i = 0; i < ABEL_ARRAYSIZE(m_); ++i) {
+                for (size_t i = 0; i < ABEL_ARRAY_SIZE(m_); ++i) {
                     if ((m_[i] & c.m_[i]) != 0) return true;
                 }
                 return false;

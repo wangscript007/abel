@@ -272,7 +272,7 @@ namespace abel {
                             int to = RandomNode(&rng, &nodes);
                             graph_id path[2 * kMaxNodes];
                             int path_len = graph_cycles.find_path(id[nodes[from]], id[nodes[to]],
-                                                                 ABEL_ARRAYSIZE(path), path);
+                                                                 ABEL_ARRAY_SIZE(path), path);
                             std::unordered_set<int> seen;
                             bool reachable = is_reachable(&edges, nodes[from], nodes[to], &seen);
                             bool gc_reachable =
@@ -376,10 +376,10 @@ namespace abel {
 
             std::string Path(int x, int y) {
                 graph_id path[5];
-                int np = g_.find_path(Get(id_, x), Get(id_, y), ABEL_ARRAYSIZE(path), path);
+                int np = g_.find_path(Get(id_, x), Get(id_, y), ABEL_ARRAY_SIZE(path), path);
                 std::string result;
                 for (size_t i = 0; i < static_cast<size_t>(np); i++) {
-                    if (i >= ABEL_ARRAYSIZE(path)) {
+                    if (i >= ABEL_ARRAY_SIZE(path)) {
                         result += " ...";
                         break;
                     }

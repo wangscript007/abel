@@ -79,7 +79,7 @@ namespace {
         {
             // Array of ints
             const int a[] = {1, 2, 3, -4};
-            EXPECT_EQ("1-2-3--4", abel::string_join(a, a + ABEL_ARRAYSIZE(a), "-"));
+            EXPECT_EQ("1-2-3--4", abel::string_join(a, a + ABEL_ARRAY_SIZE(a), "-"));
         }
 
         {

@@ -97,7 +97,7 @@ namespace {
 
     TEST_F(tls_slabTest, change_config) {
         int a[2];
-        printf("%lu\n", ABEL_ARRAYSIZE(a));
+        printf("%lu\n", ABEL_ARRAY_SIZE(a));
 
         tls_slab_info info = describe_resources<MyObject>();
         tls_slab_info zero_info = { 0, 0, 0, 0, 3, 3, 0 };
@@ -365,18 +365,18 @@ namespace {
 
     TEST_F(tls_slabTest, get_and_return_int_multiple_threads) {
         pthread_t tid[16];
-        for (size_t i = 0; i < ABEL_ARRAYSIZE(tid); ++i) {
+        for (size_t i = 0; i < ABEL_ARRAY_SIZE(tid); ++i) {
             ASSERT_EQ(0, pthread_create(&tid[i], NULL, get_and_return_int, NULL));
         }
-        for (size_t i = 0; i < ABEL_ARRAYSIZE(tid); ++i) {
+        for (size_t i = 0; i < ABEL_ARRAY_SIZE(tid); ++i) {
             pthread_join(tid[i], NULL);
         }
 
         pthread_t tid2[16];
-        for (size_t i = 0; i < ABEL_ARRAYSIZE(tid2); ++i) {
+        for (size_t i = 0; i < ABEL_ARRAY_SIZE(tid2); ++i) {
             ASSERT_EQ(0, pthread_create(&tid2[i], NULL, new_and_delete_int, NULL));
         }
-        for (size_t i = 0; i < ABEL_ARRAYSIZE(tid2); ++i) {
+        for (size_t i = 0; i < ABEL_ARRAY_SIZE(tid2); ++i) {
             pthread_join(tid2[i], NULL);
         }
 

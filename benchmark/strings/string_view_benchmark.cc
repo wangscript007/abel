@@ -274,7 +274,7 @@ namespace {
         std::vector<int> all_indices;
         const int kBlockSize = 1 << 12;
         std::unordered_set<std::string> t(kBlockSize);
-        std::uniform_int_distribution<int> uniform(0, ABEL_ARRAYSIZE(words) - 1);
+        std::uniform_int_distribution<int> uniform(0, ABEL_ARRAY_SIZE(words) - 1);
         for (int i = 0; i < table_size; i++) {
             all_indices.push_back(i);
             do {

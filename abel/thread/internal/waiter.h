@@ -56,7 +56,7 @@ namespace abel {
 
     namespace thread_internal {
 
-// waiter is an OS-specific semaphore.
+        // waiter is an OS-specific semaphore.
         class waiter {
         public:
             // Prepare any data to track waits.

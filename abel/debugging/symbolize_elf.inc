@@ -377,7 +377,7 @@ namespace abel {
 
         Symbolizer::Symbolizer() : ok_(true), addr_map_read_(false) {
             for (SymbolCacheLine &symbol_cache_line : symbol_cache_) {
-                for (size_t j = 0; j < ABEL_ARRAYSIZE(symbol_cache_line.name); ++j) {
+                for (size_t j = 0; j < ABEL_ARRAY_SIZE(symbol_cache_line.name); ++j) {
                     symbol_cache_line.pc[j] = nullptr;
                     symbol_cache_line.name[j] = nullptr;
                     symbol_cache_line.age[j] = 0;
@@ -1282,7 +1282,7 @@ const char *Symbolizer::FindSymbolInCache(const void *const pc) {
         return nullptr;
 
     SymbolCacheLine *line = GetCacheLine(pc);
-    for (size_t i = 0; i < ABEL_ARRAYSIZE(line->pc); ++i) {
+    for (size_t i = 0; i < ABEL_ARRAY_SIZE(line->pc); ++i) {
         if (line->pc[i] == pc) {
             AgeSymbols(line);
             line->age[i] = 0;
@@ -1299,7 +1299,7 @@ const char *Symbolizer::InsertSymbolInCache(const void *const pc,
     SymbolCacheLine *line = GetCacheLine(pc);
     uint32_t max_age = 0;
     int oldest_index = -1;
-    for (size_t i = 0; i < ABEL_ARRAYSIZE(line->pc); ++i) {
+    for (size_t i = 0; i < ABEL_ARRAY_SIZE(line->pc); ++i) {
         if (line->pc[i] == nullptr) {
             AgeSymbols(line);
             line->pc[i] = pc;

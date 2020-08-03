@@ -7,6 +7,7 @@ FILE(GLOB UTILITY_SRC "utility/*.cc")
 FILE(GLOB BASE_SRC "base/*.cc")
 FILE(GLOB LOG_SRC "log/*.cc")
 FILE(GLOB IO_SRC "io/*.cc")
+FILE(GLOB FIBER_SRC "fiber/*.cc")
 
 FILE(GLOB NUMERIC_SRC "numeric/*.cc")
 FILE(GLOB MEM_SRC "memory/*.cc")
@@ -55,6 +56,7 @@ SET(ABEL_SRC
         ${BASE_SRC}
         ${LOG_SRC}
         ${IO_SRC}
+        ${FIBER_SRC}
         ${UTILITY_SRC}
         ${MEM_SRC}
         ${CHRONO_SRC}

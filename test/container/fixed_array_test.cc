@@ -330,20 +330,20 @@ namespace {
 
     TEST(IteratorConstructorTest, NonInline) {
         int const kInput[] = {2, 3, 5, 7, 11, 13, 17};
-        abel::fixed_array<int, ABEL_ARRAYSIZE(kInput) - 1> const fixed(
-                kInput, kInput + ABEL_ARRAYSIZE(kInput));
-        ASSERT_EQ(ABEL_ARRAYSIZE(kInput), fixed.size());
-        for (size_t i = 0; i < ABEL_ARRAYSIZE(kInput); ++i) {
+        abel::fixed_array<int, ABEL_ARRAY_SIZE(kInput) - 1> const fixed(
+                kInput, kInput + ABEL_ARRAY_SIZE(kInput));
+        ASSERT_EQ(ABEL_ARRAY_SIZE(kInput), fixed.size());
+        for (size_t i = 0; i < ABEL_ARRAY_SIZE(kInput); ++i) {
             ASSERT_EQ(kInput[i], fixed[i]);
         }
     }
 
     TEST(IteratorConstructorTest, Inline) {
         int const kInput[] = {2, 3, 5, 7, 11, 13, 17};
-        abel::fixed_array<int, ABEL_ARRAYSIZE(kInput)> const fixed(
-                kInput, kInput + ABEL_ARRAYSIZE(kInput));
-        ASSERT_EQ(ABEL_ARRAYSIZE(kInput), fixed.size());
-        for (size_t i = 0; i < ABEL_ARRAYSIZE(kInput); ++i) {
+        abel::fixed_array<int, ABEL_ARRAY_SIZE(kInput)> const fixed(
+                kInput, kInput + ABEL_ARRAY_SIZE(kInput));
+        ASSERT_EQ(ABEL_ARRAY_SIZE(kInput), fixed.size());
+        for (size_t i = 0; i < ABEL_ARRAY_SIZE(kInput); ++i) {
             ASSERT_EQ(kInput[i], fixed[i]);
         }
     }
@@ -352,9 +352,9 @@ namespace {
         char const *kInput[] = {"red", "orange", "yellow", "green",
                                 "blue", "indigo", "violet"};
         abel::fixed_array<std::string> const fixed(kInput,
-                                                  kInput + ABEL_ARRAYSIZE(kInput));
-        ASSERT_EQ(ABEL_ARRAYSIZE(kInput), fixed.size());
-        for (size_t i = 0; i < ABEL_ARRAYSIZE(kInput); ++i) {
+                                                  kInput + ABEL_ARRAY_SIZE(kInput));
+        ASSERT_EQ(ABEL_ARRAY_SIZE(kInput), fixed.size());
+        for (size_t i = 0; i < ABEL_ARRAY_SIZE(kInput); ++i) {
             ASSERT_EQ(kInput[i], fixed[i]);
         }
     }
@@ -368,7 +368,7 @@ namespace {
 
     TEST(IteratorConstructorTest, FromNonEmptyVector) {
         int const kInput[] = {2, 3, 5, 7, 11, 13, 17};
-        std::vector<int> const items(kInput, kInput + ABEL_ARRAYSIZE(kInput));
+        std::vector<int> const items(kInput, kInput + ABEL_ARRAY_SIZE(kInput));
         abel::fixed_array<int> const fixed(items.begin(), items.end());
         ASSERT_EQ(items.size(), fixed.size());
         for (size_t i = 0; i < items.size(); ++i) {
@@ -378,7 +378,7 @@ namespace {
 
     TEST(IteratorConstructorTest, FromBidirectionalIteratorRange) {
         int const kInput[] = {2, 3, 5, 7, 11, 13, 17};
-        std::list<int> const items(kInput, kInput + ABEL_ARRAYSIZE(kInput));
+        std::list<int> const items(kInput, kInput + ABEL_ARRAY_SIZE(kInput));
         abel::fixed_array<int> const fixed(items.begin(), items.end());
         EXPECT_THAT(fixed, testing::ElementsAreArray(kInput));
     }
@@ -720,7 +720,7 @@ namespace {
             const int ia[] = {0, 1, 2, 3, 4, 5, 6, 7};
             Alloc alloc(&allocated, &active_instances);
 
-            AllocFxdArr arr(ia, ia + ABEL_ARRAYSIZE(ia), alloc);
+            AllocFxdArr arr(ia, ia + ABEL_ARRAY_SIZE(ia), alloc);
 
             EXPECT_EQ(allocated, arr.size() * sizeof(int));
             static_cast<void>(arr);

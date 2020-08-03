@@ -401,10 +401,10 @@ namespace abel {
         // or it explicitly says to log
         if (e == nullptr || e->log) {
             void *pcs[40];
-            int n = abel::get_stack_trace(pcs, ABEL_ARRAYSIZE(pcs), 1);
+            int n = abel::get_stack_trace(pcs, ABEL_ARRAY_SIZE(pcs), 1);
             // A buffer with enough space for the ASCII for all the PCs, even on a
             // 64-bit machine.
-            char buffer[ABEL_ARRAYSIZE(pcs) * 24];
+            char buffer[ABEL_ARRAY_SIZE(pcs) * 24];
             int pos = snprintf(buffer, sizeof(buffer), " @");
             for (int i = 0; i != n; i++) {
                 pos += snprintf(&buffer[pos], sizeof(buffer) - pos, " %p", pcs[i]);
@@ -1165,7 +1165,7 @@ namespace abel {
             i++;
         }
         if (i == n) {
-            if (n == ABEL_ARRAYSIZE(held_locks->locks)) {
+            if (n == ABEL_ARRAY_SIZE(held_locks->locks)) {
                 held_locks->overflow = true;  // lost some data
             } else {                        // we have room for lock
                 held_locks->locks[i].mu = mu;
@@ -1269,7 +1269,7 @@ namespace abel {
 
     static char *CurrentStackString(char *buf, int maxlen, bool symbolize) {
         void *pcs[40];
-        return StackString(pcs, abel::get_stack_trace(pcs, ABEL_ARRAYSIZE(pcs), 2), buf,
+        return StackString(pcs, abel::get_stack_trace(pcs, ABEL_ARRAY_SIZE(pcs), 2), buf,
                            maxlen, symbolize);
     }
 
@@ -1361,7 +1361,7 @@ namespace abel {
                                static_cast<void *>(mu), b->buf);
                 DLOG_ERROR("Cycle: ");
                 int path_len = deadlock_graph->find_path(
-                        mu_id, other_node_id, ABEL_ARRAYSIZE(b->path), b->path);
+                        mu_id, other_node_id, ABEL_ARRAY_SIZE(b->path), b->path);
                 for (int j = 0; j != path_len; j++) {
                     graph_id id = b->path[j];
                     mutex *path_mu = static_cast<mutex *>(deadlock_graph->ptr(id));

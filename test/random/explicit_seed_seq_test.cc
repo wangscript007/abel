@@ -26,13 +26,13 @@ namespace {
         // Check that param() and size() return state provided to constructor.
         {
             uint32_t init_array[] = {1, 2, 3, 4, 5};
-            Sseq seq(init_array, &init_array[ABEL_ARRAYSIZE(init_array)]);
-            EXPECT_EQ(seq.size(), ABEL_ARRAYSIZE(init_array));
+            Sseq seq(init_array, &init_array[ABEL_ARRAY_SIZE(init_array)]);
+            EXPECT_EQ(seq.size(), ABEL_ARRAY_SIZE(init_array));
 
-            uint32_t state_array[ABEL_ARRAYSIZE(init_array)];
+            uint32_t state_array[ABEL_ARRAY_SIZE(init_array)];
             seq.param(state_array);
 
-            for (size_t i = 0; i < ABEL_ARRAYSIZE(state_array); i++) {
+            for (size_t i = 0; i < ABEL_ARRAY_SIZE(state_array); i++) {
                 EXPECT_EQ(state_array[i], i + 1);
             }
         }
@@ -41,7 +41,7 @@ namespace {
             Sseq seq;
             uint32_t seeds[5];
 
-            seq.generate(seeds, &seeds[ABEL_ARRAYSIZE(seeds)]);
+            seq.generate(seeds, &seeds[ABEL_ARRAY_SIZE(seeds)]);
         }
         return true;
     }

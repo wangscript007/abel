@@ -29,7 +29,7 @@ namespace abel {
 
             text = abel::trim_all(text);
 
-            for (size_t i = 0; i < ABEL_ARRAYSIZE(kTrue); ++i) {
+            for (size_t i = 0; i < ABEL_ARRAY_SIZE(kTrue); ++i) {
                 if (abel::equal_case(text, kTrue[i])) {
                     *dst = true;
                     return true;

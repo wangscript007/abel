@@ -157,7 +157,7 @@ namespace abel {
             uint32_t old_control = kOnceInit;
             if (control->compare_exchange_strong(old_control, kOnceRunning,
                                                  std::memory_order_relaxed) ||
-                thread_internal::spin_lock_wait(control, ABEL_ARRAYSIZE(trans), trans,
+                thread_internal::spin_lock_wait(control, ABEL_ARRAY_SIZE(trans), trans,
                                                 scheduling_mode) == kOnceInit) {
                 base_internal::Invoke(std::forward<Callable>(fn),
                                       std::forward<Args>(args)...);

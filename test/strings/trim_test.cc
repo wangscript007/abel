@@ -135,7 +135,7 @@ TEST(trim_complete, InPlace) {
             "",
             "a\nb",
     };
-    const int NUM_TESTS = ABEL_ARRAYSIZE(inputs);
+    const int NUM_TESTS = ABEL_ARRAY_SIZE(inputs);
 
     for (int i = 0; i < NUM_TESTS; i++) {
         std::string s(inputs[i]);

@@ -708,31 +708,31 @@ namespace abel {
     template<>
     class variant<>;
 
-//------------------------------------------------------------------------------
-// Relational Operators
-//------------------------------------------------------------------------------
-//
-// If neither operand is in the `variant::valueless_by_exception` state:
-//
-//   * If the index of both variants is the same, the relational operator
-//     returns the result of the corresponding relational operator for the
-//     corresponding alternative type.
-//   * If the index of both variants is not the same, the relational operator
-//     returns the result of that operation applied to the value of the left
-//     operand's index and the value of the right operand's index.
-//   * If at least one operand is in the valueless_by_exception state:
-//     - A variant in the valueless_by_exception state is only considered equal
-//       to another variant in the valueless_by_exception state.
-//     - If exactly one operand is in the valueless_by_exception state, the
-//       variant in the valueless_by_exception state is less than the variant
-//       that is not in the valueless_by_exception state.
-//
-// Note: The value 1 is added to each index in the relational comparisons such
-// that the index corresponding to the valueless_by_exception state wraps around
-// to 0 (the lowest value for the index type), and the remaining indices stay in
-// the same relative order.
+    //------------------------------------------------------------------------------
+    // Relational Operators
+    //------------------------------------------------------------------------------
+    //
+    // If neither operand is in the `variant::valueless_by_exception` state:
+    //
+    //   * If the index of both variants is the same, the relational operator
+    //     returns the result of the corresponding relational operator for the
+    //     corresponding alternative type.
+    //   * If the index of both variants is not the same, the relational operator
+    //     returns the result of that operation applied to the value of the left
+    //     operand's index and the value of the right operand's index.
+    //   * If at least one operand is in the valueless_by_exception state:
+    //     - A variant in the valueless_by_exception state is only considered equal
+    //       to another variant in the valueless_by_exception state.
+    //     - If exactly one operand is in the valueless_by_exception state, the
+    //       variant in the valueless_by_exception state is less than the variant
+    //       that is not in the valueless_by_exception state.
+    //
+    // Note: The value 1 is added to each index in the relational comparisons such
+    // that the index corresponding to the valueless_by_exception state wraps around
+    // to 0 (the lowest value for the index type), and the remaining indices stay in
+    // the same relative order.
 
-// Equal-to operator
+    // Equal-to operator
     template<typename... Types>
     constexpr variant_internal::RequireAllHaveEqualT<Types...> operator==(
             const variant<Types...> &a, const variant<Types...> &b) {
@@ -821,7 +821,7 @@ namespace abel {
 // Helper visitor for converting a variant<Ts...>` into another type (mostly
 // variant) that can be constructed from any type.
         template<typename To>
-        struct ConversionVisitor {
+        struct conversion_visitor {
             template<typename T>
             To operator()(T &&v) const {
                 return To(std::forward<T>(v));
@@ -830,24 +830,24 @@ namespace abel {
 
     }  // namespace variant_internal
 
-// convert_variant_to()
-//
-// Helper functions to convert an `abel::variant` to a variant of another set of
-// types, provided that the alternative type of the new variant type can be
-// converted from any type in the source variant.
-//
-// Example:
-//
-//   abel::variant<name1, name2, float> InternalReq(const Req&);
-//
-//   // name1 and name2 are convertible to name
-//   abel::variant<name, float> ExternalReq(const Req& req) {
-//     return abel::convert_variant_to<abel::variant<name, float>>(
-//              InternalReq(req));
-//   }
+    // convert_variant_to()
+    //
+    // Helper functions to convert an `abel::variant` to a variant of another set of
+    // types, provided that the alternative type of the new variant type can be
+    // converted from any type in the source variant.
+    //
+    // Example:
+    //
+    //   abel::variant<name1, name2, float> internal_req(const Req&);
+    //
+    //   // name1 and name2 are convertible to name
+    //   abel::variant<name, float> external_req(const Req& req) {
+    //     return abel::convert_variant_to<abel::variant<name, float>>(
+    //              InternalReq(req));
+    //   }
     template<typename To, typename Variant>
     To convert_variant_to(Variant &&variant) {
-        return abel::visit(variant_internal::ConversionVisitor<To>{},
+        return abel::visit(variant_internal::conversion_visitor<To>{},
                            std::forward<Variant>(variant));
     }
 
